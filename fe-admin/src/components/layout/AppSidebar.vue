@@ -76,7 +76,7 @@ props.navigation.forEach(section => {
                             v-for="item in section.children"
                             :key="item.name"
                             :to="item.href"
-                            class="block px-2 py-2 text-sm text-gray-600 hover:bg-blue-100 transition-colors active:bg-blue-600 w-[200px] ml-10 rounded"
+                            class="block px-2 py-2 text-sm text-gray-600 hover:bg-blue-100 transition-colors active:bg-blue-100 w-[200px] ml-10 rounded"
                             :class="{
                                 'bg-blue-600 text-white font-medium': route.path === item.href
                             }"
