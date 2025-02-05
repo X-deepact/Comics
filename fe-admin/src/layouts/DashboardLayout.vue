@@ -26,15 +26,13 @@ const { navigation } = useNavigation();
                     </router-link>
                     <span class="text-gray-400">/</span>
                     <span class="text-gray-900 capitalize">
-                        {{ route.name?.toString().replace(/-/g, ' ') }}
+                        {{ route.name?.toString().replace(/-/g, ' ') }} 
                     </span>
                 </div>
 
                 <!-- Content area -->
                 <div class="flex-1 w-full px-6 py-6 mt-16">
-                    <div class="max-w-6xl mx-auto w-full">
                         <router-view></router-view>
-                    </div>
                 </div>
             </main>
         </div>
