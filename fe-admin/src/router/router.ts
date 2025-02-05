@@ -1,70 +1,77 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Dashboard from "../views/Dashboard.vue";
-import Login from "../views/Login.vue";
 import { useAuthStore } from "../stores/authStore";
+
+// Layout
+const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
+
+// Views
+const Login = () => import("../views/auth/Login.vue");
+const Dashboard = () => import("../views/Dashboard.vue");
+const Comics = () => import("../views/content/Comics.vue");
+const Subjects = () => import("../views/content/Subjects.vue");
+const Ads = () => import("../views/ads/Ads.vue");
+const Recommendation = () => import("../views/ads/Recommendation.vue");
+const Users = () => import("../views/system/Users.vue");
 
 const routes = [
   { 
     path: "/", 
     redirect: "/dashboard" 
   },
-  // { 
-  //   path: "/login", 
-  //   name: "login",
-  //   component: Login,
-  //   meta: { requiresAuth: false },
-  //   beforeEnter: (to: any, from: any, next: any) => {
-  //     const authStore = useAuthStore();
-  //     if (authStore.token) {
-  //       next('/dashboard');
-  //     } else {
-  //       next();
-  //     }
-  //   }
-  // },
+  { 
+    path: "/login", 
+    name: "login",
+    component: Login,
+  },
   { 
     path: "/dashboard", 
-    name: "dashboard",
-    component: Dashboard,
-    // meta: { requiresAuth: true }
+    component: DashboardLayout,
+    children: [
+      {
+        path: "",
+        name: "dashboard",
+        component: Dashboard,
+      },
+      // Content Management
+      {
+        path: "comics",
+        name: "comics",
+        component: Comics,
+      },
+      {
+        path: "subjects",
+        name: "subjects",
+        component: Subjects,
+      },
+      // Ads and Recommendation
+      {
+        path: "ads",
+        name: "ads",
+        component: Ads,
+      },
+      {
+        path: "recommendation",
+        name: "recommendation",
+        component: Recommendation,
+      },
+      // System Management
+      {
+        path: "users",
+        name: "users",
+        component: Users,
+      },
+    ]
   },
-  // Catch-all route for 404
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/dashboard"
+    name: "not-found",
+    component: () => import("../views/NotFound.vue")
   }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-// Global navigation guard
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
-  const requiresAuth = to.meta.requiresAuth;
-
-  // If route requires auth and no token is present
-  if (requiresAuth && !authStore.token) {
-    next('/login');
-    return;
-  }
-
-  // If route requires auth and token is present, verify token validity
-  if (requiresAuth && authStore.token) {
-    try {
-      await authStore.fetchProfile();
-      next();
-    } catch (error) {
-      authStore.logout();
-      next('/login');
-    }
-    return;
-  }
-
-  // For all other cases, allow navigation
-  next();
 });
 
 export default router;

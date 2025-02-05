@@ -1,0 +1,17 @@
+.i-lucide-user,
+.i-lucide-video,
+.i-lucide-film,
+.i-lucide-bar-chart,
+.i-lucide-log-out,
+.i-lucide-chevron-down,
+.i-lucide-play {
+    background-color: currentColor;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.i-lucide-play {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='5 3 19 12 5 21 5 3'%3E%3C/polygon%3E%3C/svg%3E");
+}
+
+/* ... rest of your icon definitions ... */
