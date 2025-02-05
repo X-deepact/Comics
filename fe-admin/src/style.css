@@ -50,7 +50,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #4c55f8;
+  border-color: #535bf2;
 }
 button:focus,
 button:focus-visible {
@@ -63,7 +63,7 @@ button:focus-visible {
 
 #app {
   /* margin: 0 auto; */
-  text-align: center;
+  /* text-align: center; */
 }
 
 @media (prefers-color-scheme: light) {

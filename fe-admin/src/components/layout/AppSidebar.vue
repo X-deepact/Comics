@@ -69,26 +69,21 @@ props.navigation.forEach(section => {
                     <!-- Section Items -->
                     <div 
                         v-show="!collapsedSections[section.title]"
-                        class="mt-1 space-y-1"
+                        class="mt-1 space-y-1 relative"
                     >
+                        <div class="absolute left-5 top-0 bottom-0 w-px bg-gray-200"></div>
                         <router-link
                             v-for="item in section.children"
                             :key="item.name"
                             :to="item.href"
-                            class="block px-8 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors active:bg-blue-700"
+                            class="block px-2 py-2 text-sm text-gray-600 hover:bg-blue-100 transition-colors active:bg-blue-600 w-[200px] ml-10 rounded"
                             :class="{
-                                'bg-blue-50 text-blue-600 font-medium': route.path === item.href
+                                'bg-blue-600 text-white font-medium': route.path === item.href
                             }"
                         >
                             {{ item.name }}
                         </router-link>
                     </div>
-
-                    <!-- Section Divider -->
-                    <div 
-                        v-if="index < navigation.length - 1" 
-                        class="my-3 border-t border-gray-100"
-                    ></div>
                 </div>
             </div>
         </nav>
