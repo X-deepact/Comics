@@ -39,7 +39,7 @@ const stats = ref([
                 v-for="stat in stats" 
                 :key="stat.name"
                 class="bg-white p-6 rounded-lg border"
-            >
+            >   
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-600">{{ stat.name }}</p>
