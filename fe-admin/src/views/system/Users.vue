@@ -104,6 +104,31 @@
                 </Button>
             </div>
         </div>
+
+        <Dialog v-model:open="showAddModal" class="fixed inset-0 z-50">
+            <DialogContent class="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-white p-6 rounded-lg shadow-lg sm:max-w-[800px] w-full">
+                <button 
+                    class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                    @click="showAddModal = false"
+                >
+                    <X class="h-4 w-4" />
+                    <span class="sr-only">Close</span>
+                </button>
+                <DialogHeader>
+                    <DialogTitle>Add New User</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details for the new user. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="grid gap-4 py-4">
+                    <!-- Add your form fields for new user here -->
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" @click="showAddModal = false">Cancel</Button>
+                    <Button @click="saveNewUser">Save</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
@@ -114,6 +139,8 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { ref, computed } from 'vue'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { X } from 'lucide-vue-next'
 
 const searchQuery = ref('')
 const users = ref([
@@ -169,8 +196,17 @@ const handlePageChange = (page) => {
     currentPage.value = page
 }
 
+const showAddModal = ref(false)
+
 const handleNewUser = () => {
-    console.log('New User')
+    showAddModal.value = true
+}
+
+const saveNewUser = () => {
+    // Add your logic to save the new user here
+    console.log('Saving new user')
+    // Reset form and close modal
+    showAddModal.value = false
 }
 
 // New method to handle page size changes

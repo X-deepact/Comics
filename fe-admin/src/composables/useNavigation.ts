@@ -48,7 +48,8 @@ export function useNavigation() {
                     active: route.path === '/dashboard/users'
                 }
             ]
-        }
+        },
+            
     ]);
 
     return {

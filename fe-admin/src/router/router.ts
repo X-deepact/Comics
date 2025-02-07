@@ -11,6 +11,7 @@ const Comics = () => import("../views/content/Comics.vue");
 const Subjects = () => import("../views/content/Subjects.vue");
 const Ads = () => import("../views/ads/Ads.vue");
 const Recommendation = () => import("../views/ads/Recommendation.vue");
+const Profile = () => import("../views/profile/Profile.vue")
 const Users = () => import("../views/system/Users.vue");
 
 const routes = [
@@ -59,6 +60,12 @@ const routes = [
         path: "users",
         name: "users",
         component: Users,
+      },
+      // Profile
+      {
+        path: "profile",
+        name: "profile",
+        component: Profile,
       },
     ]
   },

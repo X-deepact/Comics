@@ -1,10 +1,18 @@
 <template>
     <div class="p-8">
-        <h1 class="text-2xl font-semibold mb-6">Recommendation Management</h1>
-        
-        <!-- Add Recommendation Button -->
-        <div class="flex justify-between items-center mb-4">
-            <Button @click="handleAdd" class="bg-blue-500 hover:bg-blue-600 text-white">Add Recommendation</Button>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold">Recommendation Management</h1>
+            <Button @click="handleAdd" class="bg-blue-500 hover:bg-blue-600 text-white">Add</Button>
+        </div>
+
+        <div class="flex justify-between items-center mb-4 gap-4">
+            <div class="flex items-center gap-2">
+                <Input 
+                    v-model="searchQuery"
+                    placeholder="Search title..."
+                    class="w-[280px]"
+                />
+            </div>
             <div class="flex items-center gap-4">
                 <Select v-model="pageSize">
                     <SelectTrigger class="w-[120px]">
@@ -34,7 +42,7 @@
                 </TableRow>
             </TableHeader>
             <TableBody>
-                <TableRow v-for="(recommendation, index) in recommendations" :key="index">
+                <TableRow v-for="(recommendation, index) in filteredRecommendations" :key="index">
                     <TableCell>{{ index + 1 }}</TableCell>
                     <TableCell>{{ recommendation.title }}</TableCell>
                     <TableCell>{{ recommendation.author }}</TableCell>
@@ -57,11 +65,11 @@
                 </TableRow>
             </TableBody>
         </Table>
-        
+
         <!-- Pagination -->
         <div class="flex items-center justify-between mt-4">
             <div class="text-sm text-gray-500">
-                Total {{ totalItems }} items
+                Total {{ filteredRecommendations.length }} items
             </div>
             <div class="flex items-center gap-2">
                 <Button 
@@ -95,7 +103,76 @@
             </div>
         </div>
 
-        <!-- Add your content here -->
+        <!-- Add your modal here -->
+        <Dialog v-model:open="showAddModal" class="fixed inset-0 z-50">
+            <DialogContent class="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-white p-6 rounded-lg shadow-lg sm:max-w-[800px] w-full">
+                <button 
+                    class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                    @click="showAddModal = false"
+                >
+                    <X class="h-4 w-4" />
+                    <span class="sr-only">Close</span>
+                </button>
+                <DialogHeader>
+                    <DialogTitle>Add New Recommendation</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details for the new recommendation. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="grid gap-4 py-4">
+                    <div class="grid grid-cols-2 gap-4">
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-4 items-center gap-4">
+                                <Label class="text-right">Title</Label>
+                                <Input v-model="newRecommendation.title" class="col-span-3" />
+                            </div>
+                            <div class="grid grid-cols-4 items-center gap-4">
+                                <Label class="text-right">Author</Label>
+                                <Input v-model="newRecommendation.author" class="col-span-3" />
+                            </div>
+                            <div class="grid grid-cols-4 items-center gap-4">
+                                <Label class="text-right">Language</Label>
+                                <div class="col-span-3">
+                                    <Select v-model="newRecommendation.language">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select language" />
+                                        </SelectTrigger>
+                                        <SelectContent class="bg-white">
+                                            <SelectItem value="en">English</SelectItem>
+                                            <SelectItem value="zh">Chinese</SelectItem>
+                                            <SelectItem value="vi">Vietnamese</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-4 items-center gap-4">
+                                <Label class="text-right">Cover Image</Label>
+                                <Input type="file" @change="handleFileUpload" class="col-span-3" />
+                            </div>
+                        </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-4 items-center gap-4">
+                            <Label class="text-right">Display Start At</Label>
+                            <Input type="datetime-local" v-model="newRecommendation.displayStartAt" class="col-span-3" />
+                        </div>
+                        <div class="grid grid-cols-4 items-center gap-4">
+                            <Label class="text-right">Display End At</Label>
+                            <Input type="datetime-local" v-model="newRecommendation.displayEndAt" class="col-span-3" />
+                        </div>
+                        <div class="grid grid-cols-4 items-center gap-4">
+                            <Label class="text-right">Position</Label>
+                            <Input v-model="newRecommendation.position" class="col-span-3" />
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" @click="showAddModal = false">Cancel</Button>
+                    <Button @click="saveNewRecommendation">Save</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
@@ -104,6 +181,10 @@ import { ref, computed } from 'vue'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { X } from 'lucide-vue-next'
+import { Label } from '@/components/ui/label'
 
 const recommendations = ref([
     {
@@ -135,9 +216,16 @@ const recommendations = ref([
 
 const currentPage = ref(1)
 const pageSize = ref('10')
+const searchQuery = ref('')
 const totalItems = ref(recommendations.value.length) // Total count of recommendations
 
-const totalPages = computed(() => Math.ceil(totalItems.value / parseInt(pageSize.value)))
+const filteredRecommendations = computed(() => {
+    return recommendations.value.filter(recommendation => 
+        recommendation.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+})
+
+const totalPages = computed(() => Math.ceil(filteredRecommendations.value.length / parseInt(pageSize.value)))
 
 const displayedPages = computed(() => {
     const pages = []
@@ -169,8 +257,34 @@ const handleDelete = (recommendation) => {
     console.log('Delete:', recommendation.title)
 }
 
+const showAddModal = ref(false)
+const newRecommendation = ref({
+    title: '',
+    author: '',
+    cover: '',
+    displayStartAt: '',
+    displayEndAt: '',
+    position: '',
+    // Add other fields as necessary
+})
+
 const handleAdd = () => {
-    console.log('Add new recommendation')
-    // Logic to open a modal or form to add a new recommendation
+    showAddModal.value = true
+}
+
+const saveNewRecommendation = () => {
+    console.log('Saving new recommendation:', newRecommendation.value)
+    // Logic to save the new recommendation
+    // Reset form and close modal
+    newRecommendation.value = {
+        title: '',
+        author: '',
+        cover: '',
+        displayStartAt: '',
+        displayEndAt: '',
+        position: '',
+        // Reset other fields as necessary
+    }
+    showAddModal.value = false
 }
 </script> 
