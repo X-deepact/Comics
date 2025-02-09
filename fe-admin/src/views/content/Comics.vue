@@ -65,13 +65,14 @@
                     </TableCell>
                     <TableCell>{{ comic.progress }}</TableCell>
                     <TableCell>
-                        <Switch 
-                            v-model="comic.status" 
-                            @update:modelValue="handleStatusChange(comic)"
-                            class="data-[state=checked]:bg-primary"
-                        >
-                            <span class="sr-only">Toggle status</span>
-                        </Switch>
+                        <label class="switch">
+                            <input 
+                                type="checkbox" 
+                                v-model="comic.status" 
+                                @change="handleStatusChange(comic)"
+                            />
+                            <span class="slider"></span>
+                        </label>
                     </TableCell>
                     <TableCell>
                         <div class="flex space-x-2">
@@ -449,7 +450,8 @@ const handleCoverUpload = (event) => {
 }
 
 const handleStatusChange = (comic) => {
-    console.log('Status changed:', comic.title, comic.status)
+    console.log('Status change triggered');
+    console.log('Comic:', comic.title, 'New Status:', comic.status);
 }
 
 watch(newComic.subject, (newValue) => {
@@ -458,3 +460,50 @@ watch(newComic.subject, (newValue) => {
 
 const availableSubjects = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Romance', 'Sci-Fi', 'Thriller'];
 </script>
+
+<style scoped>
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    /* left: 1px; */
+    bottom: 1px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+</style>
