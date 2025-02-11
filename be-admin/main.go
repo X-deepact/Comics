@@ -3,6 +3,7 @@ package main
 import (
 	"comics-admin/api"
 	"comics-admin/db"
+	_ "comics-admin/docs"
 	config "comics-admin/util"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -15,6 +16,14 @@ import (
 	"syscall"
 )
 
+// @title          			   Admin Comics API Documentation
+// @version         		   1.0
+// @description     		   Swagger Admin Comics API Documentation.
+// @host            		   localhost:8080
+// @BasePath       			   /
+// @securityDefinitions.apikey BearerAuth
+// @in                         header
+// @name                       Authorization
 func main() {
 	conf, err := config.LoadConfig("./config")
 
@@ -30,14 +39,14 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to connect to the database")
 	}
 
-	err = db.RunMigrations(database)
-	if err != nil {
-		log.Printf("Failed to close database connection: %v", err)
-		return
-	}
 	fmt.Println("Successfully connected to the database!")
 
 	store := db.NewStore(database)
+
+	if err := config.InitFolder(conf); err != nil {
+		log.Printf("Failed to initialize directory: %v", err)
+		return
+	}
 
 	go runHttpServer(store, conf)
 

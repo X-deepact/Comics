@@ -11,21 +11,21 @@ const Comics = () => import("../views/content/Comics.vue");
 const Subjects = () => import("../views/content/Subjects.vue");
 const Ads = () => import("../views/ads/Ads.vue");
 const Recommendation = () => import("../views/ads/Recommendation.vue");
-const Profile = () => import("../views/profile/Profile.vue")
+const Profile = () => import("../views/profile/Profile.vue");
 const Users = () => import("../views/system/Users.vue");
 
 const routes = [
-  { 
-    path: "/", 
-    redirect: "/dashboard" 
+  {
+    path: "/",
+    redirect: "/dashboard",
   },
-  { 
-    path: "/login", 
+  {
+    path: "/login",
     name: "login",
     component: Login,
   },
-  { 
-    path: "/dashboard", 
+  {
+    path: "/dashboard",
     component: DashboardLayout,
     children: [
       {
@@ -67,18 +67,25 @@ const routes = [
         name: "profile",
         component: Profile,
       },
-    ]
+    ],
   },
   {
     path: "/:pathMatch(.*)*",
     name: "not-found",
-    component: () => import("../views/NotFound.vue")
-  }
+    component: () => import("../views/NotFound.vue"),
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+  const publicPages = ["/login"];
+  const authRequired = !publicPages.includes(to.path);
+  if (authRequired && !authStore.user) {
+    return "/login";
+  }
+});
 export default router;

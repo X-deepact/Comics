@@ -29,24 +29,29 @@ const login = async () => {
 </script>
 
 <template>
-  <Card
-    style="width: 20rem; overflow: hidden"
-    className="bg-gray-100 rounded-lg shadow-lg"
-  >
-    <template #title>Login</template>
-    <template #content>
-      <div className="flex flex-col gap-5">
-        <Toast />
-        <InputText v-model="username" type="text" placeholder="Username" />
-        <InputText v-model="password" type="text" placeholder="Password" />
-        <Button
-          type="submit"
-          severity="secondary"
-          label="Login"
-          className="bg-blue-500"
-          @click="login"
-        ></Button>
-      </div>
-    </template>
-  </Card>
+  <div class="flex items-center justify-center min-h-screen">
+    <Card
+      className="justify-self-center bg-gray-100 rounded-lg shadow-lg w-[20rem]"
+    >
+      <template #title>Login</template>
+      <template #content>
+        <div className="flex flex-col gap-5">
+          <Toast />
+          <InputText v-model="username" type="text" placeholder="Username" />
+          <InputText
+            v-model="password"
+            type="password"
+            placeholder="Password"
+          />
+          <Button
+            type="submit"
+            severity="secondary"
+            label="Login"
+            className="bg-blue-500"
+            @click="login"
+          ></Button>
+        </div>
+      </template>
+    </Card>
+  </div>
 </template>

@@ -17,8 +17,19 @@ type DatabaseConfig struct {
 	AccessTokenDuration     time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
+type ApiFileConfig struct {
+	Url string `mapstructure:"URL"`
+}
+
+type FileStorageConfig struct {
+	RootFolder   string `mapstructure:"ROOT_FOLDER"`
+	AvatarFolder string `mapstructure:"AVATAR_FOLDER"`
+}
+
 type Config struct {
-	Source DatabaseConfig `mapstructure:"database"`
+	Source      DatabaseConfig    `mapstructure:"database"`
+	ApiFile     ApiFileConfig     `mapstructure:"api_file"`
+	FileStorage FileStorageConfig `mapstructure:"file_storage"`
 }
 
 // LoadConfig loads the configuration from the specified path

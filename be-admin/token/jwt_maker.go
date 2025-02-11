@@ -16,6 +16,7 @@ type JWTMaker struct {
 
 type Claims struct {
 	jwt.RegisteredClaims
+	UserID int64 `json:"user_id"`
 }
 
 func NewJWTMaker(secretKey string) (Maker, error) {
@@ -26,20 +27,32 @@ func NewJWTMaker(secretKey string) (Maker, error) {
 
 	return &JWTMaker{secretKey}, nil
 }
-func (j *JWTMaker) CreateToken(username string, role string, duration time.Duration) (string, *Payload, error) {
+func (j *JWTMaker) CreateToken(userID int64, username string, role string, duration time.Duration) (string, *Payload, error) {
 
-	payload, err := NewPayload(username, role, duration)
+	payload, err := NewPayload(userID, username, role, duration)
 
 	if err != nil {
 		return "", payload, err
 	}
 
-	claims := &jwt.RegisteredClaims{
-		ID:        payload.ID.String(),
-		Issuer:    payload.Username,
-		Subject:   payload.Role,
-		ExpiresAt: jwt.NewNumericDate(payload.ExpiredAt),
-		IssuedAt:  jwt.NewNumericDate(payload.IssuedAt),
+	/*
+		claims := &jwt.RegisteredClaims{
+			ID:        payload.ID.String(),
+			Issuer:    payload.Username,
+			Subject:   payload.Role,
+			ExpiresAt: jwt.NewNumericDate(payload.ExpiredAt),
+			IssuedAt:  jwt.NewNumericDate(payload.IssuedAt),
+		}
+	*/
+	claims := &Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        payload.ID.String(),
+			Issuer:    payload.Username,
+			Subject:   payload.Role,
+			ExpiresAt: jwt.NewNumericDate(payload.ExpiredAt),
+			IssuedAt:  jwt.NewNumericDate(payload.IssuedAt),
+		},
+		UserID: payload.UserID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -86,6 +99,7 @@ func (j *JWTMaker) VerifyToken(tokenID string) (*Payload, error) {
 
 		payload := &Payload{
 			ID:        ID,
+			UserID:    claim.UserID,
 			Username:  claim.Issuer,
 			Role:      claim.Subject,
 			IssuedAt:  claim.IssuedAt.Time,

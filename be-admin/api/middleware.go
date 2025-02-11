@@ -47,6 +47,8 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		}
 
 		ctx.Set(s.config.Source.AuthorizationPayloadKey, payload)
+		ctx.Set("user_id", payload.UserID)
+		ctx.Set("username", payload.Username)
 		ctx.Next()
 	}
 }

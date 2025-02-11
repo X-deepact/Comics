@@ -1,0 +1,535 @@
+basePath: /
+definitions:
+  dto.ComicRequest:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      code:
+        type: string
+      cover:
+        type: string
+      description:
+        type: string
+      language:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  dto.ComicResponse:
+    properties:
+      active:
+        type: boolean
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.ComicUpdateRequest:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      code:
+        type: string
+      cover:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      title:
+        type: string
+    required:
+    - id
+    type: object
+  dto.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.GenreCreateRequest:
+    properties:
+      language:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+    required:
+    - language
+    - name
+    - position
+    type: object
+  dto.GenreResponse:
+    properties:
+      created_at:
+        type: string
+      created_by_name:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+      updated_at:
+        type: string
+      updated_by_name:
+        type: string
+    type: object
+  dto.GenreUpdateRequest:
+    properties:
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+    required:
+    - id
+    - language
+    - name
+    - position
+    type: object
+  dto.LoginRequest:
+    properties:
+      password:
+        minLength: 7
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.UserResponse:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password_changed_at:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Swagger Admin Comics API Documentation.
+  title: Admin Comics API Documentation
+  version: "1.0"
+paths:
+  /api/comic/comic/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a comic by ID
+      parameters:
+      - description: Comic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a comic
+      tags:
+      - comics
+  /api/comic/comics:
+    get:
+      consumes:
+      - application/json
+      description: List all comics
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ComicResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List comics
+      tags:
+      - comics
+  /api/comic/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new comic with the provided details
+      parameters:
+      - description: Comic Request
+        in: body
+        name: comic
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ComicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new comic
+      tags:
+      - comics
+  /api/comic/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comic by ID
+      parameters:
+      - description: Comic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a comic
+      tags:
+      - comics
+  /api/comic/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a comic with the provided details
+      parameters:
+      - description: Comic Update Request
+        in: body
+        name: comic
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ComicUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a comic
+      tags:
+      - comics
+  /api/genre:
+    get:
+      consumes:
+      - application/json
+      description: List all genre
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Language
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.GenreResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List genres
+      tags:
+      - genres
+    post:
+      consumes:
+      - application/json
+      description: Create a new genre
+      parameters:
+      - description: Genre Request
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenreCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenreResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new genre
+      tags:
+      - genres
+    put:
+      consumes:
+      - application/json
+      description: Update a new genre
+      parameters:
+      - description: Genre Request
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenreUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenreResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a new genre
+      tags:
+      - genres
+  /api/genre/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a genre by ID
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a genre
+      tags:
+      - genres
+    get:
+      consumes:
+      - application/json
+      description: Get a genre by ID
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenreResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a genre
+      tags:
+      - genres
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates the user and returns a JWT token
+      parameters:
+      - description: User Login Data
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Invalid request
+      summary: Login
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -13,6 +13,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"os"
 )
 
@@ -57,6 +59,12 @@ func (s *Server) Start(address string) error {
 func (s *Server) setUpRouter() {
 	router := gin.Default()
 
+	// Swagger route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	fileH := router.Group("/api/file")
+	fileH.Static("/", s.config.FileStorage.RootFolder)
+
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	router.Use(cors.New(corsConfig))
@@ -70,8 +78,13 @@ func (s *Server) setUpRouter() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 
-	router.POST("/register", s.register)
-	router.POST("/login", s.login)
+	s.router = router
+
+	s.userRouter()
+	s.comicRouter()
+	s.genreRouter()
+	//router.POST("/register", s.register)
+	//router.POST("/login", s.login)
 
 	//authRoutes := router.Group("/").Use(s.authMiddleware(s.tokenMaker))
 
@@ -81,7 +94,7 @@ func (s *Server) setUpRouter() {
 		authRoutes.DELETE("/comic/:id", s.deleteSiteItem)
 		authRoutes.DELETE("/comics", s.deleteAllSiteItems)
 	*/
-	s.router = router
+	//s.router = router
 }
 
 func errorResponse(err error) gin.H {

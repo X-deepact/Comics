@@ -1,8 +1,8 @@
 package config
 
 const (
-	ADMIN = "admin"
-	USER  = "user"
+	ADMIN = "Admin"
+	USER  = "User"
 )
 
 func IsSupportedRoles(role string) bool {

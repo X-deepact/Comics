@@ -1,30 +1,37 @@
 package api
 
 import (
-	"comics-admin/db"
 	"comics-admin/dto"
 	config "comics-admin/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"pkg-common/model"
+	"strings"
 )
 
-func newUserResponse(user *db.User) dto.UserResponse {
+func newUserResponse(user *dto.UserModel) dto.UserResponse {
 	return dto.UserResponse{
 		Username:  user.Username,
 		Email:     user.Email,
 		FullName:  user.FullName,
-		Role:      string(user.Role),
-		IsActive:  user.IsActive,
+		Active:    user.Active,
 		CreatedAt: user.CreatedAt,
+		Role:      user.RoleName,
 	}
+}
+
+func (s *Server) userRouter() {
+	group := s.router.Group("api/user")
+
+	group.POST("/register", s.register)
+	group.POST("/login", s.login)
+
+	group.POST("/upload-avatar", s.saveAvatar)
 }
 
 func (s *Server) register(ctx *gin.Context) {
 	var req dto.UserRequest
-
-	req.IsActive = true
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -42,13 +49,15 @@ func (s *Server) register(ctx *gin.Context) {
 		return
 	}
 
-	arg := &db.User{
-		Username: req.Username,
-		Password: hashPassword,
-		Email:    req.Email,
-		FullName: req.FullName,
-		Role:     db.UsersRole(req.Role),
-		IsActive: req.IsActive,
+	arg := &model.UserModel{
+		Username:     req.Username,
+		HashPassword: hashPassword,
+		Email:        req.Email,
+		Phone:        req.Phone,
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		FullName:     strings.Join(strings.Fields(req.FirstName+" "+req.LastName), " "),
+		Active:       true,
 	}
 
 	err = s.store.CreateUser(arg)
@@ -59,16 +68,42 @@ func (s *Server) register(ctx *gin.Context) {
 	}
 
 	user, err := s.store.GetUser(arg.Username)
-
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	roleAdmin, err := s.store.GetRole(config.ADMIN)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	userRole := &model.UserRoleModel{
+		UserId: user.Id,
+		RoleId: roleAdmin.Id,
+	}
+
+	err = s.store.CreateUserRole(userRole)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
 	res := newUserResponse(user)
 
 	ctx.JSON(http.StatusOK, res)
 }
 
+// @Summary Login
+// @Description Authenticates the user and returns a JWT token
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param login body dto.LoginRequest true "User Login Data"
+// @Success 200 {object} dto.LoginResponse "Login successful"
+// @Failure 400  "Invalid request"
+// @Router /api/user/login [post]
 func (s *Server) login(ctx *gin.Context) {
 	var req dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -82,15 +117,14 @@ func (s *Server) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
-	err = config.CheckPassword(req.Password, user.Password)
+	err = config.CheckPassword(req.Password, user.HashPassword)
 
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	accessToken, accessPayload, err := s.tokenMaker.CreateToken(req.Username, string(user.Role), s.config.Source.AccessTokenDuration)
-
+	accessToken, accessPayload, err := s.tokenMaker.CreateToken(user.Id, req.Username, user.RoleName, s.config.Source.AccessTokenDuration)
 	fmt.Printf("%s", accessToken)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -103,4 +137,21 @@ func (s *Server) login(ctx *gin.Context) {
 		User:                 newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, res)
+}
+
+func (s *Server) saveAvatar(ctx *gin.Context) {
+	file, _ := ctx.FormFile("avatar")
+	fileLink := ""
+
+	if file != nil {
+		fileName, err := config.SaveImage(file, s.config.FileStorage.AvatarFolder)
+		if err != nil {
+			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			return
+		}
+
+		fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, fileName)
+	}
+
+	ctx.JSON(http.StatusOK, fileLink)
 }
