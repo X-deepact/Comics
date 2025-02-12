@@ -10,7 +10,7 @@
             @update:pageSize="pageSize = $event"
         />
         
-        <Table 
+        <TableComponent 
             :subjects="paginatedComics" 
             :columns="columns"
             @edit="handleEdit" 
@@ -167,43 +167,93 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import Component from '@/lib/Component.vue'
-import Table from '@/lib/Table.vue'
-import Pagination from '@/lib/Pagination.vue'
-import Modal from '@/lib/Modal.vue'
-import { Label } from '@/components/ui/label'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { ref, computed, watch } from 'vue'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-
-const comics = ref([
-    {
-        title: 'The Hulk',
-        author: 'Stan Lee',
-        cover: 'https://avatars.githubusercontent.com/u/186627792?v=4',
-        introduction: 'At the end of the 1960s...',
-        updateTime: '2014-12-24 23:12:00',
-        subject: ['Action', 'Adventure'],
-        progress: 'ongoing',
-        status: true,
-        audience: 'all'
-    }
-    // Add more comic data as needed
-])
-
-const columns = ref([
-    { key: 'title', label: 'Title' },
-    { key: 'author', label: 'Author' },
-    { key: 'updateTime', label: 'Update Time' },
-    { key: 'progress', label: 'Progress' },
-    { key: 'audience', label: 'Audience' }
-])
+import { X } from 'lucide-vue-next'
+import Component from '@/lib/Component.vue'
+import TableComponent from '@/lib/Table.vue'
+import Pagination from '@/lib/Pagination.vue'
+import Modal from '@/lib/Modal.vue'
 
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref('10')
+const totalItems = ref(100) // Replace with actual total count
+
+const comics = ref([
+    {
+        title: 'The hulk',
+        author: 'Stan lee',
+        cover: 'https://avatars.githubusercontent.com/u/186627792?v=4',
+        introduction: 'At the end of the 1960s...',
+        updateTime: '2014-12-24 23:12:00',
+        subject: ['suspense', 'thriller'],
+        progress: 'ongoing',
+        status: true,
+        isOnline: true
+    }
+    // Add more comic data as needed
+])
+
+const totalPages = computed(() => Math.ceil(totalItems.value / parseInt(pageSize.value)))
+
+const displayedPages = computed(() => {
+    const pages = []
+    const maxVisiblePages = 7
+    
+    if (totalPages.value <= maxVisiblePages) {
+        // If total pages is less than max visible, show all pages
+        for (let i = 1; i <= totalPages.value; i++) {
+            pages.push(i)
+        }
+    } else {
+        // Always show first page
+        pages.push(1)
+        
+        if (currentPage.value > 3) {
+            pages.push('...')
+        }
+        
+        // Calculate middle pages
+        let start = Math.max(2, currentPage.value - 1)
+        let end = Math.min(totalPages.value - 1, currentPage.value + 1)
+        
+        // Adjust if near the beginning or end
+        if (currentPage.value <= 3) {
+            end = 4
+        }
+        if (currentPage.value >= totalPages.value - 2) {
+            start = totalPages.value - 3
+        }
+        
+        for (let i = start; i <= end; i++) {
+            pages.push(i)
+        }
+        
+        if (currentPage.value < totalPages.value - 2) {
+            pages.push('...')
+        }
+        
+        // Always show last page
+        pages.push(totalPages.value)
+    }
+    
+    return pages
+})
+
 const showAddModal = ref(false)
+const languages = [
+    { value: 'en', label: 'English' },
+    { value: 'zh', label: 'Chinese' },
+    { value: 'vi', label: 'Vietnamese' },
+]
 const newComic = ref({
     title: '',
     author: '',
@@ -217,75 +267,7 @@ const newComic = ref({
     audience: ''
 })
 
-const filteredComics = computed(() => {
-    return comics.value.filter(comic => 
-        comic.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-})
-
-const totalPages = computed(() => Math.ceil(filteredComics.value.length / parseInt(pageSize.value)))
-
-const paginatedComics = computed(() => {
-    const start = (currentPage.value - 1) * parseInt(pageSize.value)
-    return filteredComics.value.slice(start, start + parseInt(pageSize.value))
-})
-
-const displayedPages = computed(() => {
-    const pages = []
-    for (let i = 1; i <= totalPages.value; i++) {
-        pages.push(i)
-    }
-    return pages
-})
-
-const handleAdd = () => {
-    newComic.value = {
-        title: '',
-        author: '',
-        introduction: '',
-        subject: [],
-        language: '',
-        progress: '',
-        status: true,
-        cover: null,
-        updateTime: '',
-        audience: ''
-    }
-    showAddModal.value = true
-}
-
-const saveNewComic = () => {
-    comics.value.push({ ...newComic.value })
-    showAddModal.value = false
-}
-
-const handleEdit = (comic) => {
-    console.log('Edit:', comic.title)
-}
-
-const handleDelete = (comic) => {
-    comics.value = comics.value.filter(c => c.title !== comic.title)
-    console.log('Delete:', comic.title)
-}
-
-const handleCoverUpload = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            newComic.value.cover = e.target.result
-        }
-        reader.readAsDataURL(file)
-    }
-}
-
-const availableSubjects = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Romance', 'Sci-Fi', 'Thriller']
-
-const languages = [
-    { value: 'en', label: 'English' },
-    { value: 'zh', label: 'Chinese' },
-    { value: 'vi', label: 'Vietnamese' },
-]
+const countries = ref([])
 
 const languageSearchQuery = ref('')
 const debounceTimeout = ref(null)
@@ -304,14 +286,108 @@ const filteredCountries = computed(() => {
     )
 })
 
+// Debounce function
 const handleSearchInput = (event) => {
     clearTimeout(debounceTimeout.value)
     debounceTimeout.value = setTimeout(() => {
         languageSearchQuery.value = event.target.value
-    }, 300)
+    }, 300) // Adjust the delay as needed
+}
+
+const handleAdd = () => {
+    showAddModal.value = true
+}
+
+const handleChapters = (comic) => {
+    console.log('Chapters for:', comic.title)
+}
+
+const handleEdit = (comic) => {
+    console.log('Edit:', comic.title)
+}
+
+const handleDelete = (comic) => {
+    console.log('Delete:', comic.title)
+}
+
+const saveNewComic = async () => {
+    // Prepare the comic data for the API request
+    const comicData = {
+        active: true,
+        audience: newComic.value.audience,
+        code: '', // Add logic to generate or assign a code if necessary
+        cover: newComic.value.cover,
+        description: newComic.value.introduction,
+        language: newComic.value.language,
+        title: newComic.value.title
+    };
+
+    try {
+        // Make the API call to create a new comic
+        const response = await fetch('http://localhost:8080/api/comic/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(comicData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create comic');
+        }
+
+        const result = await response.json();
+        console.log('Comic created successfully:', result);
+        
+        // Reset form and close modal
+        newComic.value = {
+            title: '',
+            author: '',
+            introduction: '',
+            subject: [],
+            language: '',
+            progress: '',
+            status: true,
+            cover: null,
+            updateTime: '',
+            audience: ''
+        };
+        showAddModal.value = false;
+    } catch (error) {
+        console.error('Error creating comic:', error);
+        // Handle error (e.g., show a notification to the user)
+    }
+}
+
+const handleCoverUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            newComic.value.cover = e.target.result
+        }
+        reader.readAsDataURL(file)
+    }
+}
+
+const handleStatusChange = (comic) => {
+    console.log('Status changed:', comic.title, comic.status)
 }
 
 watch(newComic.subject, (newValue) => {
-    console.log('Selected subjects:', newValue)
+    console.log('Selected subjects:', newValue);
+});
+
+const availableSubjects = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Romance', 'Sci-Fi', 'Thriller'];
+
+const filteredComics = computed(() => {
+    return comics.value.filter(comic => 
+        comic.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+})
+
+const paginatedComics = computed(() => {
+    const start = (currentPage.value - 1) * parseInt(pageSize.value)
+    return filteredComics.value.slice(start, start + parseInt(pageSize.value))
 })
 </script>
