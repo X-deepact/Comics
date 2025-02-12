@@ -6,11 +6,17 @@ import (
 )
 
 type Querier interface {
-	CreateUser(user *model.UserModel) error
-	GetUser(username string) (*dto.UserModel, error)
-	DeleteUser(username string) error
-	UpdateUser(user *model.UserModel) error
-	GetUserByUsername(username string) (*model.UserModel, error)
+	// Users
+	CreateUser(user *dto.UserModel) error
+	GetUserLogin(username string) (*dto.UserLoginResponse, error)
+	GetUser(id int64) (*dto.UserDetailDto, error)
+	GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64, error)
+	DeleteUser(id int64, adminId int64) error
+	UpdateUser(user *dto.UserModel) error
+	CheckUserExist(username string, phone string, email string) (*dto.UserExistDto, error)
+	CheckUserExistNotMe(id int64, username string, phone string, email string) (*dto.UserExistDto, error)
+	GetUserData(id int64) (*dto.UserModel, error)
+	ActiveUser(id int64, adminId int64) error
 
 	// Comics
 	CreateComic(comic *model.ComicModel) error
@@ -31,6 +37,9 @@ type Querier interface {
 
 	// UserRoles
 	CreateUserRole(userRole *model.UserRoleModel) error
+
+	// Tiers
+	GetTiers(code string) (*model.TierModel, error)
 }
 
 var _ Querier = (*Queries)(nil)

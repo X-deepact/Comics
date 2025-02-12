@@ -18,6 +18,7 @@ func (s *Server) comicRouter() {
 	group.GET("/comics", s.listComics)
 	group.PUT("/update", s.updateComic)
 	group.DELETE("/delete/:id", s.deleteComic)
+	group.POST("/upload-cover", s.saveCover)
 }
 
 // @Summary Create a new comic
@@ -267,4 +268,37 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Comic successfully deleted"})
+}
+
+// @Summary Upload a comic cover
+// @Description Upload a comic cover image
+// @Tags comics
+// @Accept multipart/form-data
+// @Produce json
+// @Param cover formData file true "Comic Cover Image"
+// @Security     BearerAuth
+// @Success 200 {string} "file link"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Router /api/comic/upload-cover [post]
+func (s *Server) saveCover(ctx *gin.Context) {
+	file, err := ctx.FormFile("cover")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	fileLink := ""
+
+	if file != nil {
+		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
+		if err != nil {
+			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			return
+		}
+
+		fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, fileName)
+	}
+
+	ctx.JSON(http.StatusOK, fileLink)
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/rs/zerolog/log"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"net/http"
 	"os"
 )
 
@@ -61,6 +62,11 @@ func (s *Server) setUpRouter() {
 
 	// Swagger route
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: s.config.Web.AllowedOrigins, // Allowed domains
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
+	}))
 
 	fileH := router.Group("/api/file")
 	fileH.Static("/", s.config.FileStorage.RootFolder)

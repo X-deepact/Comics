@@ -10,6 +10,10 @@ type ComicRequest struct {
 	Audience    string `json:"audience"`
 }
 
+type ComicListRequest struct {
+	ListRequest
+}
+
 type ComicResponse struct {
 	ID          int64  `json:"id"`
 	Name        string `json:"title"`

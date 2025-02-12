@@ -136,21 +136,78 @@ definitions:
       access_token_expires_at:
         type: string
       user:
-        $ref: '#/definitions/dto.UserResponse'
+        $ref: '#/definitions/dto.UserDetailDto'
+    type: object
+  dto.UserDetailDto:
+    properties:
+      active:
+        type: boolean
+      avatar:
+        type: string
+      birthday:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone:
+        type: string
+      role_name:
+        type: string
+      tier_code:
+        type: string
+      tier_id:
+        type: integer
+      username:
+        type: string
     type: object
   dto.UserResponse:
     properties:
       active:
         type: boolean
+      avatar:
+        type: string
+      birthday:
+        type: string
       created_at:
+        type: string
+      created_by_name:
+        type: string
+      description:
+        type: string
+      display_name:
         type: string
       email:
         type: string
+      first_name:
+        type: string
       full_name:
         type: string
-      password_changed_at:
+      id:
+        type: integer
+      last_name:
         type: string
-      role:
+      phone:
+        type: string
+      role_name:
+        type: string
+      tier_code:
+        type: string
+      tier_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by_name:
         type: string
       username:
         type: string
@@ -330,6 +387,33 @@ paths:
       summary: Update a comic
       tags:
       - comics
+  /api/comic/upload-cover:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a comic cover image
+      parameters:
+      - description: Comic Cover Image
+        in: formData
+        name: cover
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload a comic cover
+      tags:
+      - comics
   /api/genre:
     get:
       consumes:
@@ -503,6 +587,308 @@ paths:
       summary: Get a genre
       tags:
       - genres
+  /api/user:
+    get:
+      consumes:
+      - application/json
+      description: List all user
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Username
+        in: query
+        name: username
+        type: string
+      - description: Phone
+        in: query
+        name: phone
+        type: string
+      - description: Email
+        in: query
+        name: email
+        type: string
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Display name
+        in: query
+        name: display_name
+        type: string
+      - description: Tier ID
+        in: query
+        name: tier_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.UserResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: Username (Alphanumeric)
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phone
+        type: string
+      - description: Email Address
+        in: formData
+        name: email
+        type: string
+      - description: Birthday (YYYY-MM-DD)
+        in: formData
+        name: birthday
+        type: string
+      - description: 'Password (Min: 7 chars)'
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: First Name
+        in: formData
+        name: first_name
+        type: string
+      - description: Last Name
+        in: formData
+        name: last_name
+        type: string
+      - description: Display Name
+        in: formData
+        name: display_name
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        type: string
+      - description: Avatar File
+        in: formData
+        name: avatar
+        type: file
+      - description: Tier ID
+        in: formData
+        name: tier_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserDetailDto'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a new user
+      parameters:
+      - description: ID
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: Username (Alphanumeric)
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phone
+        type: string
+      - description: Email Address
+        in: formData
+        name: email
+        type: string
+      - description: Birthday (YYYY-MM-DD)
+        in: formData
+        name: birthday
+        type: string
+      - description: First Name
+        in: formData
+        name: first_name
+        type: string
+      - description: Last Name
+        in: formData
+        name: last_name
+        type: string
+      - description: Display Name
+        in: formData
+        name: display_name
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        type: string
+      - description: Avatar File
+        in: formData
+        name: avatar
+        type: file
+      - description: Tier ID
+        in: formData
+        name: tier_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserDetailDto'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a new user
+      tags:
+      - users
+  /api/user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserDetailDto'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a user
+      tags:
+      - users
+  /api/user/{id}/active:
+    put:
+      consumes:
+      - application/json
+      description: Activate/Deactivate a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Activate/Deactivate a user
+      tags:
+      - users
   /api/user/login:
     post:
       consumes:
@@ -525,6 +911,98 @@ paths:
         "400":
           description: Invalid request
       summary: Login
+      tags:
+      - users
+  /api/user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserDetailDto'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update profile
+      parameters:
+      - description: Username (Alphanumeric)
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phone
+        type: string
+      - description: Email Address
+        in: formData
+        name: email
+        type: string
+      - description: Birthday (YYYY-MM-DD)
+        in: formData
+        name: birthday
+        type: string
+      - description: First Name
+        in: formData
+        name: first_name
+        type: string
+      - description: Last Name
+        in: formData
+        name: last_name
+        type: string
+      - description: Display Name
+        in: formData
+        name: display_name
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        type: string
+      - description: Avatar File
+        in: formData
+        name: avatar
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update profile
       tags:
       - users
 securityDefinitions:

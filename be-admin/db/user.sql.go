@@ -3,72 +3,187 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
+	"gorm.io/gorm"
 	"pkg-common/model"
+	"time"
 )
 
-func nullableString(s string) interface{} {
-	if s == "" {
-		return nil
-	}
-	return s
-}
-
-func nullableBool(b bool) interface{} {
-	// Return nil for default (zero) boolean values
-	if !b {
-		return nil
-	}
-	return b
-}
-
-func (q *Queries) CreateUser(user *model.UserModel) error {
+func (q *Queries) CreateUser(user *dto.UserModel) error {
 	return q.db.WithContext(context.Background()).Create(user).Error
 }
 
-func (q *Queries) GetUser(username string) (*dto.UserModel, error) {
-	var user dto.UserModel
-	if err := q.db.WithContext(context.Background()).Table("users").
-		Select("users.*, r.name AS role_name").
-		Joins("LEFT JOIN user_roles ur ON ur.user_id = users.id").
+func (q *Queries) GetUserLogin(username string) (*dto.UserLoginResponse, error) {
+	var user dto.UserLoginResponse
+	if err := q.db.WithContext(context.Background()).Table("users u").
+		Select("u.id, u.username, u.phone, u.email, u.birth_day AS birthday, u.first_name, u.last_name, u.full_name, u.active, u.hash_password, r.name AS role_name,"+
+			"p.display_name, p.description, p.avatar, p.tier_id, t.code AS tier_code, u.created_at, uc.username AS created_by_name, u.updated_at, up.username AS updated_by_name").
+		Joins("LEFT JOIN user_roles ur ON ur.user_id = u.id").
 		Joins("LEFT JOIN roles r ON r.id = ur.role_id").
-		Where("users.username = ?", username).First(&user).Error; err != nil {
+		Joins("LEFT JOIN profiles p ON p.user_id = u.id").
+		Joins("LEFT JOIN tiers t ON t.id = p.tier_id").
+		Joins("LEFT JOIN users uc ON uc.id = u.created_by").
+		Joins("LEFT JOIN users up ON up.id = u.updated_by").
+		Where("(u.username = @username or u.email = @username) and u.active = true and u.deleted_at is null",
+			map[string]interface{}{
+				"username": username,
+			}).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (q *Queries) GetUser(id int64) (*dto.UserDetailDto, error) {
+	var user dto.UserDetailDto
+	if err := q.db.WithContext(context.Background()).Table("users u").
+		Select("u.id, u.username, u.phone, u.email, u.birth_day AS birthday, u.first_name, u.last_name, u.full_name, u.active, r.name AS role_name,"+
+			"p.display_name, p.description, p.avatar, p.tier_id, t.code AS tier_code").
+		Joins("LEFT JOIN user_roles ur ON ur.user_id = u.id").
+		Joins("LEFT JOIN roles r ON r.id = ur.role_id").
+		Joins("LEFT JOIN profiles p ON p.user_id = u.id").
+		Joins("LEFT JOIN tiers t ON t.id = p.tier_id").
+		Where("u.id = ? and u.deleted_at is null", id).First(&user).Error; err != nil {
 		return nil, err
 	}
 
-	//used this one
-	//When you need more control over the query.
-	//For queries with dynamic conditions or involving multiple fields or expressions.
-	//if err := q.db.WithContext(context.Background()).Where("username = ?", username).First(&user).Error; err != nil {
-	//	return nil, err
-	//}
 	return &user, nil
 }
-func (q *Queries) DeleteUser(username string) error {
-	return q.db.WithContext(context.Background()).Where(model.UserModel{Username: username}).Delete(&model.UserModel{}).Error
+
+func (q *Queries) GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64, error) {
+	var users []*dto.UserResponse
+	var total int64
+	var query = q.db.WithContext(context.Background()).Table("users u")
+
+	if req.Username != "" {
+		query.Where("u.username LIKE ?", "%"+req.Username+"%")
+	}
+
+	if req.Phone != "" {
+		query.Where("u.phone LIKE ?", "%"+req.Phone+"%")
+	}
+
+	if req.Email != "" {
+		query.Where("u.email LIKE ?", "%"+req.Email+"%")
+	}
+
+	if req.Name != "" {
+		query.Where("u.full_name LIKE ?", "%"+req.Name+"%")
+	}
+
+	if req.DisplayName != "" {
+		query.Where("p.display_name LIKE ?", "%"+req.DisplayName+"%")
+	}
+
+	if req.TierId > 0 {
+		query.Where("p.tier_id = ?", req.TierId)
+	}
+
+	query = query.Select("u.id, u.username, u.phone, u.email, u.birth_day AS birthday, u.first_name, u.last_name, u.full_name, u.active, r.name AS role_name," +
+		"p.display_name, p.description, p.avatar, p.tier_id, t.code AS tier_code, u.created_at, uc.username AS created_by_name, u.updated_at, up.username AS updated_by_name").
+		Joins("LEFT JOIN user_roles ur ON ur.user_id = u.id").
+		Joins("LEFT JOIN roles r ON r.id = ur.role_id").
+		Joins("LEFT JOIN profiles p ON p.user_id = u.id").
+		Joins("LEFT JOIN tiers t ON t.id = p.tier_id").
+		Joins("LEFT JOIN users uc ON uc.id = u.created_by").
+		Joins("LEFT JOIN users up ON up.id = u.updated_by").
+		Where("u.deleted_at is null")
+
+	if err := query.Order("id DESC").
+		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
+		Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
 }
 
-func (q *Queries) UpdateUser(user *model.UserModel) error {
+func (q *Queries) DeleteUser(id int64, adminId int64) error {
+	deletedUser := map[string]interface{}{
+		"deleted_at": time.Now(),
+		"deleted_by": adminId,
+	}
+
+	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(deletedUser).Error
+}
+
+func (q *Queries) GetUserData(id int64) (*dto.UserModel, error) {
+	var user dto.UserModel
+	if err := q.db.WithContext(context.Background()).Preload("Profile").First(&user, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (q *Queries) UpdateUser(user *dto.UserModel) error {
+	// Start transaction
+	tx := q.db.WithContext(context.Background()).Begin()
+
+	// Update user table
+	if err := tx.Save(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Update profile separately if it exists
+	if user.Profile.Id != 0 {
+		if err := tx.Save(user.Profile).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Commit the transaction
+	return tx.Commit().Error
+}
+
+func (q *Queries) CheckUserExist(username string, phone string, email string) (*dto.UserExistDto, error) {
+	var userExist dto.UserExistDto
+
 	query := `
-		UPDATE users
-		SET
-		    hash_password = COALESCE(?, hash_password),
-		    email = COALESCE(?, email),
-		    active = COALESCE(?, active),
-		WHERE username = ?
+		SELECT MAX(username = @username) AS is_username, MAX(phone = @phone) AS is_phone, MAX(email = @email) AS is_email
+		FROM users
+		WHERE (username = @username or if(@phone = '', false, phone = @phone) or if(@email = '', false, email = @email)) and deleted_at is null
 	`
-
-	return q.db.WithContext(context.Background()).Exec(query,
-		nullableString(user.HashPassword), // Handle empty or nil values
-		nullableString(user.Email),
-		nullableBool(user.Active),
-		user.Username,
-	).Error
-}
-
-func (q *Queries) GetUserByUsername(username string) (*model.UserModel, error) {
-	var user model.UserModel
-	if err := q.db.WithContext(context.Background()).Where("username = ?", username).First(&user).Error; err != nil {
+	if err := q.db.WithContext(context.Background()).Raw(query,
+		map[string]interface{}{
+			"username": username,
+			"phone":    phone,
+			"email":    email,
+		}).Scan(&userExist).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return &userExist, nil
+}
+
+func (q *Queries) CheckUserExistNotMe(id int64, username string, phone string, email string) (*dto.UserExistDto, error) {
+	var userExist dto.UserExistDto
+
+	query := `
+		SELECT MAX(username = @username) AS is_username, MAX(phone = @phone) AS is_phone, MAX(email = @email) AS is_email
+		FROM users
+		WHERE id != @id and (username = @username or if(@phone = '', false, phone = @phone) or if(@email = '', false, email = @email)) and deleted_at is null
+	`
+	if err := q.db.WithContext(context.Background()).Raw(query,
+		map[string]interface{}{
+			"id":       id,
+			"username": username,
+			"phone":    phone,
+			"email":    email,
+		}).Scan(&userExist).Error; err != nil {
+		return nil, err
+	}
+	return &userExist, nil
+}
+
+func (q *Queries) ActiveUser(id int64, adminId int64) error {
+	deletedUser := map[string]interface{}{
+		"active":     gorm.Expr("NOT active"),
+		"updated_by": adminId,
+	}
+
+	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(deletedUser).Error
 }

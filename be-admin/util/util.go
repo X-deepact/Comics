@@ -1,6 +1,9 @@
 package config
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"time"
+)
 
 type Response struct {
 	Data    interface{} `json:"data,omitempty"`
@@ -18,4 +21,8 @@ func BuildSuccessResponse(ctx *gin.Context, status int, body interface{}) {
 
 func BuildStandardResponse(ctx *gin.Context, status int, resp Response) {
 	ctx.JSON(status, Response{Data: resp.Data, Code: resp.Code, Message: resp.Message})
+}
+
+func ConvertStringToDate(dateString string) (time.Time, error) {
+	return time.Parse("2006-01-02", dateString)
 }

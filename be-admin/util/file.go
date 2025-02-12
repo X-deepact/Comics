@@ -93,10 +93,12 @@ func InitFolder(conf Config) error {
 	paths := reflect.ValueOf(&conf.FileStorage).Elem()
 
 	for i := 0; i < paths.NumField(); i++ {
-		fieldValue := paths.Field(i)
+		fieldValue := paths.Field(i).String()
 
-		if err := os.MkdirAll(fieldValue.String(), 0755); err != nil {
-			return err
+		if fieldValue != "" {
+			if err := os.MkdirAll(fieldValue, 0755); err != nil {
+				return err
+			}
 		}
 	}
 
