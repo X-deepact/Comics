@@ -66,6 +66,7 @@ func (s *Server) setUpRouter() {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: s.config.Web.AllowedOrigins, // Allowed domains
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
+		AllowHeaders: []string{"*"}, // Allow all headers
 	}))
 
 	fileH := router.Group("/api/file")
