@@ -6,15 +6,19 @@
     <div class="flex justify-between items-center mb-4 gap-4">
         <div class="flex items-center gap-2">
             <Input 
-                v-model="searchQuery"
+                v-model="localSearchQuery"
                 placeholder="Search..."
                 class="w-[280px]"
+                @input="handleSearchInput"
             />
         </div>
         <div class="flex items-center gap-4">
-            <Select :value="pageSize" @change="updatePageSize">
+            <Select 
+                :value="pageSize" 
+                @update:value="handlePageSizeChange"
+            >
                 <SelectTrigger class="w-[120px]">
-                    <SelectValue placeholder="Select size" />
+                    <SelectValue :placeholder="`${pageSize} / page`" />
                 </SelectTrigger>
                 <SelectContent class="bg-white">
                     <SelectItem value="10">10 / page</SelectItem>
@@ -29,8 +33,10 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
+import { ref, defineProps, defineEmits, watch } from 'vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const props = defineProps({
     title: String,
@@ -41,12 +47,20 @@ const props = defineProps({
     onAddClick: Function
 })
 
-const emit = defineEmits(['update:pageSize'])
+const emit = defineEmits(['update:pageSize', 'search'])
 
-const searchQuery = ref('')
+const localSearchQuery = ref('')
 
-// Emit the new page size when it changes
-const updatePageSize = (newSize) => {
+// Debounce search input
+let searchTimeout
+const handleSearchInput = () => {
+    clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => {
+        emit('search', localSearchQuery.value)
+    }, 300)
+}
+
+const handlePageSizeChange = (newSize) => {
     emit('update:pageSize', newSize)
 }
 </script>

@@ -20,10 +20,9 @@
         
         <Pagination 
             :totalItems="filteredComics.length"
-            :currentPage="currentPage"
+            v-model:currentPage="currentPage"
             :totalPages="totalPages"
             :displayedPages="displayedPages"
-            @page-change="handlePageChange"
         />
         
         <Modal 
@@ -319,10 +318,5 @@ const handleSearch = (query) => {
 const handlePageSizeChange = (newSize) => {
     pageSize.value = newSize
     currentPage.value = 1 // Reset to first page when changing page size
-}
-
-// Add method to handle page changes
-const handlePageChange = (newPage) => {
-    currentPage.value = newPage
 }
 </script>
