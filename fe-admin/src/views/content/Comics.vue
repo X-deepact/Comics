@@ -7,7 +7,8 @@
             :pageSize="pageSize"
             :displayedPages="displayedPages"
             :onAddClick="handleAdd"
-            @update:pageSize="pageSize = $event"
+            @update:pageSize="handlePageSizeChange"
+            @search="handleSearch"
         />
         
         <TableComponent 
@@ -22,6 +23,7 @@
             :currentPage="currentPage"
             :totalPages="totalPages"
             :displayedPages="displayedPages"
+            @page-change="handlePageChange"
         />
         
         <Modal 
@@ -150,7 +152,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Component from '@/lib/Component.vue'
 import TableComponent from '@/lib/Table.vue'
 import Pagination from '@/lib/Pagination.vue'
@@ -215,8 +217,11 @@ const filteredCountries = computed(() => {
 
 // Computed properties
 const filteredComics = computed(() => {
+    if (!searchQuery.value) return comics.value
+    
     return comics.value.filter(comic => 
-        comic.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+        comic.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        comic.author.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
 })
 
@@ -289,5 +294,35 @@ const handleCoverUpload = (event) => {
 
 const handleSearchInput = () => {
     // Handle language search if needed
+}
+
+// Add watch for pagination controls
+watch(currentPage, (newPage) => {
+    // Reset to page 1 if current page is greater than total pages
+    if (newPage > totalPages.value) {
+        currentPage.value = 1
+    }
+})
+
+// Add watch for search query
+watch(searchQuery, () => {
+    // Reset to first page when searching
+    currentPage.value = 1
+})
+
+// Add method to handle search updates
+const handleSearch = (query) => {
+    searchQuery.value = query
+}
+
+// Add method to handle page size changes
+const handlePageSizeChange = (newSize) => {
+    pageSize.value = newSize
+    currentPage.value = 1 // Reset to first page when changing page size
+}
+
+// Add method to handle page changes
+const handlePageChange = (newPage) => {
+    currentPage.value = newPage
 }
 </script>
