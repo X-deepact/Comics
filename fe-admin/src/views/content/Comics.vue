@@ -216,19 +216,26 @@ const filteredCountries = computed(() => {
 
 // Computed properties
 const filteredComics = computed(() => {
-    if (!searchQuery.value) return comics.value
-    
-    return comics.value.filter(comic => 
+    const filtered = comics.value.filter(comic => 
         comic.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         comic.author.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
+    console.log('Filtered Comics:', filtered.length)
+    return filtered
 })
 
 const totalPages = computed(() => Math.ceil(filteredComics.value.length / parseInt(pageSize.value)))
 
 const paginatedComics = computed(() => {
     const start = (currentPage.value - 1) * parseInt(pageSize.value)
-    return filteredComics.value.slice(start, start + parseInt(pageSize.value))
+    const paginated = filteredComics.value.slice(start, start + parseInt(pageSize.value))
+    console.log('Paginated Comics:', {
+        page: currentPage.value,
+        pageSize: pageSize.value,
+        showing: paginated.length,
+        total: filteredComics.value.length
+    })
+    return paginated
 })
 
 const displayedPages = computed(() => {
@@ -295,28 +302,34 @@ const handleSearchInput = () => {
     // Handle language search if needed
 }
 
-// Add watch for pagination controls
+// Add watchers to verify value changes
 watch(currentPage, (newPage) => {
-    // Reset to page 1 if current page is greater than total pages
-    if (newPage > totalPages.value) {
-        currentPage.value = 1
-    }
+    console.log('Current Page Changed:', newPage)
 })
 
-// Add watch for search query
-watch(searchQuery, () => {
-    // Reset to first page when searching
-    currentPage.value = 1
+watch(pageSize, (newSize) => {
+    console.log('Page Size Changed:', newSize)
 })
 
-// Add method to handle search updates
-const handleSearch = (query) => {
-    searchQuery.value = query
+watch(searchQuery, (newQuery) => {
+    console.log('Search Query Changed:', newQuery)
+})
+
+// Update handlers with logging
+const handlePageChange = (newPage) => {
+    console.log('Page Change Handler:', newPage)
+    currentPage.value = newPage
 }
 
-// Add method to handle page size changes
 const handlePageSizeChange = (newSize) => {
+    console.log('Page Size Change Handler:', newSize)
     pageSize.value = newSize
-    currentPage.value = 1 // Reset to first page when changing page size
+    currentPage.value = 1
+}
+
+const handleSearch = (query) => {
+    console.log('Search Handler:', query)
+    searchQuery.value = query
+    currentPage.value = 1
 }
 </script>

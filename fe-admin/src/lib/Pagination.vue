@@ -8,7 +8,7 @@
                 variant="outline" 
                 size="sm"
                 :disabled="currentPage === 1"
-                @click="handlePageChange(currentPage - 1)"
+                @click="$emit('update:currentPage', currentPage - 1)"
             >
                 Previous
             </Button>
@@ -19,7 +19,7 @@
                     variant="outline"
                     size="sm"
                     :class="{ 'bg-primary text-primary-foreground': pageNumber === currentPage }"
-                    @click="handlePageChange(pageNumber)"
+                    @click="$emit('update:currentPage', pageNumber)"
                 >
                     {{ pageNumber }}
                 </Button>
@@ -28,7 +28,7 @@
                 variant="outline" 
                 size="sm"
                 :disabled="currentPage === totalPages"
-                @click="handlePageChange(currentPage + 1)"
+                @click="$emit('update:currentPage', currentPage + 1)"
             >
                 Next
             </Button>
@@ -40,18 +40,24 @@
 import { defineProps, defineEmits } from 'vue'
 import { Button } from '@/components/ui'
 
-const props = defineProps({
-    totalItems: Number,
-    currentPage: Number,
-    totalPages: Number,
-    displayedPages: Array
+defineProps({
+    totalItems: {
+        type: Number,
+        required: true
+    },
+    currentPage: {
+        type: Number,
+        required: true
+    },
+    totalPages: {
+        type: Number,
+        required: true
+    },
+    displayedPages: {
+        type: Array,
+        required: true
+    }
 })
 
-const emit = defineEmits(['update:currentPage'])
-
-const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= props.totalPages) {
-        emit('update:currentPage', newPage)
-    }
-}
+defineEmits(['update:currentPage'])
 </script>
