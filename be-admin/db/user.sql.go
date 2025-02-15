@@ -140,13 +140,13 @@ func (q *Queries) UpdateUser(user *dto.UserModel) error {
 	return tx.Commit().Error
 }
 
-func (q *Queries) CheckUserExist(username string, phone string, email string) (*dto.UserExistDto, error) {
+func (q *Queries) CheckUserExist(username string, phone *string, email *string) (*dto.UserExistDto, error) {
 	var userExist dto.UserExistDto
 
 	query := `
 		SELECT MAX(username = @username) AS is_username, MAX(phone = @phone) AS is_phone, MAX(email = @email) AS is_email
 		FROM users
-		WHERE (username = @username or if(@phone = '', false, phone = @phone) or if(@email = '', false, email = @email)) and deleted_at is null
+		WHERE (username = @username or if(@phone is null, false, phone = @phone) or if(@email is null, false, email = @email)) and deleted_at is null
 	`
 	if err := q.db.WithContext(context.Background()).Raw(query,
 		map[string]interface{}{
@@ -159,13 +159,13 @@ func (q *Queries) CheckUserExist(username string, phone string, email string) (*
 	return &userExist, nil
 }
 
-func (q *Queries) CheckUserExistNotMe(id int64, username string, phone string, email string) (*dto.UserExistDto, error) {
+func (q *Queries) CheckUserExistNotMe(id int64, username string, phone *string, email *string) (*dto.UserExistDto, error) {
 	var userExist dto.UserExistDto
 
 	query := `
 		SELECT MAX(username = @username) AS is_username, MAX(phone = @phone) AS is_phone, MAX(email = @email) AS is_email
 		FROM users
-		WHERE id != @id and (username = @username or if(@phone = '', false, phone = @phone) or if(@email = '', false, email = @email)) and deleted_at is null
+		WHERE id != @id and (username = @username or if(@phone is null, false, phone = @phone) or if(@email is null, false, email = @email)) and deleted_at is null
 	`
 	if err := q.db.WithContext(context.Background()).Raw(query,
 		map[string]interface{}{
@@ -186,4 +186,13 @@ func (q *Queries) ActiveUser(id int64, adminId int64) error {
 	}
 
 	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(deletedUser).Error
+}
+
+func (q *Queries) ChangePassword(id int64, password string) error {
+	changePassword := map[string]interface{}{
+		"hash_password": password,
+		"updated_by":    id,
+	}
+
+	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(changePassword).Error
 }

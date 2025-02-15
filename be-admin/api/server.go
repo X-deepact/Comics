@@ -90,6 +90,7 @@ func (s *Server) setUpRouter() {
 	s.userRouter()
 	s.comicRouter()
 	s.genreRouter()
+	s.generalRouter()
 	//router.POST("/register", s.register)
 	//router.POST("/login", s.login)
 
@@ -102,6 +103,27 @@ func (s *Server) setUpRouter() {
 		authRoutes.DELETE("/comics", s.deleteAllSiteItems)
 	*/
 	//s.router = router
+
+	// Ads routes
+	adsGroup := s.router.Group("/api/ads")
+	adsGroup.Use(s.authMiddleware(s.tokenMaker))
+	{
+		adsGroup.POST("", s.createAds)
+		adsGroup.GET("", s.getAdsList)
+		adsGroup.PUT("", s.updateAds)
+		adsGroup.DELETE("/:id", s.deleteAds)
+	}
+
+	chapterItemGroup := s.router.Group("/api/chapter-items")
+	chapterItemGroup.Use(s.authMiddleware(s.tokenMaker))
+	{
+		chapterItemGroup.POST("", s.createChapterItem)
+		chapterItemGroup.GET("/:id", s.getChapterItem)
+		chapterItemGroup.GET("", s.listChapterItems)
+		chapterItemGroup.PUT("", s.updateChapterItem)
+		chapterItemGroup.DELETE("/:id", s.deleteChapterItem)
+		chapterItemGroup.POST("/upload-image", s.uploadChapterImage)
+	}
 }
 
 func errorResponse(err error) gin.H {

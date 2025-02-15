@@ -17,7 +17,7 @@ import (
 func (s *Server) userRouter() {
 	group := s.router.Group("api/user")
 
-	group.POST("/register", s.register)
+	//group.POST("/register", s.register)
 	group.POST("/login", s.login)
 
 	group.Use(s.authMiddleware(s.tokenMaker))
@@ -29,78 +29,79 @@ func (s *Server) userRouter() {
 	group.PUT("/:id/active", s.activeUser)
 	group.GET("/profile", s.getProfile)
 	group.PUT("/profile", s.updateProfile)
+	group.PUT("/change-password", s.changePassword)
 }
 
-func (s *Server) register(ctx *gin.Context) {
-	var req dto.UserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	if err := req.Validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	hashPassword, err := config.HashPassword(req.Password)
-
-	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-		return
-	}
-
-	user := model.UserModel{
-		Username:     req.Username,
-		HashPassword: hashPassword,
-		Email:        req.Email,
-		Phone:        req.Phone,
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
-		FullName:     strings.Join(strings.Fields(req.FirstName+" "+req.LastName), " "),
-		Active:       true,
-	}
-
-	profile := model.ProfileModel{
-		Active:      true,
-		DisplayName: req.DisplayName,
-		Description: req.Description,
-		UserId:      user.Id,
-		TierId:      1,
-	}
-
-	//role
-	roleAdmin, err := s.store.GetRole(config.USER)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	userRole := model.UserRoleModel{
-		UserId: user.Id,
-		RoleId: roleAdmin.Id,
-	}
-
-	userSave := &dto.UserModel{
-		UserModel: user,
-		Profile:   profile,
-		UserRoles: []model.UserRoleModel{userRole},
-	}
-
-	err = s.store.CreateUser(userSave)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	res, err := s.store.GetUser(userSave.Id)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, res)
-}
+//func (s *Server) register(ctx *gin.Context) {
+//	var req dto.UserRequest
+//	if err := ctx.ShouldBindJSON(&req); err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	if err := req.Validate(); err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	hashPassword, err := config.HashPassword(req.Password)
+//
+//	if err != nil {
+//		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+//		return
+//	}
+//
+//	user := model.UserModel{
+//		Username:     req.Username,
+//		HashPassword: hashPassword,
+//		Email:        req.Email,
+//		Phone:        req.Phone,
+//		FirstName:    req.FirstName,
+//		LastName:     req.LastName,
+//		FullName:     strings.Join(strings.Fields(req.FirstName+" "+req.LastName), " "),
+//		Active:       true,
+//	}
+//
+//	profile := model.ProfileModel{
+//		Active:      true,
+//		DisplayName: req.DisplayName,
+//		Description: req.Description,
+//		UserId:      user.Id,
+//		TierId:      1,
+//	}
+//
+//	//role
+//	roleAdmin, err := s.store.GetRole(config.USER)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	userRole := model.UserRoleModel{
+//		UserId: user.Id,
+//		RoleId: roleAdmin.Id,
+//	}
+//
+//	userSave := &dto.UserModel{
+//		UserModel: user,
+//		Profile:   profile,
+//		UserRoles: []model.UserRoleModel{userRole},
+//	}
+//
+//	err = s.store.CreateUser(userSave)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	res, err := s.store.GetUser(userSave.Id)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	ctx.JSON(http.StatusOK, res)
+//}
 
 // @Summary Login
 // @Description Authenticates the user and returns a JWT token
@@ -776,4 +777,60 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, userRes)
+}
+
+// @Summary Change password
+// @Description Change password
+// @Tags users
+// @Accept json
+// @Param ChangePassword body dto.UserChangePasswordRequest true "Change Password Request"
+// @Security     BearerAuth
+// @Success 200 {object} nil
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Router /api/user/change-password [put]
+func (s *Server) changePassword(ctx *gin.Context) {
+	var req dto.UserChangePasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		return
+	}
+
+	userIDInt64, ok := userID.(int64)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		return
+	}
+
+	user, err := s.store.GetUserData(userIDInt64)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = config.CheckPassword(req.CurrentPassword, user.HashPassword)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "current password is incorrect"})
+		return
+	}
+
+	hashPassword, err := config.HashPassword(req.NewPassword)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	if err := s.store.ChangePassword(userIDInt64, hashPassword); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "password changed successfully"})
 }

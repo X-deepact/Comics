@@ -66,16 +66,16 @@ type UserLoginResponse struct {
 }
 
 type UserCreateRequest struct {
-	Username    string `form:"username" binding:"required,alphanum"`
-	Phone       string `form:"phone"`
-	Email       string `form:"email" binding:"email"`
-	Birthday    string `form:"birthday"`
-	Password    string `form:"password" binding:"required,min=7"`
-	FirstName   string `form:"first_name"`
-	LastName    string `form:"last_name"`
-	DisplayName string `form:"display_name" binding:"required"`
-	Description string `form:"description"`
-	TierId      int64  `form:"tier_id" binding:"required"`
+	Username    string  `form:"username" binding:"required,alphanum"`
+	Phone       *string `form:"phone"`
+	Email       *string `form:"email" binding:"omitempty,email"`
+	Birthday    string  `form:"birthday"`
+	Password    string  `form:"password" binding:"required,min=7"`
+	FirstName   string  `form:"first_name"`
+	LastName    string  `form:"last_name"`
+	DisplayName string  `form:"display_name" binding:"required"`
+	Description string  `form:"description"`
+	TierId      int64   `form:"tier_id" binding:"required"`
 }
 
 type UserListRequest struct {
@@ -90,16 +90,16 @@ type UserListRequest struct {
 }
 
 type UserUpdateRequest struct {
-	ID          int64  `form:"id" binding:"required"`
-	Username    string `form:"username" binding:"required,alphanum"`
-	Phone       string `form:"phone"`
-	Email       string `form:"email" binding:"email"`
-	Birthday    string `form:"birthday"`
-	FirstName   string `form:"first_name"`
-	LastName    string `form:"last_name"`
-	DisplayName string `form:"display_name" binding:"required"`
-	Description string `form:"description"`
-	TierId      int64  `form:"tier_id" binding:"required"`
+	ID          int64   `form:"id" binding:"required"`
+	Username    string  `form:"username" binding:"required,alphanum"`
+	Phone       *string `form:"phone"`
+	Email       *string `form:"email" binding:"omitempty,email"`
+	Birthday    string  `form:"birthday"`
+	FirstName   string  `form:"first_name"`
+	LastName    string  `form:"last_name"`
+	DisplayName string  `form:"display_name" binding:"required"`
+	Description string  `form:"description"`
+	TierId      int64   `form:"tier_id" binding:"required"`
 }
 
 type UserModel struct {
@@ -115,14 +115,14 @@ type UserExistDto struct {
 }
 
 type UserProfileUpdateRequest struct {
-	Username    string `form:"username" binding:"required,alphanum"`
-	Phone       string `form:"phone"`
-	Email       string `form:"email" binding:"email"`
-	Birthday    string `form:"birthday"`
-	FirstName   string `form:"first_name"`
-	LastName    string `form:"last_name"`
-	DisplayName string `form:"display_name" binding:"required"`
-	Description string `form:"description"`
+	Username    string  `form:"username" binding:"required,alphanum"`
+	Phone       *string `form:"phone"`
+	Email       *string `form:"email" binding:"omitempty,email"`
+	Birthday    string  `form:"birthday"`
+	FirstName   string  `form:"first_name"`
+	LastName    string  `form:"last_name"`
+	DisplayName string  `form:"display_name" binding:"required"`
+	Description string  `form:"description"`
 }
 
 type UserDetailDto struct {
@@ -141,4 +141,9 @@ type UserDetailDto struct {
 	Avatar      string     `json:"avatar"`
 	TierID      int64      `json:"tier_id"`
 	TierCode    string     `json:"tier_code"`
+}
+
+type UserChangePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required,min=7"`
+	NewPassword     string `json:"new_password" binding:"required,min=7"`
 }

@@ -56,7 +56,7 @@ func (s *Server) createGenre(ctx *gin.Context) {
 	genre := model.GenreModel{
 		Name:      req.Name,
 		Position:  req.Position,
-		Language:  req.Language,
+		Lang:      req.Language,
 		CreatedBy: userIDInt64,
 		UpdatedBy: userIDInt64,
 	}
@@ -168,7 +168,7 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 		Id:        req.ID,
 		Name:      req.Name,
 		Position:  req.Position,
-		Language:  req.Language,
+		Lang:      req.Language,
 		UpdatedBy: userIDInt64,
 	}
 

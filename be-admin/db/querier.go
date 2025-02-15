@@ -13,10 +13,11 @@ type Querier interface {
 	GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64, error)
 	DeleteUser(id int64, adminId int64) error
 	UpdateUser(user *dto.UserModel) error
-	CheckUserExist(username string, phone string, email string) (*dto.UserExistDto, error)
-	CheckUserExistNotMe(id int64, username string, phone string, email string) (*dto.UserExistDto, error)
+	CheckUserExist(username string, phone *string, email *string) (*dto.UserExistDto, error)
+	CheckUserExistNotMe(id int64, username string, phone *string, email *string) (*dto.UserExistDto, error)
 	GetUserData(id int64) (*dto.UserModel, error)
 	ActiveUser(id int64, adminId int64) error
+	ChangePassword(id int64, password string) error
 
 	// Comics
 	CreateComic(comic *model.ComicModel) error
@@ -39,7 +40,22 @@ type Querier interface {
 	CreateUserRole(userRole *model.UserRoleModel) error
 
 	// Tiers
-	GetTiers(code string) (*model.TierModel, error)
+	GetTiers() ([]*dto.TierModel, error)
+	//GetTiers(code string) (*model.TierModel, error)
+
+	// Ads
+	CreateAds(ads *model.AdModel) error
+	GetAds(id int64) (*dto.AdsResponse, error)
+	GetAdsList(req dto.AdsListRequest) ([]dto.AdsResponse, int64, error)
+	UpdateAds(ads *model.AdModel) error
+	DeleteAds(id int64) error
+
+	// ChapterItems
+	CreateChapterItem(item *model.ChapterItemModel) error
+	GetChapterItem(id int64) (*dto.ChapterItemResponse, error)
+	ListChapterItems(req dto.ChapterItemListRequest) ([]dto.ChapterItemResponse, int64, error)
+	UpdateChapterItem(item *model.ChapterItemModel) error
+	DeleteChapterItem(id int64) error
 }
 
 var _ Querier = (*Queries)(nil)

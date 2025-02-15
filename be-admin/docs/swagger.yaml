@@ -138,6 +138,25 @@ definitions:
       user:
         $ref: '#/definitions/dto.UserDetailDto'
     type: object
+  dto.TierModel:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+    type: object
+  dto.UserChangePasswordRequest:
+    properties:
+      current_password:
+        minLength: 7
+        type: string
+      new_password:
+        minLength: 7
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
   dto.UserDetailDto:
     properties:
       active:
@@ -414,6 +433,31 @@ paths:
       summary: Upload a comic cover
       tags:
       - comics
+  /api/general/tiers:
+    get:
+      consumes:
+      - application/json
+      description: Get tiers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TierModel'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get tiers
+      tags:
+      - general
   /api/genre:
     get:
       consumes:
@@ -887,6 +931,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Activate/Deactivate a user
+      tags:
+      - users
+  /api/user/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Change password
+      parameters:
+      - description: Change Password Request
+        in: body
+        name: ChangePassword
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserChangePasswordRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
       tags:
       - users
   /api/user/login:

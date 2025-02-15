@@ -1,14 +1,16 @@
 package db
 
 import (
+	"comics-admin/dto"
 	"context"
-	"pkg-common/model"
 )
 
-func (q *Queries) GetTiers(code string) (*model.TierModel, error) {
-	var tier model.TierModel
-	if err := q.db.WithContext(context.Background()).Where("code = ?", code).First(&tier).Error; err != nil {
+func (q *Queries) GetTiers() ([]*dto.TierModel, error) {
+	var tier []*dto.TierModel
+	if err := q.db.WithContext(context.Background()).Table("tiers").
+		Select("id, code").
+		Find(&tier).Error; err != nil {
 		return nil, err
 	}
-	return &tier, nil
+	return tier, nil
 }

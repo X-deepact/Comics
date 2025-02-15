@@ -60,7 +60,7 @@ func (s *Server) createComic(ctx *gin.Context) {
 		Cover:       req.Cover,
 		Description: req.Description,
 		Active:      req.Active,
-		Language:    req.Language,
+		Lang:        req.Language,
 		Audience:    req.Audience,
 		CreatedBy:   userIDInt64,
 	}
