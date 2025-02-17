@@ -91,6 +91,7 @@ func (s *Server) setUpRouter() {
 	s.comicRouter()
 	s.genreRouter()
 	s.generalRouter()
+	s.chapterRouter()
 	//router.POST("/register", s.register)
 	//router.POST("/login", s.login)
 

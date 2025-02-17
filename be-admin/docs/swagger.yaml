@@ -1,5 +1,134 @@
 basePath: /
 definitions:
+  dto.AdsCreateRequest:
+    properties:
+      active_from:
+        type: string
+      active_to:
+        type: string
+      comic_id:
+        type: integer
+      direct_url:
+        type: string
+      image:
+        type: string
+      title:
+        type: string
+      type:
+        enum:
+        - internal
+        - external
+        type: string
+    required:
+    - title
+    - type
+    type: object
+  dto.AdsResponse:
+    properties:
+      active_from:
+        type: string
+      active_to:
+        type: string
+      comic_id:
+        type: integer
+      created_at:
+        type: string
+      created_by_name:
+        type: string
+      direct_url:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      updated_by_name:
+        type: string
+    type: object
+  dto.AdsUpdateRequest:
+    properties:
+      active_from:
+        type: string
+      active_to:
+        type: string
+      comic_id:
+        type: integer
+      direct_url:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      title:
+        type: string
+      type:
+        enum:
+        - internal
+        - external
+        type: string
+    required:
+    - id
+    type: object
+  dto.ChapterItemCreateRequest:
+    properties:
+      active:
+        type: boolean
+      active_from:
+        type: string
+      chapter_id:
+        type: integer
+      image:
+        type: string
+      page:
+        type: integer
+    required:
+    - chapter_id
+    - image
+    - page
+    type: object
+  dto.ChapterItemResponse:
+    properties:
+      active:
+        type: boolean
+      active_from:
+        type: string
+      chapter_id:
+        type: integer
+      created_at:
+        type: string
+      created_by_name:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      page:
+        type: integer
+      updated_at:
+        type: string
+      updated_by_name:
+        type: string
+    type: object
+  dto.ChapterItemUpdateRequest:
+    properties:
+      active:
+        type: boolean
+      active_from:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      page:
+        type: integer
+    required:
+    - id
+    type: object
   dto.ComicRequest:
     properties:
       active:
@@ -23,6 +152,8 @@ definitions:
     properties:
       active:
         type: boolean
+      audience:
+        type: string
       code:
         type: string
       cover:
@@ -31,16 +162,22 @@ definitions:
         type: string
       created_by:
         type: integer
+      created_by_name:
+        type: string
       description:
         type: string
       id:
         type: integer
+      language:
+        type: string
       title:
         type: string
       updated_at:
         type: string
       updated_by:
         type: integer
+      updated_by_name:
+        type: string
     type: object
   dto.ComicUpdateRequest:
     properties:
@@ -145,6 +282,11 @@ definitions:
       id:
         type: integer
     type: object
+  dto.UploadImageResponse:
+    properties:
+      image:
+        type: string
+    type: object
   dto.UserChangePasswordRequest:
     properties:
       current_password:
@@ -238,6 +380,290 @@ info:
   title: Admin Comics API Documentation
   version: "1.0"
 paths:
+  /api/ads:
+    get:
+      consumes:
+      - application/json
+      description: Get list of advertisements with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Filter by title
+        in: query
+        name: title
+        type: string
+      - description: Filter by type (internal/external)
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AdsResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get advertisement list
+      tags:
+      - ads
+    post:
+      consumes:
+      - application/json
+      description: Create a new advertisement
+      parameters:
+      - description: Advertisement Request
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdsCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AdsResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new advertisement
+      tags:
+      - ads
+    put:
+      consumes:
+      - application/json
+      description: Update an existing advertisement
+      parameters:
+      - description: Advertisement Update Request
+        in: body
+        name: ad
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdsUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AdsResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update advertisement
+      tags:
+      - ads
+  /api/ads/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an advertisement by ID
+      parameters:
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete advertisement
+      tags:
+      - ads
+  /api/chapter-items:
+    get:
+      consumes:
+      - application/json
+      description: Get list of chapter items with pagination
+      parameters:
+      - description: Chapter ID
+        in: query
+        name: chapter_id
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ChapterItemResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List chapter items
+      tags:
+      - chapter-items
+    post:
+      consumes:
+      - application/json
+      description: Create a new chapter item (page)
+      parameters:
+      - description: Chapter Item Request
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChapterItemCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterItemResponse'
+      security:
+      - BearerAuth: []
+      summary: Create chapter item
+      tags:
+      - chapter-items
+    put:
+      consumes:
+      - application/json
+      description: Update an existing chapter item
+      parameters:
+      - description: Chapter Item Update Request
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChapterItemUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterItemResponse'
+      security:
+      - BearerAuth: []
+      summary: Update chapter item
+      tags:
+      - chapter-items
+  /api/chapter-items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a chapter item by ID
+      parameters:
+      - description: Chapter Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Delete chapter item
+      tags:
+      - chapter-items
+    get:
+      consumes:
+      - application/json
+      description: Get a chapter item by ID
+      parameters:
+      - description: Chapter Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterItemResponse'
+      security:
+      - BearerAuth: []
+      summary: Get chapter item
+      tags:
+      - chapter-items
+  /api/chapter-items/upload-image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an image for a chapter item
+      parameters:
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UploadImageResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload chapter image
+      tags:
+      - chapter-items
   /api/comic/comic/{id}:
     get:
       consumes:
@@ -420,6 +846,10 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: Image URL
+          schema:
+            $ref: '#/definitions/dto.UploadImageResponse'
         "400":
           description: Invalid request
           schema:

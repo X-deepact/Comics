@@ -186,7 +186,7 @@ func (s *Server) deleteChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param file formData file true "Image file"
 // @Security BearerAuth
-// @Success 200 {object} gin.H
+// @Success 200 {object} dto.UploadImageResponse
 // @Router /api/chapter-items/upload-image [post]
 func (s *Server) uploadChapterImage(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")

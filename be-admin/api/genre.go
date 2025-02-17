@@ -2,7 +2,6 @@ package api
 
 import (
 	"comics-admin/dto"
-	config "comics-admin/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -128,7 +127,7 @@ func (s *Server) getGenres(ctx *gin.Context) {
 		return
 	}
 
-	config.ListResponse(ctx, req.Page, req.PageSize, int(total), genres)
+	ListResponse(ctx, req.Page, req.PageSize, int(total), genres)
 }
 
 // @Summary Update a new genre

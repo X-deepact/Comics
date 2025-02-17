@@ -1,16 +1,19 @@
 # Team Tasks Checklist
 
 ## Authentication & Authorization
-- [x] 🟢 **POST /api/login** - User login
+- [x] 🟢🔴 **POST /login** - User login
 - [x] 🟢 **POST /api/register** - User registration
 
 ## Users API
-- [ ] 🔴 **GET /users** - List users
-- [ ] 🔴 **GET /users/{id}** - Get user details
-- [ ] 🔴 **POST /users** - Create a new user
-- [ ] 🔴 **PUT /users/{id}** - Update user details
-- [ ] 🔴 **DELETE /users/{id}** - Soft delete user
-
+- [x] 🔴 **GET /users** - List users
+- [x] 🔴 **GET /users/{id}** - Get user details
+- [x] 🔴 **POST /users** - Create a new user
+- [x] 🔴 **PUT /users/{id}** - Update user details
+- [x] 🔴 **DELETE /users/{id}** - Soft delete user
+- [x] 🔴 **GET /user/profile** - Get user profile
+- [x] 🔴 **PUT /user/profile** - Update user profile
+- [x] 🔴 **PUT /user/{id}/active** - Activate/deactivate user
+<!-- - [ ] **POST /users/upload-avatar** - Upload user avatar
 ## Roles & Permissions
 - [ ] **GET /roles** - List roles
 - [ ] **POST /roles** - Create a new role
@@ -18,7 +21,7 @@
 - [ ] **DELETE /roles/{id}** - Delete role
 - [ ] **GET /user-roles** - List user roles
 - [ ] **POST /user-roles** - Assign role to user
-
+ -->
 ## Comics
 - [x] 🟢 **GET /comics** - List comics
 - [x] 🟢 **GET /comic/{id}** - Get comic details
@@ -35,40 +38,40 @@
 - [x] 🔴 **DELETE /genres/{id}** - Delete genre
 
 ## Authors
-- [ ] 🟡 **GET /authors** - List authors
-- [ ] 🟡 **POST /authors** - Create a new author
-- [ ] 🟡 **PUT /authors/{id}** - Update author
-- [ ] 🟡 **DELETE /authors/{id}** - Delete author
+- [x] 🟡 **GET /authors** - List authors
+- [x] 🟡 **POST /authors** - Create a new author
+- [x] 🟡 **PUT /authors/{id}** - Update author
+- [x] 🟡 **DELETE /authors/{id}** - Delete author
 
 ## Chapters
-- [ ] 🟢 **GET /comics/{comic_id}/chapters** - List chapters of a comic
-- [ ] 🟢 **GET /chapters/{id}** - Get chapter details
-- [ ] 🟢 **POST /comics/{comic_id}/chapters** - Add new chapter to comic
-- [ ] 🟢 **PUT /chapters/{id}** - Update chapter
-- [ ] 🟢 **DELETE /chapters/{id}** - Delete chapter
-- [ ] 🟢 **POST /chapters/upload-cover** - Upload chapter cover
+- [x] 🟢 **GET /comics/{comic_id}/chapters** - List chapters of a comic
+- [x] 🟢 **GET /chapters/{id}** - Get chapter details
+- [x] 🟢 **POST /comics/{comic_id}/chapters** - Add new chapter to comic
+- [x] 🟢 **PUT /chapters/{id}** - Update chapter
+- [x] 🟢 **DELETE /chapters/{id}** - Delete chapter
+- [x] 🟢 **POST /chapters/upload-cover** - Upload chapter cover
 
 ## Chapter Items
-- [ ] **GET /chapters/{chapter_id}/items** - List pages of a chapter
-- [ ] **GET /chapter-items/{id}** - Get page details
-- [ ] **POST /chapters/{chapter_id}/items** - Add page to chapter
-- [ ] **PUT /chapter-items/{id}** - Update page details
-- [ ] **DELETE /chapter-items/{id}** - Delete page
-- [ ] **POST /chapter-items/upload-image** - Upload chapter page image
+- [x] 🔵 **GET /chapters/{chapter_id}/items** - List pages of a chapter
+- [x] 🔵 **GET /chapter-items/{id}** - Get page details
+- [x] 🔵 **POST /chapters/{chapter_id}/items** - Add page to chapter
+- [x] 🔵 **PUT /chapter-items/{id}** - Update page details
+- [x] 🔵 **DELETE /chapter-items/{id}** - Delete page
+- [x] 🔵 **POST /chapter-items/upload-image** - Upload chapter page image
 
 ## Recommendations
-- [ ] 🟡 **GET /recommendations** - List recommendations
-- [ ] 🟡 **GET /recommendations/{id}** - Get recommendation details
-- [ ] 🟡 **POST /recommendations** - Create a recommendation
-- [ ] 🟡 **PUT /recommendations/{id}** - Update recommendation
-- [ ] 🟡 **DELETE /recommendations/{id}** - Delete recommendation
+- [x] 🟡 **GET /recommendations** - List recommendations
+- [x] 🟡 **GET /recommendations/{id}** - Get recommendation details
+- [x] 🟡 **POST /recommendations** - Create a recommendation
+- [x] 🟡 **PUT /recommendations/{id}** - Update recommendation
+- [x] 🟡 **DELETE /recommendations/{id}** - Delete recommendation
 
 ## Ads
-- [ ] 🔵 **GET /ads** - List ads
-- [ ] 🔵 **GET /ads/{id}** - Get ad details
-- [ ] 🔵 **POST /ads** - Create an ad
-- [ ] 🔵 **PUT /ads/{id}** - Update ad
-- [ ] 🔵 **DELETE /ads/{id}** - Delete ad
+- [x] 🔵 **GET /ads** - List ads
+- [x] 🔵 **GET /ads/{id}** - Get ad details
+- [x] 🔵 **POST /ads** - Create an ad
+- [x] 🔵 **PUT /ads/{id}** - Update ad
+- [x] 🔵 **DELETE /ads/{id}** - Delete ad
 
 ---
 
@@ -82,4 +85,6 @@ indicate member's respective tasks
 | NinhKieu | 🔴 | 
 | Zachdemp | 🔵 | 
 | Anhmien  | 🟡 |
+
+
 

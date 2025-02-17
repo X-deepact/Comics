@@ -11,13 +11,13 @@ import (
 )
 
 func (s *Server) comicRouter() {
-	group := s.router.Group("api/comic").Use(s.authMiddleware(s.tokenMaker))
+	group := s.router.Group("api/comics").Use(s.authMiddleware(s.tokenMaker))
 
-	group.POST("/create", s.createComic)
-	group.GET("/comic/:id", s.getComic)
-	group.GET("/comics", s.listComics)
-	group.PUT("/update", s.updateComic)
-	group.DELETE("/delete/:id", s.deleteComic)
+	group.POST("", s.createComic)
+	group.GET("/:id", s.getComic)
+	group.GET("", s.listComics)
+	group.PUT("", s.updateComic)
+	group.DELETE("/:id", s.deleteComic)
 	group.POST("/upload-cover", s.saveCover)
 }
 
@@ -32,7 +32,7 @@ func (s *Server) comicRouter() {
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Failure 401 {object} dto.ErrorResponse "User not authenticated"
-// @Router /api/comic/create [post]
+// @Router /api/comics [post]
 func (s *Server) createComic(ctx *gin.Context) {
 	var req dto.ComicRequest
 
@@ -94,7 +94,7 @@ func (s *Server) createComic(ctx *gin.Context) {
 // @Success 200 {object} dto.ComicResponse
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/comic/comic/{id} [get]
+// @Router /api/comics/{id} [get]
 func (s *Server) getComic(ctx *gin.Context) {
 	// Extract comic ID from URI
 	var uri struct {
@@ -134,20 +134,25 @@ func (s *Server) getComic(ctx *gin.Context) {
 // @Produce json
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
+// @Param q query string false "Search query"
+// @Param sort_by query string false "Sort by"
+// @Param sort query string false "Sort order"
+// @Param active query bool false "Active"
+// @Param language query string false "Language"
+// @Param audience query string false "Audience"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.ComicResponse
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/comic/comics [get]
+// @Router /api/comics [get]
 func (s *Server) listComics(ctx *gin.Context) {
-	var req dto.ListRequest
+	var req dto.ComicListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	offset := (req.Page - 1) * req.PageSize
-	comics, total, err := s.store.ListComics(req.PageSize, offset)
+	comics, total, err := s.store.ListComics(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -156,20 +161,20 @@ func (s *Server) listComics(ctx *gin.Context) {
 	var res []dto.ComicResponse
 	for _, comic := range comics {
 		res = append(res, dto.ComicResponse{
-			ID:          comic.Id,
+			ID:          comic.ID,
 			Name:        comic.Name,
 			Code:        comic.Code,
 			Cover:       comic.Cover,
 			Description: comic.Description,
 			Active:      comic.Active,
-			CreatedAt:   comic.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:   comic.UpdatedAt.Format(time.RFC3339),
+			CreatedAt:   comic.CreatedAt,
+			UpdatedAt:   comic.UpdatedAt,
 			CreatedBy:   comic.CreatedBy,
 			UpdatedBy:   comic.UpdatedBy,
 		})
 	}
 
-	config.ListResponse(ctx, req.Page, req.PageSize, int(total), res)
+	ListResponse(ctx, req.Page, req.PageSize, int(total), res)
 }
 
 // @Summary Update a comic
@@ -183,7 +188,7 @@ func (s *Server) listComics(ctx *gin.Context) {
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 401 {object} dto.ErrorResponse "User not authenticated"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/comic/update [put]
+// @Router /api/comics [put]
 func (s *Server) updateComic(ctx *gin.Context) {
 	var req dto.ComicUpdateRequest
 
@@ -212,7 +217,6 @@ func (s *Server) updateComic(ctx *gin.Context) {
 		Cover:       req.Cover,
 		Description: req.Description,
 		Active:      req.Active,
-		CreatedBy:   req.CreatedBy,
 		UpdatedBy:   userIDUint,
 	}
 
@@ -251,7 +255,7 @@ func (s *Server) updateComic(ctx *gin.Context) {
 // @Success 200 {object} nil
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/comic/delete/{id} [delete]
+// @Router /api/comics/{id} [delete]
 func (s *Server) deleteComic(ctx *gin.Context) {
 	var uri struct {
 		ID int64 `uri:"id" binding:"required,min=1"`
@@ -277,10 +281,10 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 // @Produce json
 // @Param cover formData file true "Comic Cover Image"
 // @Security     BearerAuth
-// @Success 200 {string} "file link"
+// @Success 200 {object} dto.UploadImageResponse "Image URL"
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/comic/upload-cover [post]
+// @Router /api/comics/upload-cover [post]
 func (s *Server) saveCover(ctx *gin.Context) {
 	file, err := ctx.FormFile("cover")
 	if err != nil {

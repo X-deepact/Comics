@@ -22,7 +22,7 @@ type Querier interface {
 	// Comics
 	CreateComic(comic *model.ComicModel) error
 	GetComic(id int64) (*model.ComicModel, error)
-	ListComics(limit int, offset int) ([]model.ComicModel, int64, error)
+	ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int64, error)
 	DeleteComic(id int64) error
 	UpdateComic(comic *model.ComicModel) error
 
@@ -49,6 +49,13 @@ type Querier interface {
 	GetAdsList(req dto.AdsListRequest) ([]dto.AdsResponse, int64, error)
 	UpdateAds(ads *model.AdModel) error
 	DeleteAds(id int64) error
+
+	// Chapters
+	CreateChapter(chapter *model.ChapterModel) error
+	GetChapter(id int64) (*dto.ChapterResponse, error)
+	ListChapters(req dto.ChapterListRequest) ([]dto.ChapterResponse, int64, error)
+	UpdateChapter(chapter *model.ChapterModel) error
+	DeleteChapter(id int64) error
 
 	// ChapterItems
 	CreateChapterItem(item *model.ChapterItemModel) error
