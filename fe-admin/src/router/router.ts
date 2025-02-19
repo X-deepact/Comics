@@ -7,7 +7,7 @@ const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
 // Views
 const Login = () => import("../views/auth/Login.vue");
 const Dashboard = () => import("../views/Dashboard.vue");
-const Comics = () => import("../views/content/comics/Comics.vue");
+const Comics = () => import("../views/content/Comics.vue");
 const Subjects = () => import("../views/content/Subjects.vue");
 const Ads = () => import("../views/ads/Ads.vue");
 const Recommendation = () => import("../views/ads/Recommendation.vue");

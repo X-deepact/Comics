@@ -2,7 +2,7 @@
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "./stores/authStore";
-import Toaster from "@/components/ui/toast/Toaster.vue";
+
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -14,7 +14,7 @@ onMounted(async () => {
     } catch (error) {
       // If token is invalid or expired, clear auth and redirect to login
       authStore.logout();
-      router.push("/login");
+      router.push('/login');
     }
   }
 });
@@ -24,12 +24,10 @@ onMounted(async () => {
   <div class="w-full">
     <router-view></router-view>
   </div>
-  <Toaster />
 </template>
 
 <style>
-html,
-body {
+html, body {
   width: 100%;
   margin: 0;
   padding: 0;
