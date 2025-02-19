@@ -26,12 +26,10 @@ func (s *Server) chapterRouter() {
 // @Produce json
 // @Param chapter body dto.ChapterRequest true "Chapter Request"
 // @Security     BearerAuth
-// @Success 200 {object} model.ChapterModel
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Failure 401 {object} dto.ErrorResponse "User not authenticated"
+// @Success 200 {object} dto.ChapterResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [post]
-
 func (s *Server) createChapter(ctx *gin.Context) {
 	var req dto.ChapterRequest
 
@@ -78,11 +76,10 @@ func (s *Server) createChapter(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter ID"
 // @Security     BearerAuth
-// @Success 200 {object} model.ChapterModel
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Success 200 {object} dto.ChapterResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters/{id} [get]
-
 func (s *Server) getChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
@@ -109,11 +106,10 @@ func (s *Server) getChapter(ctx *gin.Context) {
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ChapterResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Success 200 {object} []dto.ChapterResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [get]
-
 func (s *Server) getChapters(ctx *gin.Context) {
 	var req dto.ChapterListRequest
 
@@ -156,12 +152,10 @@ func (s *Server) getChapters(ctx *gin.Context) {
 // @Produce json
 // @Param chapter body dto.ChapterUpdateRequest true "Chapter Update Request"
 // @Security     BearerAuth
-// @Success 200 {object} model.ChapterModel
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Failure 401 {object} dto.ErrorResponse "User not authenticated"
+// @Success 200 {object} dto.ChapterResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [put]
-
 func (s *Server) updateChapter(ctx *gin.Context) {
 	var req dto.ChapterUpdateRequest
 
@@ -207,11 +201,10 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 // @Accept json
 // @Param id path int true "Chapter ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.SuccessResponse "Record deleted successfully"
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Success 200 {object} dto.ResponseMessage "Record deleted successfully"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters/{id} [delete]
-
 func (s *Server) deleteChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {

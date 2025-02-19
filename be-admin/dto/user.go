@@ -79,8 +79,7 @@ type UserCreateRequest struct {
 }
 
 type UserListRequest struct {
-	Page        int    `form:"page" json:"page" binding:"required,min=1"`
-	PageSize    int    `form:"page_size" json:"page_size" binding:"required,min=1,max=100"`
+	ListRequest
 	Username    string `form:"username" json:"username"`
 	Phone       string `form:"phone" json:"phone"`
 	Email       string `form:"email" json:"email"`

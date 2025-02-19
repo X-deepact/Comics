@@ -2,8 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type DatabaseConfig struct {
@@ -22,9 +23,10 @@ type ApiFileConfig struct {
 }
 
 type FileStorageConfig struct {
-	RootFolder   string `mapstructure:"ROOT_FOLDER"`
-	AvatarFolder string `mapstructure:"AVATAR_FOLDER"`
-	CoverFolder  string `mapstructure:"COMIC_COVER_FOLDER"`
+	RootFolder        string `mapstructure:"ROOT_FOLDER"`
+	AvatarFolder      string `mapstructure:"AVATAR_FOLDER"`
+	CoverFolder       string `mapstructure:"COMIC_COVER_FOLDER"`
+	ChapterItemFolder string `mapstructure:"CHAPTER_ITEM_FOLDER"`
 }
 
 type WebConfig struct {

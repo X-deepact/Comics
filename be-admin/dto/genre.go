@@ -7,10 +7,10 @@ type GenreCreateRequest struct {
 }
 
 type GenreResponse struct {
-	ID            int    `json:"id"`
+	ID            int64  `json:"id"`
 	Name          string `json:"name"`
 	Position      int    `json:"position"`
-	Language      string `json:"language"`
+	Lang          string `json:"lang"`
 	CreatedAt     string `json:"created_at"`
 	UpdatedAt     string `json:"updated_at"`
 	CreatedByName string `json:"created_by_name"`
@@ -18,8 +18,7 @@ type GenreResponse struct {
 }
 
 type GenreListRequest struct {
-	Page     int    `form:"page" json:"page" binding:"required,min=1"`
-	PageSize int    `form:"page_size" json:"page_size" binding:"required,min=1,max=100"`
+	ListRequest
 	Name     string `form:"name" json:"name"`
 	Language string `form:"language" json:"language"`
 }

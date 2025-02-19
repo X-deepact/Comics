@@ -74,6 +74,45 @@ definitions:
     required:
     - id
     type: object
+  dto.AuthorRequest:
+    properties:
+      biography:
+        type: string
+      birth_day:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.AuthorResponse:
+    properties:
+      biography:
+        type: string
+      birth_day:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.AuthorUpdateRequest:
+    properties:
+      biography:
+        type: string
+      birth_day:
+        type: string
+      name:
+        type: string
+    type: object
   dto.ChapterItemCreateRequest:
     properties:
       active:
@@ -129,24 +168,65 @@ definitions:
     required:
     - id
     type: object
-  dto.ComicRequest:
+  dto.ChapterRequest:
     properties:
       active:
         type: boolean
-      audience:
-        type: string
-      code:
-        type: string
+      comic_id:
+        type: integer
       cover:
+        type: boolean
+      name:
         type: string
-      description:
-        type: string
-      language:
-        type: string
-      title:
-        type: string
+      number:
+        type: integer
     required:
-    - title
+    - comic_id
+    type: object
+  dto.ChapterResponse:
+    properties:
+      active:
+        type: boolean
+      comic_id:
+        type: integer
+      cover:
+        type: boolean
+      created_at:
+        type: string
+      created_by:
+        type: string
+      created_by_user:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      updated_by_user:
+        type: string
+    type: object
+  dto.ChapterUpdateRequest:
+    properties:
+      active:
+        type: boolean
+      comic_id:
+        type: integer
+      cover:
+        type: boolean
+      id:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+    required:
+    - comic_id
+    - id
     type: object
   dto.ComicResponse:
     properties:
@@ -162,24 +242,20 @@ definitions:
         type: string
       created_by:
         type: integer
-      created_by_name:
-        type: string
       description:
         type: string
       id:
         type: integer
-      language:
+      lang:
         type: string
-      title:
+      name:
         type: string
       updated_at:
         type: string
       updated_by:
         type: integer
-      updated_by_name:
-        type: string
     type: object
-  dto.ComicUpdateRequest:
+  dto.ComicReturn:
     properties:
       active:
         type: boolean
@@ -189,22 +265,39 @@ definitions:
         type: string
       cover:
         type: string
+      created_at:
+        type: string
       created_by:
         type: integer
+      created_by_user:
+        $ref: '#/definitions/dto.UserDetailDto'
       description:
         type: string
       id:
         type: integer
-      language:
+      lang:
         type: string
-      title:
+      name:
         type: string
-    required:
-    - id
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+      updated_by_user:
+        $ref: '#/definitions/dto.UserDetailDto'
     type: object
-  dto.ErrorResponse:
+  dto.GeneralAuthorResponse:
     properties:
-      message:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.GeneralGenreResponse:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   dto.GenreCreateRequest:
@@ -228,7 +321,7 @@ definitions:
         type: string
       id:
         type: integer
-      language:
+      lang:
         type: string
       name:
         type: string
@@ -255,6 +348,12 @@ definitions:
     - name
     - position
     type: object
+  dto.ListResponse:
+    properties:
+      data: {}
+      pagination:
+        $ref: '#/definitions/dto.Pagination'
+    type: object
   dto.LoginRequest:
     properties:
       password:
@@ -275,17 +374,80 @@ definitions:
       user:
         $ref: '#/definitions/dto.UserDetailDto'
     type: object
+  dto.Pagination:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.RecommendCreateRequest:
+    properties:
+      activeFrom:
+        type: integer
+      activeTo:
+        type: integer
+      cover:
+        type: string
+      id:
+        type: integer
+      position:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.RecommendResponse:
+    properties:
+      activeFrom:
+        type: string
+      activeTo:
+        type: string
+      cover:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      id:
+        type: integer
+      position:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
+    type: object
+  dto.RecommendUpdateRequest:
+    properties:
+      activeFrom:
+        type: string
+      activeTo:
+        type: string
+      cover:
+        type: string
+      position:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.ResponseMessage:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   dto.TierModel:
     properties:
       code:
         type: string
       id:
         type: integer
-    type: object
-  dto.UploadImageResponse:
-    properties:
-      image:
-        type: string
     type: object
   dto.UserChangePasswordRequest:
     properties:
@@ -416,11 +578,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get advertisement list
@@ -447,11 +609,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Create a new advertisement
@@ -478,11 +640,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Update advertisement
@@ -503,20 +665,157 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Advertisement deleted successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Delete advertisement
       tags:
       - ads
+  /api/author:
+    post:
+      consumes:
+      - application/json
+      description: Create a new author
+      parameters:
+      - description: Author Request
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthorResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Create author
+      tags:
+      - authors
+  /api/author/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a author by GetAuthorById
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthorResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get GetAuthorById
+      tags:
+      - authors
+    put:
+      consumes:
+      - application/json
+      description: Update an existing author
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Author Update Request
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthorUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthorResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update author by Id
+      tags:
+      - authors
+  /api/author/list:
+    get:
+      consumes:
+      - application/json
+      description: List all authors
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AuthorResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: List GetAuthors
+      tags:
+      - authors
   /api/chapter-items:
     get:
       consumes:
@@ -547,6 +846,14 @@ paths:
             items:
               $ref: '#/definitions/dto.ChapterItemResponse'
             type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: List chapter items
@@ -570,6 +877,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ChapterItemResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Create chapter item
@@ -593,6 +908,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ChapterItemResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Update chapter item
@@ -613,7 +936,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter item deleted successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Delete chapter item
@@ -636,6 +969,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.ChapterItemResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get chapter item
@@ -658,13 +999,416 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UploadImageResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Upload chapter image
       tags:
       - chapter-items
-  /api/comic/comic/{id}:
+  /api/chapters:
+    get:
+      consumes:
+      - application/json
+      description: Get chapters
+      parameters:
+      - description: Comic ID
+        in: query
+        name: comic_id
+        type: integer
+      - description: ASC or DESC
+        in: query
+        name: order
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ChapterResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get chapters
+      tags:
+      - chapters
+    post:
+      consumes:
+      - application/json
+      description: Create a new chapter
+      parameters:
+      - description: Chapter Request
+        in: body
+        name: chapter
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChapterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Create a new chapter
+      tags:
+      - chapters
+    put:
+      consumes:
+      - application/json
+      description: Update a chapter
+      parameters:
+      - description: Chapter Update Request
+        in: body
+        name: chapter
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChapterUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update a chapter
+      tags:
+      - chapters
+  /api/chapters/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a chapter by ID
+      parameters:
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Record deleted successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Delete a chapter
+      tags:
+      - chapters
+    get:
+      consumes:
+      - application/json
+      description: Get a chapter
+      parameters:
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChapterResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get a chapter
+      tags:
+      - chapters
+  /api/comics:
+    get:
+      consumes:
+      - application/json
+      description: List all comics
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      - description: Active
+        in: query
+        name: active
+        type: boolean
+      - description: Language
+        in: query
+        name: language
+        type: string
+      - description: Audience
+        in: query
+        name: audience
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of comics
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.ListResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ComicReturn'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: List comics
+      tags:
+      - comics
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a new comic
+      parameters:
+      - description: Comic name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Comic description
+        in: formData
+        name: description
+        type: string
+      - description: Language
+        in: formData
+        name: lang
+        type: string
+      - description: Audience
+        in: formData
+        name: audience
+        type: string
+      - collectionFormat: csv
+        description: Genre ID
+        in: formData
+        items:
+          type: integer
+        name: genres
+        type: array
+      - collectionFormat: csv
+        description: Author ID
+        in: formData
+        items:
+          type: integer
+        name: authors
+        type: array
+      - description: Comic cover image
+        in: formData
+        name: cover
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comic created successfully
+          schema:
+            $ref: '#/definitions/dto.ComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Create comic
+      tags:
+      - comics
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update an existing comic
+      parameters:
+      - description: Comic ID
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: Comic name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Comic description
+        in: formData
+        name: description
+        type: string
+      - description: Active
+        in: formData
+        name: active
+        type: boolean
+      - description: Language
+        in: formData
+        name: lang
+        type: string
+      - description: Audience
+        in: formData
+        name: audience
+        type: string
+      - collectionFormat: csv
+        description: Genre ID
+        in: formData
+        items:
+          type: integer
+        name: genres
+        type: array
+      - collectionFormat: csv
+        description: Author ID
+        in: formData
+        items:
+          type: integer
+        name: authors
+        type: array
+      - description: Comic cover image
+        in: formData
+        name: cover
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comic updated successfully
+          schema:
+            $ref: '#/definitions/dto.ComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update comic
+      tags:
+      - comics
+  /api/comics/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comic by ID
+      parameters:
+      - description: Comic ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comic successfully deleted
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Delete a comic
+      tags:
+      - comics
     get:
       consumes:
       - application/json
@@ -681,97 +1425,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ComicResponse'
+            $ref: '#/definitions/dto.ComicReturn'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get a comic
       tags:
       - comics
-  /api/comic/comics:
-    get:
+  /api/comics/{id}/active:
+    put:
       consumes:
       - application/json
-      description: List all comics
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.ComicResponse'
-            type: array
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: List comics
-      tags:
-      - comics
-  /api/comic/create:
-    post:
-      consumes:
-      - application/json
-      description: Create a new comic with the provided details
-      parameters:
-      - description: Comic Request
-        in: body
-        name: comic
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ComicRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ComicResponse'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "401":
-          description: User not authenticated
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Create a new comic
-      tags:
-      - comics
-  /api/comic/delete/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a comic by ID
+      description: Activate/Deactivate a comic by ID
       parameters:
       - description: Comic ID
         in: path
@@ -782,87 +1454,125 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Comic activated/deactivated successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Delete a comic
-      tags:
-      - comics
-  /api/comic/update:
-    put:
-      consumes:
-      - application/json
-      description: Update a comic with the provided details
-      parameters:
-      - description: Comic Update Request
-        in: body
-        name: comic
-        required: true
-        schema:
-          $ref: '#/definitions/dto.ComicUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ComicResponse'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "401":
-          description: User not authenticated
+          description: Unauthorized
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
-      summary: Update a comic
+      summary: Activate/Deactivate a comic
       tags:
       - comics
-  /api/comic/upload-cover:
+  /api/comics/upload-cover:
     post:
       consumes:
       - multipart/form-data
       description: Upload a comic cover image
       parameters:
-      - description: Comic Cover Image
+      - description: Comic cover image
         in: formData
-        name: cover
+        name: file
         required: true
         type: file
       produces:
       - application/json
       responses:
         "200":
-          description: Image URL
+          description: Comic cover uploaded successfully
           schema:
-            $ref: '#/definitions/dto.UploadImageResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Upload a comic cover
       tags:
       - comics
+  /api/general/authors:
+    get:
+      consumes:
+      - application/json
+      description: Get general authors
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.GeneralAuthorResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get general authors
+      tags:
+      - general
+  /api/general/genres:
+    get:
+      consumes:
+      - application/json
+      description: Get general genres
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Language
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.GeneralGenreResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get general genres
+      tags:
+      - general
   /api/general/tiers:
     get:
       consumes:
@@ -874,15 +1584,17 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.TierModel'
+            items:
+              $ref: '#/definitions/dto.TierModel'
+            type: array
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get tiers
@@ -897,10 +1609,12 @@ paths:
       - description: Page number
         in: query
         name: page
+        required: true
         type: integer
-      - description: Page size
+      - description: Page size (must be between 10 and 50)
         in: query
         name: page_size
+        required: true
         type: integer
       - description: Name
         in: query
@@ -922,11 +1636,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: List genres
@@ -953,15 +1667,15 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "401":
           description: User not authenticated
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Create a new genre
@@ -988,15 +1702,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "401":
-          description: User not authenticated
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Update a new genre
@@ -1017,15 +1727,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Genre successfully deleted
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Delete a genre
@@ -1051,16 +1763,151 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get a genre
       tags:
       - genres
+  /api/recommend:
+    post:
+      consumes:
+      - application/json
+      description: Create a new recommend
+      parameters:
+      - description: Recommend Create Request
+        in: body
+        name: recommend
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecommendCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Create recommend
+      tags:
+      - recommends
+  /api/recommend/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a recommend by Id
+      parameters:
+      - description: Recommend ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get recommend by Id
+      tags:
+      - recommends
+    put:
+      consumes:
+      - application/json
+      description: Update an existing recommend
+      parameters:
+      - description: Recommend ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Recommend Update Request
+        in: body
+        name: recommend
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecommendUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update recommend by Id
+      tags:
+      - recommends
+  /api/recommend/list:
+    get:
+      consumes:
+      - application/json
+      description: List all recommends
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.RecommendResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: List recommends
+      tags:
+      - recommends
   /api/user:
     get:
       consumes:
@@ -1070,10 +1917,12 @@ paths:
       - description: Page number
         in: query
         name: page
+        required: true
         type: integer
-      - description: Page size
+      - description: Page size (must be between 10 and 50)
         in: query
         name: page_size
+        required: true
         type: integer
       - description: Username
         in: query
@@ -1111,11 +1960,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: List users
@@ -1184,15 +2033,15 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "401":
           description: User not authenticated
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Create a new user
@@ -1261,15 +2110,15 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "401":
           description: User not authenticated
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Update a new user
@@ -1290,15 +2139,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User successfully deleted
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Delete a user
@@ -1324,11 +2175,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get a user
@@ -1349,15 +2200,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User successfully activated/deactivated
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Activate/Deactivate a user
@@ -1377,15 +2230,17 @@ paths:
           $ref: '#/definitions/dto.UserChangePasswordRequest'
       responses:
         "200":
-          description: OK
+          description: Password changed successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Change password
@@ -1430,11 +2285,11 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Get profile
@@ -1493,15 +2348,15 @@ paths:
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "401":
           description: User not authenticated
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/dto.ErrorResponse'
+            $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
       summary: Update profile

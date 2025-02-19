@@ -19,8 +19,8 @@ import (
 // @Param ad body dto.AdsCreateRequest true "Advertisement Request"
 // @Security BearerAuth
 // @Success 200 {object} dto.AdsResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [post]
 func (s *Server) createAds(ctx *gin.Context) {
 	var req dto.AdsCreateRequest
@@ -80,8 +80,8 @@ func (s *Server) createAds(ctx *gin.Context) {
 // @Param type query string false "Filter by type (internal/external)"
 // @Security BearerAuth
 // @Success 200 {object} []dto.AdsResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [get]
 func (s *Server) getAdsList(ctx *gin.Context) {
 	var req dto.AdsListRequest
@@ -114,8 +114,8 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 // @Param ad body dto.AdsUpdateRequest true "Advertisement Update Request"
 // @Security BearerAuth
 // @Success 200 {object} dto.AdsResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [put]
 func (s *Server) updateAds(ctx *gin.Context) {
 	var req dto.AdsUpdateRequest
@@ -170,9 +170,9 @@ func (s *Server) updateAds(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Advertisement ID"
 // @Security BearerAuth
-// @Success 200 {object} nil
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Success 200 {object} dto.ResponseMessage "Advertisement deleted successfully"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads/{id} [delete]
 func (s *Server) deleteAds(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -186,5 +186,5 @@ func (s *Server) deleteAds(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Advertisement deleted successfully"})
+	ctx.JSON(http.StatusOK, dto.ResponseMessage{Status: "success", Message: "Advertisement successfully deleted"})
 }

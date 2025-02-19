@@ -20,11 +20,12 @@ type Querier interface {
 	ChangePassword(id int64, password string) error
 
 	// Comics
-	CreateComic(comic *model.ComicModel) error
-	GetComic(id int64) (*model.ComicModel, error)
+	CreateComic(comic *dto.ComicRequest) (*model.ComicModel, error)
+	GetComic(id int64) (*dto.ComicResponse, error)
 	ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int64, error)
 	DeleteComic(id int64) error
-	UpdateComic(comic *model.ComicModel) error
+	UpdateComic(comic *dto.ComicUpdateRequest) (*dto.ComicResponse, error)
+	ActiveComic(id int64, adminId int64) error
 
 	// Genres
 	CreateGenre(genre *model.GenreModel) error
@@ -39,9 +40,10 @@ type Querier interface {
 	// UserRoles
 	CreateUserRole(userRole *model.UserRoleModel) error
 
-	// Tiers
-	GetTiers() ([]*dto.TierModel, error)
-	//GetTiers(code string) (*model.TierModel, error)
+	// General
+	GetGeneralTiers() ([]*dto.TierModel, error)
+	GetGeneralGenres(req dto.GeneralGenreRequest) ([]dto.GeneralGenreResponse, error)
+	GetGeneralAuthors(req dto.GeneralAuthorRequest) ([]dto.GeneralAuthorResponse, error)
 
 	// Ads
 	CreateAds(ads *model.AdModel) error
@@ -63,6 +65,18 @@ type Querier interface {
 	ListChapterItems(req dto.ChapterItemListRequest) ([]dto.ChapterItemResponse, int64, error)
 	UpdateChapterItem(item *model.ChapterItemModel) error
 	DeleteChapterItem(id int64) error
+
+	CreateAuthor(author *model.AuthorModel) error
+	GetAuthorById(id int64) (*model.AuthorModel, error)
+	GetAuthors(limit, offset int) ([]*model.AuthorModel, int64, error)
+	UpdateAuthor(author *model.AuthorModel) (*model.AuthorModel, error)
+	DeleteAuthorById(id int64) (*model.AuthorModel, error)
+
+	CreateRecomend(r *model.RecommendManagerModel) error
+	GetRecommendById(id int64) (*model.RecommendManagerModel, error)
+	GetRecommends(limit, offset int) ([]*model.RecommendManagerModel, int64, error)
+	DeleteRecomendById(id int64) (*model.RecommendManagerModel, error)
+	UpdateRecomend(r *model.RecommendManagerModel) error
 }
 
 var _ Querier = (*Queries)(nil)

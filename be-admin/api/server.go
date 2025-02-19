@@ -6,6 +6,9 @@ import (
 	config "comics-admin/util"
 	"comics-admin/val"
 	"fmt"
+	"net/http"
+	"os"
+
 	ginzerolog "github.com/dn365/gin-zerolog"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,8 +18,6 @@ import (
 	"github.com/rs/zerolog/log"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"os"
 )
 
 type Server struct {
@@ -91,6 +92,8 @@ func (s *Server) setUpRouter() {
 	s.comicRouter()
 	s.genreRouter()
 	s.generalRouter()
+	s.authorRoutes()
+	s.recommendRoutes()
 	s.chapterRouter()
 	//router.POST("/register", s.register)
 	//router.POST("/login", s.login)
@@ -129,4 +132,8 @@ func (s *Server) setUpRouter() {
 
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func errorResponseMessage(message string) gin.H {
+	return gin.H{"error": message}
 }

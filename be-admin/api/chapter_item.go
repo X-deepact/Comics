@@ -2,11 +2,14 @@ package api
 
 import (
 	"comics-admin/dto"
-	"fmt"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
 	"time"
+
+	"mime/multipart"
+
+	config "comics-admin/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +22,8 @@ import (
 // @Param item body dto.ChapterItemCreateRequest true "Chapter Item Request"
 // @Security BearerAuth
 // @Success 200 {object} dto.ChapterItemResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [post]
 func (s *Server) createChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemCreateRequest
@@ -62,6 +67,8 @@ func (s *Server) createChapterItem(ctx *gin.Context) {
 // @Param id path int true "Chapter Item ID"
 // @Security BearerAuth
 // @Success 200 {object} dto.ChapterItemResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items/{id} [get]
 func (s *Server) getChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -89,6 +96,8 @@ func (s *Server) getChapterItem(ctx *gin.Context) {
 // @Param page_size query int true "Page size"
 // @Security BearerAuth
 // @Success 200 {object} []dto.ChapterItemResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [get]
 func (s *Server) listChapterItems(ctx *gin.Context) {
 	var req dto.ChapterItemListRequest
@@ -121,6 +130,8 @@ func (s *Server) listChapterItems(ctx *gin.Context) {
 // @Param item body dto.ChapterItemUpdateRequest true "Chapter Item Update Request"
 // @Security BearerAuth
 // @Success 200 {object} dto.ChapterItemResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [put]
 func (s *Server) updateChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemUpdateRequest
@@ -162,7 +173,9 @@ func (s *Server) updateChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter Item ID"
 // @Security BearerAuth
-// @Success 200 {object} nil
+// @Success 200 {object} dto.ResponseMessage "Chapter item deleted successfully"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items/{id} [delete]
 func (s *Server) deleteChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -186,7 +199,9 @@ func (s *Server) deleteChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param file formData file true "Image file"
 // @Security BearerAuth
-// @Success 200 {object} dto.UploadImageResponse
+// @Success 200 {object} dto.ResponseMessage
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items/upload-image [post]
 func (s *Server) uploadChapterImage(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
@@ -195,21 +210,51 @@ func (s *Server) uploadChapterImage(ctx *gin.Context) {
 		return
 	}
 
-	// Generate unique filename
-	filename := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
+	fileLink := ""
 
-	// Save file to storage
-	dst := fmt.Sprintf("%s/%s", s.config.FileStorage.RootFolder, filename)
-	if err := ctx.SaveUploadedFile(file, dst); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+	if file != nil {
+		fileName, err := config.SaveImage(file, s.config.FileStorage.ChapterItemFolder)
+		if err != nil {
+			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			return
+		}
+
+		fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.ChapterItemFolder, fileName)
 	}
 
-	// Return file URL
-	fileURL := fmt.Sprintf("%s/%s", s.config.ApiFile.Url, filename)
-	ctx.JSON(http.StatusOK, gin.H{
-		"url": fileURL,
+	ctx.JSON(http.StatusOK, dto.ResponseMessage{
+		Status:  "success",
+		Message: "Chapter item image uploaded successfully",
+		Data:    fileLink,
 	})
+}
+
+// isImageFile checks if the file is an image based on its content type
+func (s *Server) isImageFile(file *multipart.FileHeader) bool {
+	// Get file content type
+	openedFile, err := file.Open()
+	if err != nil {
+		return false
+	}
+	defer openedFile.Close()
+
+	// Read first 512 bytes to detect content type
+	buffer := make([]byte, 512)
+	_, err = openedFile.Read(buffer)
+	if err != nil {
+		return false
+	}
+
+	// Check content type
+	contentType := http.DetectContentType(buffer)
+	validTypes := []string{"image/jpeg", "image/png", "image/gif", "image/webp"}
+
+	for _, t := range validTypes {
+		if contentType == t {
+			return true
+		}
+	}
+	return false
 }
 
 // getUserIDFromContext extracts user ID from gin context

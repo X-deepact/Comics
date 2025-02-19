@@ -4,41 +4,84 @@ import (
 	"comics-admin/dto"
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 	"pkg-common/model"
 )
 
-func (q *Queries) CreateComic(comic *model.ComicModel) error {
-	return q.db.WithContext(context.Background()).Create(comic).Error
+func (q *Queries) CreateComic(req *dto.ComicRequest) (*model.ComicModel, error) {
+	comic := &model.ComicModel{
+		Name:        req.Name,
+		Code:        req.Code,
+		Lang:        req.Lang,
+		Audience:    req.Audience,
+		Description: req.Description,
+		Cover:       req.Cover,
+		CreatedBy:   req.CreatedBy,
+	}
+
+	if err := q.db.WithContext(context.Background()).Create(comic).Error; err != nil {
+		return nil, err
+	}
+
+	var comicAuthors []model.ComicAuthorModel
+	for _, authorID := range req.Authors {
+		comicAuthors = append(comicAuthors, model.ComicAuthorModel{
+			ComicId:  comic.Id,
+			AuthorId: authorID,
+		})
+	}
+
+	var comicGenres []model.ComicGenreModel
+	for _, genreID := range req.Genres {
+		comicGenres = append(comicGenres, model.ComicGenreModel{
+			ComicId: comic.Id,
+			GenreId: genreID,
+		})
+	}
+
+	if len(comicAuthors) > 0 {
+		if err := q.db.WithContext(context.Background()).Create(&comicAuthors).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	if len(comicGenres) > 0 {
+		if err := q.db.WithContext(context.Background()).Create(&comicGenres).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	return comic, nil
 }
 
 func (q *Queries) DeleteComic(id int64) error {
 	return q.db.WithContext(context.Background()).Delete(&model.ComicModel{Id: id}).Error
 }
 
-func (q *Queries) GetComic(id int64) (*model.ComicModel, error) {
-	var comic model.ComicModel
-	if err := q.db.WithContext(context.Background()).Where("id = ?", id).First(&comic).Error; err != nil {
+func (q *Queries) GetComic(id int64) (*dto.ComicResponse, error) {
+	var comic dto.ComicResponse
+
+	query := q.db.WithContext(context.Background()).Table("comics")
+
+	if err := query.Where("comics.id = ?", id).First(&comic).Error; err != nil {
 		return nil, err
 	}
 	return &comic, nil
 }
+
 func (q *Queries) ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int64, error) {
 	var comics []dto.ComicResponse
 	var total int64
 
-	query := q.db.WithContext(context.Background()).Table("comics").
-		Select("comics.*, created_by_user.username AS created_by_name, updated_by_user.username AS updated_by_name").
-		Joins("LEFT JOIN users AS created_by_user ON comics.created_by = created_by_user.id").
-		Joins("LEFT JOIN users AS updated_by_user ON comics.updated_by = updated_by_user.id")
-
+	query := q.db.WithContext(context.Background()).Table("comics")
 	if req.Query != "" {
 		query = query.Where("comics.name LIKE ? OR comics.code LIKE ?", "%"+req.Query+"%", "%"+req.Query+"%")
 	}
 	if req.Active {
 		query = query.Where("comics.active = ?", req.Active)
 	}
-	if req.Language != "" {
-		query = query.Where("comics.lang = ?", req.Language)
+	if req.Lang != "" {
+		query = query.Where("comics.lang = ?", req.Lang)
 	}
 	if req.Audience != "" {
 		query = query.Where("comics.audience = ?", req.Audience)
@@ -62,6 +105,63 @@ func (q *Queries) ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int
 
 	return comics, total, nil
 }
-func (q *Queries) UpdateComic(comic *model.ComicModel) error {
-	return q.db.WithContext(context.Background()).Model(comic).Updates(comic).Error
+
+func (q *Queries) UpdateComic(req *dto.ComicUpdateRequest) (*dto.ComicResponse, error) {
+	comic := &model.ComicModel{
+		Id:          req.ID,
+		Name:        req.Name,
+		Code:        req.Code,
+		Lang:        req.Lang,
+		Audience:    req.Audience,
+		Description: req.Description,
+		Cover:       req.Cover,
+		UpdatedBy:   req.UpdatedBy,
+	}
+
+	if err := q.db.WithContext(context.Background()).Model(comic).Updates(comic).Error; err != nil {
+		return nil, err
+	}
+
+	if err := q.db.WithContext(context.Background()).Where("comic_id = ?", req.ID).Delete(&model.ComicAuthorModel{}).Error; err != nil {
+		return nil, err
+	}
+	var comicAuthors []model.ComicAuthorModel
+	for _, authorID := range req.Authors {
+		comicAuthors = append(comicAuthors, model.ComicAuthorModel{
+			ComicId:  req.ID,
+			AuthorId: authorID,
+		})
+	}
+	if len(comicAuthors) > 0 {
+		if err := q.db.WithContext(context.Background()).Create(&comicAuthors).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	if err := q.db.WithContext(context.Background()).Where("comic_id = ?", req.ID).Delete(&model.ComicGenreModel{}).Error; err != nil {
+		return nil, err
+	}
+	var comicGenres []model.ComicGenreModel
+	for _, genreID := range req.Genres {
+		comicGenres = append(comicGenres, model.ComicGenreModel{
+			ComicId: req.ID,
+			GenreId: genreID,
+		})
+	}
+	if len(comicGenres) > 0 {
+		if err := q.db.WithContext(context.Background()).Create(&comicGenres).Error; err != nil {
+			return nil, err
+		}
+	}
+
+	return q.GetComic(req.ID)
+}
+
+func (q *Queries) ActiveComic(id int64, adminId int64) error {
+	activeComic := map[string]interface{}{
+		"active":     gorm.Expr("NOT active"),
+		"updated_by": adminId,
+	}
+
+	return q.db.WithContext(context.Background()).Model(&model.ComicModel{}).Where("id = ?", id).Updates(activeComic).Error
 }

@@ -30,18 +30,18 @@ func (q *Queries) GetGenres(req dto.GenreListRequest) ([]dto.GenreResponse, int6
 	var query = q.db.WithContext(context.Background()).Table("genres")
 
 	if req.Name != "" {
-		query.Where("name LIKE ?", "%"+req.Name+"%")
+		query.Where("genres.name LIKE ?", "%"+req.Name+"%")
 	}
 
 	if req.Language != "" {
-		query.Where("language = ?", req.Language)
+		query.Where("genres.lang = ?", req.Language)
 	}
 
 	query = query.Select("genres.*, uc.username AS created_by_name, up.username AS updated_by_name").
 		Joins("LEFT JOIN users uc ON uc.id = genres.created_by").
 		Joins("LEFT JOIN users up ON up.id = genres.updated_by")
 
-	if err := query.Order("position").
+	if err := query.Order("genres.position").
 		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
 		Find(&genres).Error; err != nil {
 		return nil, 0, err

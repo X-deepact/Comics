@@ -27,9 +27,9 @@ func (s *Server) genreRouter() {
 // @Param genre body dto.GenreCreateRequest true "Genre Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.GenreResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Failure 401 {object} dto.ErrorResponse "User not authenticated"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Failure 401 {object} dto.ResponseMessage "User not authenticated"
 // @Router /api/genre [post]
 func (s *Server) createGenre(ctx *gin.Context) {
 	var req dto.GenreCreateRequest
@@ -81,8 +81,8 @@ func (s *Server) createGenre(ctx *gin.Context) {
 // @Param id path int true "Genre ID"
 // @Security     BearerAuth
 // @Success 200 {object} dto.GenreResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre/{id} [get]
 func (s *Server) getGenre(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -105,14 +105,14 @@ func (s *Server) getGenre(ctx *gin.Context) {
 // @Tags genres
 // @Accept json
 // @Produce json
-// @Param page query int false "Page number"
-// @Param page_size query int false "Page size"
+// @Param page query int true "Page number"
+// @Param page_size query int true "Page size (must be between 10 and 50)" min(10) max(50)
 // @Param name query string false "Name"
 // @Param language query string false "Language"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.GenreResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre [get]
 func (s *Server) getGenres(ctx *gin.Context) {
 	var req dto.GenreListRequest
@@ -138,9 +138,8 @@ func (s *Server) getGenres(ctx *gin.Context) {
 // @Param genre body dto.GenreUpdateRequest true "Genre Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.GenreResponse
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Failure 401 {object} dto.ErrorResponse "User not authenticated"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre [put]
 func (s *Server) updateGenre(ctx *gin.Context) {
 	var req dto.GenreUpdateRequest
@@ -191,9 +190,9 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} nil
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Success 200 {object} dto.ResponseMessage "Genre successfully deleted"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre/{id} [delete]
 func (s *Server) deleteGenre(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -207,5 +206,8 @@ func (s *Server) deleteGenre(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Genre successfully deleted"})
+	ctx.JSON(http.StatusOK, dto.ResponseMessage{
+		Status:  "success",
+		Message: "Genre deleted successfully",
+	})
 }

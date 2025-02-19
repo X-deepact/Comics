@@ -31,9 +31,9 @@
 - [x] 🟢 **POST /comic/upload-cover** - Upload comic cover
 
 ## Genres
-- [x] 🔴 **GET /genre** - List genres
-- [x] 🔴 **GET /genre/{id}** - Get genre details
-- [x] 🔴 **POST /genre** - Create a new genre
+- [x] 🔴 **GET /genres** - List genres
+- [x] 🔴 **GET /genres/{id}** - Get genre details
+- [x] 🔴 **POST /genres** - Create a new genre
 - [x] 🔴 **PUT /genres/{id}** - Update genre
 - [x] 🔴 **DELETE /genres/{id}** - Delete genre
 

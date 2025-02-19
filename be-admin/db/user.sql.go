@@ -111,9 +111,16 @@ func (q *Queries) DeleteUser(id int64, adminId int64) error {
 
 func (q *Queries) GetUserData(id int64) (*dto.UserModel, error) {
 	var user dto.UserModel
-	if err := q.db.WithContext(context.Background()).Preload("Profile").First(&user, id).Error; err != nil {
+	if err := q.db.WithContext(context.Background()).First(&user, id).Error; err != nil {
 		return nil, err
 	}
+
+	var profile model.ProfileModel
+	if err := q.db.WithContext(context.Background()).Where("user_id = ?", id).First(&profile).Error; err != nil {
+		return nil, err
+	}
+
+	user.Profile = profile
 
 	return &user, nil
 }
@@ -180,12 +187,12 @@ func (q *Queries) CheckUserExistNotMe(id int64, username string, phone *string, 
 }
 
 func (q *Queries) ActiveUser(id int64, adminId int64) error {
-	deletedUser := map[string]interface{}{
+	activeUser := map[string]interface{}{
 		"active":     gorm.Expr("NOT active"),
 		"updated_by": adminId,
 	}
 
-	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(deletedUser).Error
+	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(activeUser).Error
 }
 
 func (q *Queries) ChangePassword(id int64, password string) error {
