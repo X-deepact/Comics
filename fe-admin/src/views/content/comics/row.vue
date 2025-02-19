@@ -2,18 +2,23 @@
   <TableRow>
     <TableCell>{{ data.id }}</TableCell>
     <TableCell>
-      <Image
-        :src="`${API_URL}${data.cover}`"
-        alt="Comic cover"
-        width="50"
-        preview
-      />
+      <Image :src="`${API_URL}${data.cover}`" alt="Comic cover" width="50" preview />
     </TableCell>
     <TableCell>{{ data.title }}</TableCell>
     <TableCell>{{ data.description }}</TableCell>
-    <TableCell>{{ data.active }}</TableCell>
+    <TableCell>{{ data.language }}</TableCell>
+    <TableCell>{{ data.audience }}</TableCell>
+    <TableCell>
+      <div v-if="data.active"><Badge variant="outline">On</Badge></div>
+      <div v-if="!data.active"><Badge variant="destructive">Off</Badge></div>
+    </TableCell>
     <TableCell>{{ data.code }}</TableCell>
-    <TableCell>{{ data.created_by }}</TableCell>
+    <TableCell>
+      <p class="font-medium">@{{ data.created_by_user.username }}</p>
+      <p class="text-muted-foreground text-xs">
+        {{ data.created_by_user?.email }}
+      </p>
+    </TableCell>
     <TableCell>
       <div>
         <Label>{{ formatDateSafe(data.created_at, true) }}</Label>
@@ -22,7 +27,12 @@
         </p>
       </div>
     </TableCell>
-    <TableCell>{{ data.updated_by }}</TableCell>
+    <TableCell
+      ><p class="font-medium">@{{ data.updated_by_user.username }}</p>
+      <p class="text-muted-foreground text-xs">
+        {{ data.updated_by_user?.email }}
+      </p></TableCell
+    >
     <TableCell>
       <div>
         <Label>{{ formatDateSafe(data.updated_at, true) }}</Label>
@@ -33,8 +43,35 @@
     </TableCell>
     <TableCell>
       <div class="flex gap-3">
-        <Button variant="outline" class="w-20">Edit</Button>
-        <Button variant="destructive" class="w-20">Delete</Button>
+        <Button
+          variant="outline"
+          size="icon"
+          @click="
+            () => {
+              $emit('clickUpdate', {
+                id: data.id,
+                title: data.title,
+                code: data.code,
+                cover: data.cover,
+                description: data.description,
+                active: data.active,
+                language: data.language,
+                audience: data.audience,
+              });
+            }
+          "
+          ><Pencil
+        /></Button>
+        <Button
+          variant="destructive"
+          size="icon"
+          @click="
+            () => {
+              $emit('clickDelete', data);
+            }
+          "
+          ><Trash2
+        /></Button>
       </div>
     </TableCell>
   </TableRow>
@@ -46,15 +83,15 @@ import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Trash2, Pencil } from "lucide-vue-next";
+import { Badge } from "@/components/ui/badge";
+
 const API_URL = import.meta.env.VITE_API_URL;
 defineProps<{
   data: Comic;
 }>();
-
-const formatDateSafe = (
-  date: Date | string | number,
-  includeTime: boolean
-): string => {
+defineEmits(["clickDelete", "clickUpdate"]);
+const formatDateSafe = (date: Date | string | number, includeTime: boolean): string => {
   try {
     return formatDate(date, includeTime);
   } catch (error) {

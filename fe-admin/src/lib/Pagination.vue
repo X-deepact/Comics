@@ -1,25 +1,7 @@
 <template>
   <div class="flex items-center justify-between mt-4">
     <div class="flex items-center gap-4">
-      <Select
-        :value="props.pageSize"
-        @update:modelValue="
-          (value) => {
-            $emit('update:pageSize', Number(value));
-          }
-        "
-      >
-        <SelectTrigger class="w-[70px]">
-          <SelectValue :placeholder="`${props.pageSize}`" />
-        </SelectTrigger>
-        <SelectContent class="bg-white">
-          <SelectItem value="10">10</SelectItem>
-          <SelectItem value="20">20</SelectItem>
-          <SelectItem value="30">30</SelectItem>
-          <SelectItem value="50">50</SelectItem>
-        </SelectContent>
-      </Select>
-      items / page
+      <span class="text-sm">total {{ totalItems }} items</span>
     </div>
     <div class="flex items-center gap-2">
       <Button
@@ -50,18 +32,10 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { defineProps, defineEmits, ref } from "vue";
+<script setup lang="ts">
+import { defineProps, defineEmits } from "vue";
 import { Button } from "@/components/ui";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 const props = defineProps({
   currentPage: {
     type: Number,
@@ -71,11 +45,7 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  pageSize: {
-    type: Number,
-    required: true,
-  },
+  totalItems: { type: Number, required: true },
 });
-
-defineEmits(["update:currentPage", "update:pageSize"]);
+defineEmits(["update:currentPage"]);
 </script>

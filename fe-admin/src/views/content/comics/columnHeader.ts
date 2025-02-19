@@ -18,6 +18,8 @@ export const ColumnNames = {
     label: "Description",
     key: "description",
   },
+  language: { label: "Language", key: "language" },
+  audience: { label: "Audience", key: "audience" },
   active: {
     label: "Active Status",
     key: "active",
