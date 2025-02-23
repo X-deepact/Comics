@@ -59,6 +59,12 @@ const docTemplate = `{
                         "description": "Filter by type (internal/external)",
                         "name": "type",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -111,6 +117,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.AdsUpdateRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -160,6 +172,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.AdsCreateRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -234,13 +252,13 @@ const docTemplate = `{
             }
         },
         "/api/author": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new author",
+                "description": "List all authors",
                 "consumes": [
                     "application/json"
                 ],
@@ -250,15 +268,91 @@ const docTemplate = `{
                 "tags": [
                     "authors"
                 ],
-                "summary": "Create author",
+                "summary": "List GetAuthors",
                 "parameters": [
                     {
-                        "description": "Author Request",
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.AuthorResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing author",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authors"
+                ],
+                "summary": "Update author by Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Author Update Request",
                         "name": "author",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorRequest"
+                            "$ref": "#/definitions/dto.AuthorUpdateRequest"
                         }
                     }
                 ],
@@ -282,16 +376,14 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/author/list": {
-            "get": {
+            },
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "List all authors",
+                "description": "Create a new author",
                 "consumes": [
                     "application/json"
                 ],
@@ -301,29 +393,30 @@ const docTemplate = `{
                 "tags": [
                     "authors"
                 ],
-                "summary": "List GetAuthors",
+                "summary": "Create author",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
+                        "description": "Author Request",
+                        "name": "author",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthorRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.AuthorResponse"
-                            }
+                            "$ref": "#/definitions/dto.AuthorResponse"
                         }
                     },
                     "400": {
@@ -361,6 +454,13 @@ const docTemplate = `{
                 "summary": "Get GetAuthorById",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Author ID",
                         "name": "id",
@@ -389,13 +489,13 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update an existing author",
+                "description": "Delete an existing author",
                 "consumes": [
                     "application/json"
                 ],
@@ -405,23 +505,21 @@ const docTemplate = `{
                 "tags": [
                     "authors"
                 ],
-                "summary": "Update author by Id",
+                "summary": "Delete author by Id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Author ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Author Update Request",
-                        "name": "author",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.AuthorUpdateRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1060,7 +1158,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Sort order",
+                        "description": "Sort order (asc, desc)",
                         "name": "sort",
                         "in": "query"
                     },
@@ -1080,6 +1178,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Audience",
                         "name": "audience",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "author",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Genre ID",
+                        "name": "genre",
                         "in": "query"
                     }
                 ],
@@ -1966,6 +2076,13 @@ const docTemplate = `{
                 "summary": "Create recommend",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Recommend Create Request",
                         "name": "recommend",
                         "in": "body",
@@ -2016,6 +2133,13 @@ const docTemplate = `{
                 ],
                 "summary": "List recommends",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Page number",
@@ -2073,6 +2197,13 @@ const docTemplate = `{
                 ],
                 "summary": "Get recommend by Id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Recommend ID",
@@ -2387,6 +2518,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create a new user",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Username (Alphanumeric)",
@@ -2863,6 +3001,7 @@ const docTemplate = `{
         "dto.AdsCreateRequest": {
             "type": "object",
             "required": [
+                "status",
                 "title",
                 "type"
             ],
@@ -2881,6 +3020,13 @@ const docTemplate = `{
                 },
                 "image": {
                     "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
                 },
                 "title": {
                     "type": "string"
@@ -2959,6 +3105,13 @@ const docTemplate = `{
                 "image": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
+                },
                 "title": {
                     "type": "string"
                 },
@@ -3000,8 +3153,8 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "created_by": {
-                    "type": "integer"
+                "created_by_name": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -3012,8 +3165,8 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "updated_by": {
-                    "type": "integer"
+                "updated_by_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3238,6 +3391,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -3280,6 +3436,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "updated_at": {

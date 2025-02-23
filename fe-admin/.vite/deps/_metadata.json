@@ -1,0 +1,55 @@
+{
+  "hash": "a42238fc",
+  "configHash": "be14f0f6",
+  "lockfileHash": "35e64c64",
+  "browserHash": "30180611",
+  "optimized": {
+    "vue": {
+      "src": "../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
+      "file": "vue.js",
+      "fileHash": "8e4073dc",
+      "needsInterop": false
+    },
+    "primevue/config": {
+      "src": "../../node_modules/primevue/config/index.mjs",
+      "file": "primevue_config.js",
+      "fileHash": "f3907ccd",
+      "needsInterop": false
+    },
+    "@primevue/themes/aura": {
+      "src": "../../node_modules/@primevue/themes/aura/index.mjs",
+      "file": "@primevue_themes_aura.js",
+      "fileHash": "fc7f2bd6",
+      "needsInterop": false
+    },
+    "pinia": {
+      "src": "../../node_modules/pinia/dist/pinia.mjs",
+      "file": "pinia.js",
+      "fileHash": "44feed67",
+      "needsInterop": false
+    },
+    "vue-router": {
+      "src": "../../node_modules/vue-router/dist/vue-router.mjs",
+      "file": "vue-router.js",
+      "fileHash": "6e6f405e",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "91a5d00b",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-AYVSL3LM": {
+      "file": "chunk-AYVSL3LM.js"
+    },
+    "chunk-IJV5NOMV": {
+      "file": "chunk-IJV5NOMV.js"
+    },
+    "chunk-PZ5AY32C": {
+      "file": "chunk-PZ5AY32C.js"
+    }
+  }
+}

@@ -13,15 +13,8 @@
 - [x] 🔴 **GET /user/profile** - Get user profile
 - [x] 🔴 **PUT /user/profile** - Update user profile
 - [x] 🔴 **PUT /user/{id}/active** - Activate/deactivate user
-<!-- - [ ] **POST /users/upload-avatar** - Upload user avatar
-## Roles & Permissions
-- [ ] **GET /roles** - List roles
-- [ ] **POST /roles** - Create a new role
-- [ ] **PUT /roles/{id}** - Update role
-- [ ] **DELETE /roles/{id}** - Delete role
-- [ ] **GET /user-roles** - List user roles
-- [ ] **POST /user-roles** - Assign role to user
- -->
+
+
 ## Comics
 - [x] 🟢 **GET /comics** - List comics
 - [x] 🟢 **GET /comic/{id}** - Get comic details
@@ -39,8 +32,10 @@
 
 ## Authors
 - [x] 🟡 **GET /authors** - List authors
+- [x] 🟡 **GET /authors/{id}** - Get author details
+- [ ] 🟡 **GET /authors/{id}/comics** - List comics of an author
 - [x] 🟡 **POST /authors** - Create a new author
-- [x] 🟡 **PUT /authors/{id}** - Update author
+- [ ] 🟡 **PUT /authors/{id}** - Update author
 - [x] 🟡 **DELETE /authors/{id}** - Delete author
 
 ## Chapters
@@ -63,7 +58,7 @@
 - [x] 🟡 **GET /recommendations** - List recommendations
 - [x] 🟡 **GET /recommendations/{id}** - Get recommendation details
 - [x] 🟡 **POST /recommendations** - Create a recommendation
-- [x] 🟡 **PUT /recommendations/{id}** - Update recommendation
+- [ ] 🟡 **PUT /recommendations/{id}** - Update recommendation
 - [x] 🟡 **DELETE /recommendations/{id}** - Delete recommendation
 
 ## Ads
@@ -72,6 +67,11 @@
 - [x] 🔵 **POST /ads** - Create an ad
 - [x] 🔵 **PUT /ads/{id}** - Update ad
 - [x] 🔵 **DELETE /ads/{id}** - Delete ad
+
+## General
+- [x] 🔴 **GET /general/tiers** - Get tiers
+- [x] 🔴 **GET /general/genres** - Get genres
+- [x] 🔴 **GET /general/authors** - Get authors
 
 ---
 

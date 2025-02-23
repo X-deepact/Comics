@@ -17,7 +17,7 @@ func ListResponse(ctx *gin.Context, page, pageSize, total int, data interface{})
 	})
 }
 
-func extractUserID(ctx *gin.Context) (int64, error) {
+func ExtractUserID(ctx *gin.Context) (int64, error) {
 	userID, exists := ctx.Get("user_id")
 	if !exists {
 		return 0, fmt.Errorf("user not authenticated")

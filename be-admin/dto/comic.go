@@ -8,6 +8,7 @@ type ComicRequest struct {
 	Audience    string  `form:"audience"`
 	CreatedBy   int64   `form:"created_by"`
 	UpdatedBy   int64   `form:"updated_by"`
+	Status      string  `form:"status"`
 	Authors     []int64 `form:"authors"`
 	Genres      []int64 `form:"genres"`
 	Cover       string  `json:"cover"`
@@ -15,12 +16,15 @@ type ComicRequest struct {
 
 type ComicListRequest struct {
 	ListRequest
-	Query    string `form:"q" json:"q"`
-	SortBy   string `form:"sort_by" json:"sort_by"`
-	Sort     string `form:"sort" json:"sort"`
-	Active   bool   `form:"active" json:"active"`
-	Lang     string `form:"lang" json:"lang"`
-	Audience string `form:"audience" json:"audience"`
+	Query       string `form:"q" json:"q"`
+	SortBy      string `form:"sort_by" json:"sort_by"`
+	Sort        string `form:"sort" json:"sort"`
+	Active      bool   `form:"active" json:"active"`
+	ActiveValue bool
+	Lang        string `form:"lang" json:"lang"`
+	Audience    string `form:"audience" json:"audience"`
+	Author      int64  `form:"author" json:"author"`
+	Genre       int64  `form:"genre" json:"genre"`
 }
 
 type ComicResponse struct {
@@ -32,6 +36,7 @@ type ComicResponse struct {
 	Active      bool   `json:"active"`
 	Lang        string `json:"lang"`
 	Audience    string `json:"audience"`
+	Status      string `json:"status"`
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 	CreatedBy   int64  `json:"created_by"`
@@ -47,5 +52,4 @@ type ComicReturn struct {
 type ComicUpdateRequest struct {
 	ID int64 `form:"id" binding:"required"`
 	ComicRequest
-	Active bool `form:"active"`
 }

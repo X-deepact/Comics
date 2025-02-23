@@ -53,6 +53,12 @@
                         "description": "Filter by type (internal/external)",
                         "name": "type",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -105,6 +111,12 @@
                         "schema": {
                             "$ref": "#/definitions/dto.AdsUpdateRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -154,6 +166,12 @@
                         "schema": {
                             "$ref": "#/definitions/dto.AdsCreateRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status (active/inactive)",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -228,13 +246,13 @@
             }
         },
         "/api/author": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new author",
+                "description": "List all authors",
                 "consumes": [
                     "application/json"
                 ],
@@ -244,15 +262,91 @@
                 "tags": [
                     "authors"
                 ],
-                "summary": "Create author",
+                "summary": "List GetAuthors",
                 "parameters": [
                     {
-                        "description": "Author Request",
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.AuthorResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing author",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authors"
+                ],
+                "summary": "Update author by Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Author Update Request",
                         "name": "author",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorRequest"
+                            "$ref": "#/definitions/dto.AuthorUpdateRequest"
                         }
                     }
                 ],
@@ -276,16 +370,14 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/author/list": {
-            "get": {
+            },
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "List all authors",
+                "description": "Create a new author",
                 "consumes": [
                     "application/json"
                 ],
@@ -295,29 +387,30 @@
                 "tags": [
                     "authors"
                 ],
-                "summary": "List GetAuthors",
+                "summary": "Create author",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
+                        "description": "Author Request",
+                        "name": "author",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthorRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.AuthorResponse"
-                            }
+                            "$ref": "#/definitions/dto.AuthorResponse"
                         }
                     },
                     "400": {
@@ -355,6 +448,13 @@
                 "summary": "Get GetAuthorById",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Author ID",
                         "name": "id",
@@ -383,13 +483,13 @@
                     }
                 }
             },
-            "put": {
+            "delete": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update an existing author",
+                "description": "Delete an existing author",
                 "consumes": [
                     "application/json"
                 ],
@@ -399,23 +499,21 @@
                 "tags": [
                     "authors"
                 ],
-                "summary": "Update author by Id",
+                "summary": "Delete author by Id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Author ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Author Update Request",
-                        "name": "author",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.AuthorUpdateRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1054,7 +1152,7 @@
                     },
                     {
                         "type": "string",
-                        "description": "Sort order",
+                        "description": "Sort order (asc, desc)",
                         "name": "sort",
                         "in": "query"
                     },
@@ -1074,6 +1172,18 @@
                         "type": "string",
                         "description": "Audience",
                         "name": "audience",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "author",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Genre ID",
+                        "name": "genre",
                         "in": "query"
                     }
                 ],
@@ -1960,6 +2070,13 @@
                 "summary": "Create recommend",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Recommend Create Request",
                         "name": "recommend",
                         "in": "body",
@@ -2010,6 +2127,13 @@
                 ],
                 "summary": "List recommends",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Page number",
@@ -2067,6 +2191,13 @@
                 ],
                 "summary": "Get recommend by Id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Recommend ID",
@@ -2381,6 +2512,13 @@
                 ],
                 "summary": "Create a new user",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Username (Alphanumeric)",
@@ -2857,6 +2995,7 @@
         "dto.AdsCreateRequest": {
             "type": "object",
             "required": [
+                "status",
                 "title",
                 "type"
             ],
@@ -2875,6 +3014,13 @@
                 },
                 "image": {
                     "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
                 },
                 "title": {
                     "type": "string"
@@ -2953,6 +3099,13 @@
                 "image": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive"
+                    ]
+                },
                 "title": {
                     "type": "string"
                 },
@@ -2994,8 +3147,8 @@
                 "created_at": {
                     "type": "string"
                 },
-                "created_by": {
-                    "type": "integer"
+                "created_by_name": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -3006,8 +3159,8 @@
                 "updated_at": {
                     "type": "string"
                 },
-                "updated_by": {
-                    "type": "integer"
+                "updated_by_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3232,6 +3385,9 @@
                 "name": {
                     "type": "string"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -3274,6 +3430,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 },
                 "updated_at": {

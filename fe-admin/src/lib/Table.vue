@@ -1,29 +1,51 @@
 <template>
-    <table class="min-w-full border-collapse border border-gray-300">
-        <thead>
-            <tr>
-                <th v-for="column in columns" :key="column.key" class="border border-gray-300 p-2">{{ column.label }}</th>
-                <th class="border border-gray-300 p-2">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="subject in subjects" :key="subject.name">
-                <td v-for="column in columns" :key="column.key" class="border border-gray-300 p-2">{{ subject[column.key] }}</td>
-                <td class="border border-gray-300 p-2">
-                    <Button @click="$emit('edit', subject)">Edit</Button>
-                    <Button @click="$emit('delete', subject)">Delete</Button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead v-for="column in columns">{{ column.label }}</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      <component
+        v-if="!isLoading"
+        v-for="subject in subjects"
+        :is="row"
+        :data="subject"
+        @clickDelete="
+          (data: any) => {
+            $emit('clickDelete', data);
+          }
+        "
+        @clickUpdate="
+          (data: any) => {
+            $emit('clickUpdate', data);
+          }
+        "
+      />
+    </TableBody>
+  </Table>
+  <div v-if="isLoading" class="flex items-center justify-center py-10 gap-3">
+    <img :src="loadingImg" class="w-[40px] h-[40px]" />
+    <Label class="justify-self-center text-3xl"> Loading...</Label>
+  </div>
 </template>
 
-<script setup>
-import { defineProps } from 'vue'
-import { Button } from '@/components/ui'
-
-const props = defineProps({
-    subjects: Array,
-    columns: Array
-})
+<script setup lang="ts">
+import { defineProps } from "vue";
+import loadingImg from "@/assets/loading.svg";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Label } from "@/components/ui/label";
+defineProps({
+  subjects: Array,
+  columns: Object,
+  isLoading: Boolean,
+  row: Object,
+});
+defineEmits(["clickDelete", "clickUpdate"]);
 </script>

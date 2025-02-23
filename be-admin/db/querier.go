@@ -18,6 +18,7 @@ type Querier interface {
 	GetUserData(id int64) (*dto.UserModel, error)
 	ActiveUser(id int64, adminId int64) error
 	ChangePassword(id int64, password string) error
+	GetUserNamesByIds(ids []int64) (map[int64]string, error)
 
 	// Comics
 	CreateComic(comic *dto.ComicRequest) (*model.ComicModel, error)

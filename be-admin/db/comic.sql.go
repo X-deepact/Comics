@@ -5,10 +5,12 @@ import (
 	"context"
 	"fmt"
 	"gorm.io/gorm"
+	"pkg-common/common"
 	"pkg-common/model"
 )
 
 func (q *Queries) CreateComic(req *dto.ComicRequest) (*model.ComicModel, error) {
+
 	comic := &model.ComicModel{
 		Name:        req.Name,
 		Code:        req.Code,
@@ -17,6 +19,10 @@ func (q *Queries) CreateComic(req *dto.ComicRequest) (*model.ComicModel, error) 
 		Description: req.Description,
 		Cover:       req.Cover,
 		CreatedBy:   req.CreatedBy,
+	}
+
+	if req.Status == common.COMIC_STATUS_COMPLETED || req.Status == common.COMIC_STATUS_ONGOING {
+		comic.Status = req.Status
 	}
 
 	if err := q.db.WithContext(context.Background()).Create(comic).Error; err != nil {
@@ -66,6 +72,7 @@ func (q *Queries) GetComic(id int64) (*dto.ComicResponse, error) {
 	if err := query.Where("comics.id = ?", id).First(&comic).Error; err != nil {
 		return nil, err
 	}
+
 	return &comic, nil
 }
 
@@ -77,14 +84,24 @@ func (q *Queries) ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int
 	if req.Query != "" {
 		query = query.Where("comics.name LIKE ? OR comics.code LIKE ?", "%"+req.Query+"%", "%"+req.Query+"%")
 	}
-	if req.Active {
+
+	if req.ActiveValue {
 		query = query.Where("comics.active = ?", req.Active)
 	}
+
 	if req.Lang != "" {
 		query = query.Where("comics.lang = ?", req.Lang)
 	}
 	if req.Audience != "" {
 		query = query.Where("comics.audience = ?", req.Audience)
+	}
+
+	if req.Author != 0 {
+		query = query.Joins("JOIN comic_authors ON comics.id = comic_authors.comic_id").Where("comic_authors.author_id = ?", req.Author)
+	}
+
+	if req.Genre != 0 {
+		query = query.Joins("JOIN comic_genres ON comics.id = comic_genres.comic_id").Where("comic_genres.genre_id = ?", req.Genre)
 	}
 
 	if req.SortBy != "" {
@@ -115,6 +132,7 @@ func (q *Queries) UpdateComic(req *dto.ComicUpdateRequest) (*dto.ComicResponse, 
 		Audience:    req.Audience,
 		Description: req.Description,
 		Cover:       req.Cover,
+		Status:      req.Status,
 		UpdatedBy:   req.UpdatedBy,
 	}
 

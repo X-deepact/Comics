@@ -41,13 +41,13 @@ func (q *Queries) GetGenres(req dto.GenreListRequest) ([]dto.GenreResponse, int6
 		Joins("LEFT JOIN users uc ON uc.id = genres.created_by").
 		Joins("LEFT JOIN users up ON up.id = genres.updated_by")
 
-	if err := query.Order("genres.position").
-		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
-		Find(&genres).Error; err != nil {
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Order("genres.position").
+		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
+		Find(&genres).Error; err != nil {
 		return nil, 0, err
 	}
 

@@ -7,14 +7,14 @@ type AuthorRequest struct {
 }
 
 type AuthorResponse struct {
-	Id        int64  `json:"id"`
-	Name      string `json:"name"`
-	Biography string `json:"biography"`
-	BirthDay  string `json:"birth_day"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	CreatedBy int64  `json:"created_by"`
-	UpdatedBy int64  `json:"updated_by"`
+	Id            int64  `json:"id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Biography     string `json:"biography,omitempty"`
+	BirthDay      string `json:"birth_day,omitempty"`
+	CreatedAt     string `json:"created_at,omitempty"`
+	UpdatedAt     string `json:"updated_at,omitempty"`
+	CreatedByName string `json:"created_by_name,omitempty"`
+	UpdatedByName string `json:"updated_by_name,omitempty"`
 }
 
 type AuthorUpdateRequest struct {

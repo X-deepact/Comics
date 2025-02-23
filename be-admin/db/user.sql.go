@@ -3,9 +3,10 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
-	"gorm.io/gorm"
 	"pkg-common/model"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func (q *Queries) CreateUser(user *dto.UserModel) error {
@@ -87,13 +88,13 @@ func (q *Queries) GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64,
 		Joins("LEFT JOIN users up ON up.id = u.updated_by").
 		Where("u.deleted_at is null")
 
-	if err := query.Order("id DESC").
-		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
-		Find(&users).Error; err != nil {
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Order("id DESC").
+		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
+		Find(&users).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -202,4 +203,16 @@ func (q *Queries) ChangePassword(id int64, password string) error {
 	}
 
 	return q.db.WithContext(context.Background()).Model(&model.UserModel{}).Where("id = ?", id).Updates(changePassword).Error
+}
+
+func (q *Queries) GetUserNamesByIds(ids []int64) (map[int64]string, error) {
+	var users []model.UserModel
+	if err := q.db.WithContext(context.Background()).Where("id in (?)", ids).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	names := make(map[int64]string)
+	for _, user := range users {
+		names[user.Id] = user.Username
+	}
+	return names, nil
 }

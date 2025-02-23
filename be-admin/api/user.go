@@ -5,13 +5,14 @@ import (
 	config "comics-admin/util"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (s *Server) userRouter() {
@@ -176,6 +177,7 @@ func (s *Server) login(ctx *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
+// @Param   Authorization header string true "Bearer authorization token"
 // @Param username formData string true "Username (Alphanumeric)"
 // @Param phone formData string false "Phone Number"
 // @Param email formData string false "Email Address"

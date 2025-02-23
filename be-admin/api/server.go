@@ -137,3 +137,32 @@ func errorResponse(err error) gin.H {
 func errorResponseMessage(message string) gin.H {
 	return gin.H{"error": message}
 }
+
+func (r *Server) GetUserIdFromContext(ctx *gin.Context) (int64, error) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		return 0, fmt.Errorf("user not authenticated")
+	}
+
+	userIDInt64, ok := userID.(int64)
+	if !ok {
+		return 0, fmt.Errorf("invalid user ID type")
+	}
+
+	return userIDInt64, nil
+}
+
+func (r *Server) GetUsernameFromContext(ctx *gin.Context) (string, error) {
+	claims, exists := ctx.Get("claims")
+	if !exists {
+		return "", fmt.Errorf("claims not found")
+	}
+
+	userClaims, ok := claims.(*token.Claims)
+	if !ok {
+		return "", fmt.Errorf("invalid claims type")
+	}
+
+	username := userClaims.RegisteredClaims.Issuer
+	return username, nil
+}

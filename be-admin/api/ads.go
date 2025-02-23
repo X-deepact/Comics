@@ -2,7 +2,6 @@ package api
 
 import (
 	"comics-admin/dto"
-	"fmt"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
@@ -17,6 +16,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param ad body dto.AdsCreateRequest true "Advertisement Request"
+// @Param status query string false "Filter by status (active/inactive)"
 // @Security BearerAuth
 // @Success 200 {object} dto.AdsResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
@@ -30,29 +30,25 @@ func (s *Server) createAds(ctx *gin.Context) {
 		return
 	}
 
-	// Lấy user ID từ context
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+	userID, err := ExtractUserID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	userIDUint, ok := userID.(uint)
-	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
-		return
-	}
+	now := time.Now()
 
 	ads := &model.AdModel{
 		Title:      req.Title,
 		Image:      req.Image,
 		ComicID:    req.ComicID,
 		Type:       req.Type,
+		Status:     req.Status,
 		DirectURL:  req.DirectURL,
 		ActiveFrom: req.ActiveFrom,
 		ActiveTo:   req.ActiveTo,
-		CreatedBy:  int64(userIDUint),
-		CreatedAt:  &time.Time{},
+		CreatedBy:  userID,
+		CreatedAt:  &now,
 	}
 
 	if err := s.store.CreateAds(ads); err != nil {
@@ -78,6 +74,7 @@ func (s *Server) createAds(ctx *gin.Context) {
 // @Param page_size query int true "Page size"
 // @Param title query string false "Filter by title"
 // @Param type query string false "Filter by type (internal/external)"
+// @Param status query string false "Filter by status (active/inactive)"
 // @Security BearerAuth
 // @Success 200 {object} []dto.AdsResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
@@ -112,6 +109,7 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param ad body dto.AdsUpdateRequest true "Advertisement Update Request"
+// @Param status query string false "Filter by status (active/inactive)"
 // @Security BearerAuth
 // @Success 200 {object} dto.AdsResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
@@ -124,17 +122,13 @@ func (s *Server) updateAds(ctx *gin.Context) {
 		return
 	}
 
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+	userID, err := ExtractUserID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	userIDUint, ok := userID.(uint)
-	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
-		return
-	}
+	now := time.Now()
 
 	ads := &model.AdModel{
 		Id:         req.ID,
@@ -142,11 +136,12 @@ func (s *Server) updateAds(ctx *gin.Context) {
 		Image:      req.Image,
 		ComicID:    req.ComicID,
 		Type:       req.Type,
+		Status:     req.Status,
 		DirectURL:  req.DirectURL,
 		ActiveFrom: req.ActiveFrom,
 		ActiveTo:   req.ActiveTo,
-		UpdatedBy:  int64(userIDUint),
-		UpdatedAt:  &time.Time{},
+		UpdatedBy:  userID,
+		UpdatedAt:  &now,
 	}
 
 	if err := s.store.UpdateAds(ads); err != nil {

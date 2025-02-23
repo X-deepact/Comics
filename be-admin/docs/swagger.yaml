@@ -12,6 +12,11 @@ definitions:
         type: string
       image:
         type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
       title:
         type: string
       type:
@@ -20,6 +25,7 @@ definitions:
         - external
         type: string
     required:
+    - status
     - title
     - type
     type: object
@@ -64,6 +70,11 @@ definitions:
         type: integer
       image:
         type: string
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
       title:
         type: string
       type:
@@ -93,16 +104,16 @@ definitions:
         type: string
       created_at:
         type: string
-      created_by:
-        type: integer
+      created_by_name:
+        type: string
       id:
         type: integer
       name:
         type: string
       updated_at:
         type: string
-      updated_by:
-        type: integer
+      updated_by_name:
+        type: string
     type: object
   dto.AuthorUpdateRequest:
     properties:
@@ -250,6 +261,8 @@ definitions:
         type: string
       name:
         type: string
+      status:
+        type: string
       updated_at:
         type: string
       updated_by:
@@ -278,6 +291,8 @@ definitions:
       lang:
         type: string
       name:
+        type: string
+      status:
         type: string
       updated_at:
         type: string
@@ -566,6 +581,10 @@ paths:
         in: query
         name: type
         type: string
+      - description: Filter by status (active/inactive)
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -599,6 +618,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.AdsCreateRequest'
+      - description: Filter by status (active/inactive)
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -630,6 +653,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dto.AdsUpdateRequest'
+      - description: Filter by status (active/inactive)
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:
@@ -682,11 +709,56 @@ paths:
       tags:
       - ads
   /api/author:
+    get:
+      consumes:
+      - application/json
+      description: List all authors
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AuthorResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: List GetAuthors
+      tags:
+      - authors
     post:
       consumes:
       - application/json
       description: Create a new author
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Author Request
         in: body
         name: author
@@ -713,42 +785,16 @@ paths:
       summary: Create author
       tags:
       - authors
-  /api/author/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a author by GetAuthorById
-      parameters:
-      - description: Author ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.AuthorResponse'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-      security:
-      - BearerAuth: []
-      summary: Get GetAuthorById
-      tags:
-      - authors
     put:
       consumes:
       - application/json
       description: Update an existing author
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Author ID
         in: path
         name: id
@@ -780,19 +826,21 @@ paths:
       summary: Update author by Id
       tags:
       - authors
-  /api/author/list:
-    get:
+  /api/author/{id}:
+    delete:
       consumes:
       - application/json
-      description: List all authors
+      description: Delete an existing author
       parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Author ID
+        in: path
+        name: id
+        required: true
         type: integer
       produces:
       - application/json
@@ -800,9 +848,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.AuthorResponse'
-            type: array
+            $ref: '#/definitions/dto.AuthorResponse'
         "400":
           description: Invalid request
           schema:
@@ -813,7 +859,42 @@ paths:
             $ref: '#/definitions/dto.ResponseMessage'
       security:
       - BearerAuth: []
-      summary: List GetAuthors
+      summary: Delete author by Id
+      tags:
+      - authors
+    get:
+      consumes:
+      - application/json
+      description: Get a author by GetAuthorById
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthorResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get GetAuthorById
       tags:
       - authors
   /api/chapter-items:
@@ -1200,7 +1281,7 @@ paths:
         in: query
         name: sort_by
         type: string
-      - description: Sort order
+      - description: Sort order (asc, desc)
         in: query
         name: sort
         type: string
@@ -1216,6 +1297,14 @@ paths:
         in: query
         name: audience
         type: string
+      - description: Author ID
+        in: query
+        name: author
+        type: integer
+      - description: Genre ID
+        in: query
+        name: genre
+        type: integer
       produces:
       - application/json
       responses:
@@ -1779,6 +1868,11 @@ paths:
       - application/json
       description: Create a new recommend
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Recommend Create Request
         in: body
         name: recommend
@@ -1811,6 +1905,11 @@ paths:
       - application/json
       description: Get a recommend by Id
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Recommend ID
         in: path
         name: id
@@ -1878,6 +1977,11 @@ paths:
       - application/json
       description: List all recommends
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Page number
         in: query
         name: page
@@ -1975,6 +2079,11 @@ paths:
       - application/json
       description: Create a new user
       parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Username (Alphanumeric)
         in: formData
         name: username

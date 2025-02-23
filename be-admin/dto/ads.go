@@ -7,6 +7,7 @@ type AdsCreateRequest struct {
 	Image      string     `json:"image"`
 	ComicID    int64      `json:"comic_id"`
 	Type       string     `json:"type" binding:"required,oneof=internal external"`
+	Status     string     `json:"status" binding:"required,oneof=active inactive"`
 	DirectURL  string     `json:"direct_url"`
 	ActiveFrom *time.Time `json:"active_from"`
 	ActiveTo   *time.Time `json:"active_to"`
@@ -18,6 +19,7 @@ type AdsUpdateRequest struct {
 	Image      string     `json:"image"`
 	ComicID    int64      `json:"comic_id"`
 	Type       string     `json:"type" binding:"oneof=internal external"`
+	Status     string     `json:"status" binding:"oneof=active inactive"`
 	DirectURL  string     `json:"direct_url"`
 	ActiveFrom *time.Time `json:"active_from"`
 	ActiveTo   *time.Time `json:"active_to"`
@@ -43,4 +45,5 @@ type AdsListRequest struct {
 	PageSize int    `form:"page_size" binding:"required,min=1,max=100"`
 	Title    string `form:"title"`
 	Type     string `form:"type" binding:"omitempty,oneof=internal external"`
+	Status   string `form:"status" binding:"omitempty,oneof=active inactive"`
 }

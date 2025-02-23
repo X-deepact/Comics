@@ -7,8 +7,9 @@ const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
 // Views
 const Login = () => import("../views/auth/Login.vue");
 const Dashboard = () => import("../views/Dashboard.vue");
-const Comics = () => import("../views/content/Comics.vue");
-const Subjects = () => import("../views/content/Subjects.vue");
+const Comics = () => import("../views/content/comics/Comics.vue");
+const Subjects = () => import("../views/content/subjects/Subjects.vue");
+const Authors = () => import("../views/content/authors/Authors.vue");
 const Ads = () => import("../views/ads/Ads.vue");
 const Recommendation = () => import("../views/ads/Recommendation.vue");
 const Profile = () => import("../views/profile/Profile.vue");
@@ -43,6 +44,11 @@ const routes = [
         path: "subjects",
         name: "subjects",
         component: Subjects,
+      },
+      {
+        path: "authors",
+        name: "authors",
+        component: Authors,
       },
       // Ads and Recommendation
       {

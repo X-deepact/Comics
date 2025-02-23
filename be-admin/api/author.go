@@ -26,6 +26,7 @@ func (s *Server) authorRoutes() {
 // @Tags authors
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param author body dto.AuthorRequest true "Author Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.AuthorResponse
@@ -44,13 +45,27 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 		return
 	}
 
+	userId, err := s.GetUserIdFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	userName, err := s.GetUsernameFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	now := time.Now()
 	authorMode := model.AuthorModel{
 		Name:      req.Name,
 		Biography: req.Biography,
 		BirthDay:  &birthDay,
 		CreatedAt: &now,
+		CreatedBy: userId,
 		UpdatedAt: &now,
+		UpdatedBy: userId,
 	}
 
 	err = s.store.CreateAuthor(&authorMode)
@@ -60,12 +75,14 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 	}
 
 	resp := dto.AuthorResponse{
-		Id:        authorMode.Id,
-		Name:      authorMode.Name,
-		Biography: authorMode.Biography,
-		BirthDay:  authorMode.BirthDay.Format(time.RFC3339),
-		CreatedAt: authorMode.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: authorMode.UpdatedAt.Format(time.RFC3339),
+		Id:            authorMode.Id,
+		Name:          authorMode.Name,
+		Biography:     authorMode.Biography,
+		BirthDay:      authorMode.BirthDay.Format(time.RFC3339),
+		CreatedAt:     authorMode.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:     authorMode.UpdatedAt.Format(time.RFC3339),
+		CreatedByName: userName,
+		UpdatedByName: userName,
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -75,6 +92,7 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 // @Tags authors
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Author ID"
 // @Security     BearerAuth
 // @Success 200 {object} dto.AuthorResponse
@@ -97,6 +115,11 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	mapUserIdUserName, err := s.store.GetUserNamesByIds([]int64{author.CreatedBy, author.UpdatedBy})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
 	resp := dto.AuthorResponse{
 		Id:        author.Id,
@@ -106,6 +129,12 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 		CreatedAt: author.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: author.UpdatedAt.Format(time.RFC3339),
 	}
+	if createdByName, ok := mapUserIdUserName[author.CreatedBy]; ok {
+		resp.CreatedByName = createdByName
+	}
+	if updatedByName, ok := mapUserIdUserName[author.UpdatedBy]; ok {
+		resp.UpdatedByName = updatedByName
+	}
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -114,13 +143,14 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 // @Tags authors
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.AuthorResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Router /api/author/list [get]
+// @Router /api/author [get]
 func (s *Server) GetAuthors(c *gin.Context) {
 	var req dto.ListRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -130,6 +160,17 @@ func (s *Server) GetAuthors(c *gin.Context) {
 
 	offset := (req.Page - 1) * req.PageSize
 	authors, total, err := s.store.GetAuthors(req.PageSize, offset)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	userIds := []int64{}
+	for _, author := range authors {
+		userIds = append(userIds, author.CreatedBy, author.UpdatedBy)
+	}
+
+	mapUserIdUserName, err := s.store.GetUserNamesByIds(userIds)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -145,9 +186,20 @@ func (s *Server) GetAuthors(c *gin.Context) {
 			CreatedAt: author.CreatedAt.Format(time.RFC3339),
 			UpdatedAt: author.UpdatedAt.Format(time.RFC3339),
 		}
+		if createdByName, ok := mapUserIdUserName[author.CreatedBy]; ok {
+			resp[i].CreatedByName = createdByName
+		}
+		if updatedByName, ok := mapUserIdUserName[author.UpdatedBy]; ok {
+			resp[i].UpdatedByName = updatedByName
+		}
 	}
 
-	ListResponse(c, req.Page+1, req.PageSize, int(total), resp)
+	pageNum := req.Page
+	if len(resp) == req.PageSize && total > int64(req.PageSize) {
+		pageNum++
+	}
+	ListResponse(c, pageNum, req.PageSize, int(total), resp)
+
 }
 
 // @Summary Update author by Id
@@ -155,13 +207,14 @@ func (s *Server) GetAuthors(c *gin.Context) {
 // @Tags authors
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Author ID"
 // @Param author body dto.AuthorUpdateRequest true "Author Update Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.AuthorResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Router /api/author/{id} [put]
+// @Router /api/author [put]
 func (s *Server) UpdateAuthorById(c *gin.Context) {
 	id := c.Param("id")
 	if len(id) <= 0 {
@@ -208,11 +261,21 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 
 	var resp *dto.AuthorResponse
 	if isUpdate {
+		now := time.Now()
+		userId, err := s.GetUserIdFromContext(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, errorResponse(err))
+			return
+		}
+		author.UpdatedAt = &now
+		author.UpdatedBy = userId
+
 		modelResponse, err := s.store.UpdateAuthor(author)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}
+
 		resp = &dto.AuthorResponse{
 			Id:        modelResponse.Id,
 			Name:      modelResponse.Name,
@@ -230,6 +293,18 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, errorResponseMessage("error update author"))
 }
 
+// @Summary Delete author by Id
+// @Description Delete an existing author
+// @Tags authors
+// @Accept json
+// @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
+// @Param id path int true "Author ID"
+// @Security     BearerAuth
+// @Success 200 {object} dto.AuthorResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/author/{id} [delete]
 func (a *Server) DeleteAuthorById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -242,7 +317,11 @@ func (a *Server) DeleteAuthorById(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errorResponseMessage(err.Error()))
 		return
 	}
-
+	mapUserIdUserName, err := a.store.GetUserNamesByIds([]int64{author.CreatedBy, author.UpdatedBy})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 	resp := dto.AuthorResponse{
 		Id:        author.Id,
 		Name:      author.Name,
@@ -250,6 +329,12 @@ func (a *Server) DeleteAuthorById(c *gin.Context) {
 		BirthDay:  author.BirthDay.Format(time.RFC3339),
 		CreatedAt: author.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: author.UpdatedAt.Format(time.RFC3339),
+	}
+	if createdByName, ok := mapUserIdUserName[author.CreatedBy]; ok {
+		resp.CreatedByName = createdByName
+	}
+	if updatedByName, ok := mapUserIdUserName[author.UpdatedBy]; ok {
+		resp.UpdatedByName = updatedByName
 	}
 	c.JSON(http.StatusOK, resp)
 }

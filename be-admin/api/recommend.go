@@ -3,7 +3,6 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"fmt"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
@@ -26,6 +25,7 @@ func (s *Server) recommendRoutes() {
 // @Tags recommends
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param recommend body dto.RecommendCreateRequest true "Recommend Create Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.RecommendResponse
@@ -39,15 +39,9 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 		return
 	}
 
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
-		return
-	}
-	idInt64, err := strconv.ParseInt(userID.(string), 10, 64)
+	userId, err := s.GetUserIdFromContext(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 	}
 
 	now := time.Now()
@@ -61,8 +55,8 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 		ActiveTo:   &activeTo,
 		CreatedAt:  &now,
 		UpdatedAt:  &now,
-		CreatedBy:  idInt64,
-		UpdatedBy:  idInt64,
+		CreatedBy:  userId,
+		UpdatedBy:  userId,
 	}
 
 	err = s.store.CreateRecomend(&recommendModel)
@@ -91,6 +85,7 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 // @Tags recommends
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Recommend ID"
 // @Security     BearerAuth
 // @Success 200 {object} dto.RecommendResponse
@@ -136,6 +131,7 @@ func (s *Server) GetRecommendById(ctx *gin.Context) {
 // @Tags recommends
 // @Accept json
 // @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
@@ -240,9 +236,18 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 		recommend.ActiveTo = &activeTo
 	}
 
+	now := time.Now()
 	var resp *dto.RecommendResponse
 	if isUpdate {
-		err := s.store.UpdateRecomend(recommend)
+		userId, err := s.GetUserIdFromContext(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+			return
+		}
+		recommend.UpdatedAt = &now
+		recommend.UpdatedBy = userId
+
+		err = s.store.UpdateRecomend(recommend)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return

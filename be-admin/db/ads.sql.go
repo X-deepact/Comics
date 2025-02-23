@@ -39,6 +39,9 @@ func (q *Queries) GetAdsList(req dto.AdsListRequest) ([]dto.AdsResponse, int64, 
 	if req.Type != "" {
 		query = query.Where("type = ?", req.Type)
 	}
+	if req.Status != "" {
+		query = query.Where("status = ?", req.Status)
+	}
 
 	query = query.Select("ads.*, uc.username AS created_by_name, up.username AS updated_by_name").
 		Joins("LEFT JOIN users uc ON uc.id = ads.created_by").
