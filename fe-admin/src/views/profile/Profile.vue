@@ -4,19 +4,27 @@
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="current-password">* Current Password</label>
-        <input type="password" id="current-password" v-model="currentPassword" required />
+        <Input type="password" id="current-password" v-model="currentPassword" required />
       </div>
       <div class="form-group">
-        <label for="new-password">* New Password</label>
-        <input type="password" id="new-password" v-model="newPassword" required />
+        <label for="new-password">* New Passwo  rd</label>
+        <Input type="password" id="new-password" v-model="newPassword" required />
       </div>
       <div class="form-group">
         <label for="repeat-password">* Repeat Password</label>
-        <input type="password" id="repeat-password" v-model="repeatPassword" required />
+        <Input type="password" id="repeat-password" v-model="repeatPassword" required />
       </div>
       <div class="form-actions">
-        <button type="submit" class="submit-button">Save</button>
-        <button type="button" class="reset-button" @click="resetForm">Reset</button>
+        <div class="flex justify-between items-center mb-4 gap-4">
+          <div class="flex items-center gap-4">
+        <Button
+        @click="$emit('clickAdd')"
+        class="bg-blue-500 hover:bg-blue-600 text-white"
+        >Add </Button>
+        </div>
+        </div>
+        <!-- <Button type="submit" class="submit-button">Save</Button> -->
+        <Button type="button" class="reset-button" @click="resetForm">Reset</Button>
       </div>
     </form>
   </div>
