@@ -16,7 +16,7 @@ export function useNavigation() {
           active: route.path === "/dashboard/comics",
         },
         {
-          name: "Subject Manage",
+          name: "Genre Manage",
           href: "/dashboard/subjects",
           active: route.path === "/dashboard/subjects",
         },

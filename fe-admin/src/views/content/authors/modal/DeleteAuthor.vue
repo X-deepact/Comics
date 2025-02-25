@@ -7,7 +7,9 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { useAuthorStore } from "../../../../stores/authorStore";
-
+import loadingImg from "@/assets/loading.svg";
+import { ref } from "vue";
+const isLoading = ref(false);
 const authorStore = useAuthorStore();
 </script>
 <template>
@@ -27,14 +29,19 @@ const authorStore = useAuthorStore();
           Close
         </Button>
         <Button
+          :disabled="isLoading"
           @click="
             async () => {
+              isLoading = true;
               await authorStore.deleteAuthor(authorStore.selectedData.id);
+              isLoading = false;
               authorStore.deleteDialogIsOpen = false;
               authorStore.getAuthorData();
             }
           "
-          >Delete
+        >
+          <img v-if="isLoading" :src="loadingImg" size="icon" />
+          Delete
         </Button>
       </DialogFooter>
     </DialogContent>

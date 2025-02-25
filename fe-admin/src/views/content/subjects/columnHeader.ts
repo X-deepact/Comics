@@ -14,7 +14,7 @@ export const ColumnNames = {
     sortKey: "position",
     key: "position",
   },
-  lang: { label: "lang", key: "lang" },
+  lang: { label: "Language", key: "lang" },
   created_by_name: {
     label: "Creator",
     key: "created_by_name",

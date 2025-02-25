@@ -14,7 +14,7 @@
     </TableCell>
     <TableCell>{{ data.code }}</TableCell>
     <TableCell>
-      <p class="font-medium">@{{ data.created_by_user.username }}</p>
+      <p class="font-medium">{{ data.created_by_user.username }}</p>
       <p class="text-muted-foreground text-xs">
         {{ data.created_by_user?.email }}
       </p>
@@ -28,7 +28,7 @@
       </div>
     </TableCell>
     <TableCell
-      ><p class="font-medium">@{{ data.updated_by_user.username }}</p>
+      ><p class="font-medium">{{ data.updated_by_user.username }}</p>
       <p class="text-muted-foreground text-xs">
         {{ data.updated_by_user?.email }}
       </p></TableCell

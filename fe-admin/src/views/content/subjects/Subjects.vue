@@ -1,7 +1,7 @@
 <template>
   <div class="p-8">
     <Component
-      title="Subject"
+      title="Genre"
       :pageSize="genreStore.page_size"
       @clickAdd="() => (genreStore.createDialogIsOpen = true)"
       @clickRefresh="

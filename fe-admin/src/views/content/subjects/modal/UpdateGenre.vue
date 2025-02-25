@@ -10,7 +10,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGenreStore } from "../../../../stores/genreStore";
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import loadingImg from "@/assets/loading.svg";
+import { ref } from "vue";
+const isLoading = ref(false);
 const genreStore = useGenreStore();
 </script>
 <template>
@@ -32,13 +42,25 @@ const genreStore = useGenreStore();
       </div>
       <div class="flex items-center gap-4">
         <Label for="lang" class="text-center w-1/4">Language</Label>
-        <Input v-model="genreStore.selectedData.lang" placeholder="Language" />
+        <Select v-model="genreStore.selectedData.lang">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="ch">Chinese</SelectItem>
+              <SelectItem value="vi">Vietnamese</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
       <div class="flex items-center gap-4">
         <Label for="position" class="text-center w-1/4">Position</Label>
         <Input
           v-model="genreStore.selectedData.position"
           placeholder="Position"
+          type="number"
         />
       </div>
       <DialogFooter class="sm:justify-end">
@@ -49,20 +71,23 @@ const genreStore = useGenreStore();
           Close
         </Button>
         <Button
+          :disabled="isLoading"
           @click="
             async () => {
+              isLoading = true;
               await genreStore.updateGenre({
                 id: genreStore.selectedData.id,
                 name: genreStore.selectedData.name,
                 language: genreStore.selectedData.lang,
                 position: genreStore.selectedData.position,
               });
+              isLoading = false;
               genreStore.updateDialogIsOpen = false;
               genreStore.getGenreData();
             }
           "
         >
-          Update
+          <img v-if="isLoading" :src="loadingImg" size="icon" />Update
         </Button>
       </DialogFooter>
     </DialogContent>

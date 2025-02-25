@@ -3,9 +3,9 @@
     <TableCell>{{ data.id }}</TableCell>
     <TableCell>{{ data.name }}</TableCell>
     <TableCell>{{ data.biography }}</TableCell>
-    <TableCell>{{ data.birth_day }}</TableCell>
+    <TableCell>{{ formatDateSafe(data.birth_day, false) }}</TableCell>
     <TableCell>
-      <p class="font-medium">@{{ data.created_by }}</p>
+      <p class="font-medium">{{ data.created_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>
@@ -16,7 +16,7 @@
       </div>
     </TableCell>
     <TableCell>
-      <p class="font-medium">@{{ data.updated_by }}</p>
+      <p class="font-medium">{{ data.updated_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>

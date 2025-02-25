@@ -6,11 +6,11 @@
     <div class="flex items-center gap-2">
       <Button
         variant="outline"
+        size="icon"
         :disabled="currentPage === 1"
-        class="h-[40px] w-[70px]"
         @click="$emit('update:currentPage', currentPage - 1)"
       >
-        Previous
+        <ChevronLeft />
       </Button>
       <Input
         type="number"
@@ -23,11 +23,11 @@
       /{{ totalPages }} pages
       <Button
         variant="outline"
+        size="icon"
         :disabled="currentPage === totalPages"
-        class="h-[40px] w-[70px]"
         @click="$emit('update:currentPage', currentPage + 1)"
       >
-        Next
+        <ChevronRight />
       </Button>
     </div>
   </div>
@@ -36,6 +36,7 @@
 import { defineProps, defineEmits } from "vue";
 import { Button } from "@/components/ui";
 import { Input } from "@/components/ui/input";
+import { ChevronLeft, ChevronRight } from "lucide-vue-next";
 const props = defineProps({
   currentPage: {
     type: Number,

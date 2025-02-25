@@ -5,7 +5,7 @@
     <TableCell>{{ data.position }}</TableCell>
     <TableCell>{{ data.lang }}</TableCell>
     <TableCell>
-      <p class="font-medium">@{{ data.created_by_name }}</p>
+      <p class="font-medium">{{ data.created_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>
@@ -16,7 +16,7 @@
       </div>
     </TableCell>
     <TableCell>
-      <p class="font-medium">@{{ data.updated_by_name }}</p>
+      <p class="font-medium">{{ data.updated_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>
@@ -35,9 +35,9 @@
             () => {
               $emit('clickUpdate', {
                 id: data.id,
-                name: data.title,
-                position: data.code,
-                lang: data.cover,
+                name: data.name,
+                position: data.position,
+                lang: data.lang,
               });
             }
           "

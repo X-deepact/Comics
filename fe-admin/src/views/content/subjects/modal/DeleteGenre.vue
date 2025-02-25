@@ -7,7 +7,9 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { useGenreStore } from "../../../../stores/genreStore";
-
+import loadingImg from "@/assets/loading.svg";
+import { ref } from "vue";
+const isLoading = ref(false);
 const genreStore = useGenreStore();
 </script>
 <template>
@@ -27,14 +29,19 @@ const genreStore = useGenreStore();
           Close
         </Button>
         <Button
+          :disabled="isLoading"
           @click="
             async () => {
+              isLoading = true;
               await genreStore.deleteGenre(genreStore.selectedData.id);
+              isLoading = false;
               genreStore.deleteDialogIsOpen = false;
               genreStore.getGenreData();
             }
           "
-          >Delete
+        >
+          <img v-if="isLoading" :src="loadingImg" size="icon" />
+          Delete
         </Button>
       </DialogFooter>
     </DialogContent>
