@@ -3,7 +3,7 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
-	"fmt"
+	"gorm.io/gorm"
 	"pkg-common/model"
 )
 
@@ -15,7 +15,10 @@ func (q *Queries) GetChapter(id int64) (*dto.ChapterResponse, error) {
 	var chapter dto.ChapterResponse
 	if err := q.db.WithContext(context.Background()).
 		Table("chapters").
-		Where("id = ?", id).
+		Select("chapters.*, uc.username AS created_by_name, up.username AS updated_by_name").
+		Joins("LEFT JOIN users uc ON uc.id = chapters.created_by").
+		Joins("LEFT JOIN users up ON up.id = chapters.updated_by").
+		Where("chapters.id = ?", id).
 		First(&chapter).Error; err != nil {
 		return nil, err
 	}
@@ -28,12 +31,17 @@ func (q *Queries) ListChapters(req dto.ChapterListRequest) ([]dto.ChapterRespons
 
 	query := q.db.WithContext(context.Background()).Table("chapters")
 
+	query = query.Select("chapters.*, uc.username AS created_by_name, up.username AS updated_by_name").
+		Joins("LEFT JOIN users uc ON uc.id = chapters.created_by").
+		Joins("LEFT JOIN users up ON up.id = chapters.updated_by")
+
 	if req.ComicId != 0 {
 		query = query.Where("comic_id = ?", req.ComicId)
 	}
 
-	if req.Order != "" {
-		query = query.Order(fmt.Sprintf("chapters.number %s", req.Order))
+	if req.SortBy != "" {
+		order := req.SortBy + " " + req.Sort
+		query = query.Order(order)
 	}
 
 	if err := query.Count(&total).Error; err != nil {
@@ -56,4 +64,13 @@ func (q *Queries) UpdateChapter(chapter *model.ChapterModel) error {
 
 func (q *Queries) DeleteChapter(id int64) error {
 	return q.db.WithContext(context.Background()).Delete(&model.ChapterModel{}, id).Error
+}
+
+func (q *Queries) ActiveChapter(id int64, adminId int64) error {
+	activeChapter := map[string]interface{}{
+		"active":     gorm.Expr("NOT active"),
+		"updated_by": adminId,
+	}
+
+	return q.db.WithContext(context.Background()).Model(&model.ChapterModel{}).Where("id = ?", id).Updates(activeChapter).Error
 }

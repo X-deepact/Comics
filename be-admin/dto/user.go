@@ -86,6 +86,8 @@ type UserListRequest struct {
 	Name        string `form:"name" json:"name"`
 	DisplayName string `form:"display_name" json:"display_name"`
 	TierId      int64  `form:"tier_id" json:"tier_id"`
+	SortBy      string `form:"sort_by" json:"sort_by"`
+	Sort        string `form:"sort" json:"sort"`
 }
 
 type UserUpdateRequest struct {

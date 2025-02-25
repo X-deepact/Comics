@@ -3,6 +3,7 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
+	"fmt"
 	"pkg-common/model"
 	"time"
 
@@ -76,6 +77,11 @@ func (q *Queries) GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64,
 
 	if req.TierId > 0 {
 		query.Where("p.tier_id = ?", req.TierId)
+	}
+
+	if req.SortBy != "" {
+		order := fmt.Sprintf("%s %s", req.SortBy, req.Sort)
+		query = query.Order(order)
 	}
 
 	query = query.Select("u.id, u.username, u.phone, u.email, u.birth_day AS birthday, u.first_name, u.last_name, u.full_name, u.active, r.name AS role_name," +

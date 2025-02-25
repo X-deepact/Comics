@@ -2,7 +2,6 @@ package api
 
 import (
 	"comics-admin/dto"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"pkg-common/model"
@@ -17,6 +16,7 @@ func (s *Server) chapterRouter() {
 	group.GET("", s.getChapters)
 	group.PUT("", s.updateChapter)
 	group.DELETE("/:id", s.deleteChapter)
+	group.PUT("/active/:id", s.activeChapter)
 }
 
 // @Summary Create a new chapter
@@ -39,15 +39,9 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	}
 
 	// Extract user ID from context
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
-		return
-	}
-
-	userIDInt64, ok := userID.(int64)
-	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+	userID, err := ExtractUserID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
@@ -56,8 +50,8 @@ func (s *Server) createChapter(ctx *gin.Context) {
 		Name:      req.Name,
 		Cover:     req.Cover,
 		Number:    req.Number,
-		Active:    req.Active,
-		CreatedBy: userIDInt64,
+		Active:    true,
+		CreatedBy: userID,
 	}
 
 	if err := s.store.CreateChapter(&chapter); err != nil {
@@ -124,25 +118,7 @@ func (s *Server) getChapters(ctx *gin.Context) {
 		return
 	}
 
-	var response []dto.ChapterResponse
-	for _, chapter := range chapters {
-		response = append(response, dto.ChapterResponse{
-			Id:            chapter.Id,
-			ComicId:       chapter.ComicId,
-			Name:          chapter.Name,
-			Cover:         chapter.Cover,
-			Number:        chapter.Number,
-			Active:        chapter.Active,
-			CreatedAt:     chapter.CreatedAt,
-			CreatedBy:     chapter.CreatedBy,
-			UpdatedAt:     chapter.UpdatedAt,
-			UpdatedBy:     chapter.UpdatedBy,
-			CreatedByUser: "",
-			UpdatedByUser: "",
-		})
-	}
-
-	ListResponse(ctx, req.Page, req.PageSize, int(total), response)
+	ListResponse(ctx, req.Page, req.PageSize, int(total), chapters)
 }
 
 // @Summary Update a chapter
@@ -164,16 +140,9 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 		return
 	}
 
-	// Extract user ID from context
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
-		return
-	}
-
-	userIDInt64, ok := userID.(int64)
-	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+	userId, err := ExtractUserID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
@@ -183,8 +152,7 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 		Name:      req.Name,
 		Cover:     req.Cover,
 		Number:    req.Number,
-		Active:    req.Active,
-		UpdatedBy: userIDInt64,
+		UpdatedBy: userId,
 	}
 
 	if err := s.store.UpdateChapter(&chapter); err != nil {
@@ -220,5 +188,40 @@ func (s *Server) deleteChapter(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dto.ResponseMessage{
 		Status:  "success",
 		Message: "Record deleted successfully",
+	})
+}
+
+// @Summary Active a chapter
+// @Description Active a chapter by ID
+// @Tags chapters
+// @Accept json
+// @Param id path int true "Chapter ID"
+// @Security     BearerAuth
+// @Success 200 {object} dto.ResponseMessage "Record updated successfully"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/chapters/active/{id} [put]
+func (s *Server) activeChapter(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// Extract user ID from context
+	userID, err := ExtractUserID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	if err := s.store.ActiveChapter(id, userID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.ResponseMessage{
+		Status:  "success",
+		Message: "Record updated successfully",
 	})
 }

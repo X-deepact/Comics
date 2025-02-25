@@ -1,7 +1,9 @@
 package db
 
 import (
+	"comics-admin/dto"
 	"context"
+	"fmt"
 	"pkg-common/model"
 )
 
@@ -9,11 +11,16 @@ func (r *Queries) CreateRecomend(input *model.RecommendManagerModel) error {
 	return r.db.WithContext(context.Background()).Create(input).Error
 }
 
-func (r *Queries) GetRecommends(limit, offset int) ([]*model.RecommendManagerModel, int64, error) {
+func (r *Queries) GetRecommends(req dto.RequestQueryFilter) ([]*model.RecommendManagerModel, int64, error) {
 	var recommends []*model.RecommendManagerModel
 	var total int64
 
-	if err := r.db.WithContext(context.Background()).Limit(limit).Offset(offset).Find(&recommends).Count(&total).Error; err != nil {
+	if err := r.db.WithContext(context.Background()).
+		Order(fmt.Sprintf("%s %s", req.SortBy, req.Sort)).
+		Limit(req.PageSize).
+		Offset((req.Page - 1) * req.PageSize).
+		Find(&recommends).
+		Count(&total).Error; err != nil {
 		return recommends, total, err
 	}
 
@@ -29,12 +36,16 @@ func (r *Queries) GetRecommendById(id int64) (*model.RecommendManagerModel, erro
 }
 
 func (r *Queries) DeleteRecomendById(id int64) (*model.RecommendManagerModel, error) {
-	recommend := &model.RecommendManagerModel{}
-	err := r.db.WithContext(context.Background()).Delete(recommend, "id = ?", id).Error
-	if err != nil {
-		return recommend, err
+	resp := &model.RecommendManagerModel{}
+	if err := r.db.WithContext(context.Background()).First(resp, id).Error; err != nil {
+		return nil, err
 	}
-	return recommend, nil
+
+	if err := r.db.WithContext(context.Background()).Delete(resp).Error; err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (r *Queries) UpdateRecomend(input *model.RecommendManagerModel) error {

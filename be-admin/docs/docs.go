@@ -278,6 +278,18 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "Sort By",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",
@@ -337,13 +349,6 @@ const docTemplate = `{
                         "description": "Bearer authorization token",
                         "name": "Authorization",
                         "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Author ID",
-                        "name": "id",
-                        "in": "path",
                         "required": true
                     },
                     {
@@ -1829,6 +1834,18 @@ const docTemplate = `{
                         "description": "Language",
                         "name": "language",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc, desc)",
+                        "name": "sort",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2057,6 +2074,136 @@ const docTemplate = `{
             }
         },
         "/api/recommend": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all recommends",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recommends"
+                ],
+                "summary": "List recommends",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort By",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RecommendResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an existing recommend",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recommends"
+                ],
+                "summary": "Update recommend by Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Recommend Update Request",
+                        "name": "recommend",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -2097,70 +2244,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.RecommendResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseMessage"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ResponseMessage"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/recommend/list": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "List all recommends",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "recommends"
-                ],
-                "summary": "List recommends",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer authorization token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.RecommendResponse"
-                            }
                         }
                     },
                     "400": {
@@ -2233,13 +2316,13 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update an existing recommend",
+                "description": "Delete a recommend by Id",
                 "consumes": [
                     "application/json"
                 ],
@@ -2249,30 +2332,28 @@ const docTemplate = `{
                 "tags": [
                     "recommends"
                 ],
-                "summary": "Update recommend by Id",
+                "summary": "Delete recommend by Id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Recommend ID",
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Recommend Update Request",
-                        "name": "recommend",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RecommendUpdateRequest"
-                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend successfully deleted",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendResponse"
+                            "$ref": "#/definitions/dto.ResponseMessage"
                         }
                     },
                     "400": {
@@ -2357,6 +2438,18 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Tier ID",
                         "name": "tier_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc, desc)",
+                        "name": "sort",
                         "in": "query"
                     }
                 ],
@@ -3172,12 +3265,18 @@ const docTemplate = `{
         },
         "dto.AuthorUpdateRequest": {
             "type": "object",
+            "required": [
+                "id"
+            ],
             "properties": {
                 "biography": {
                     "type": "string"
                 },
                 "birth_day": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -3601,17 +3700,14 @@ const docTemplate = `{
         "dto.RecommendCreateRequest": {
             "type": "object",
             "properties": {
-                "activeFrom": {
+                "active_from": {
                     "type": "integer"
                 },
-                "activeTo": {
+                "active_to": {
                     "type": "integer"
                 },
                 "cover": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "position": {
                     "type": "integer"
@@ -3624,19 +3720,19 @@ const docTemplate = `{
         "dto.RecommendResponse": {
             "type": "object",
             "properties": {
-                "activeFrom": {
+                "active_from": {
                     "type": "string"
                 },
-                "activeTo": {
+                "active_to": {
                     "type": "string"
                 },
                 "cover": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "createdBy": {
+                "created_by": {
                     "type": "integer"
                 },
                 "id": {
@@ -3648,10 +3744,10 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 },
-                "updatedBy": {
+                "updated_by": {
                     "type": "integer"
                 }
             }
@@ -3659,14 +3755,17 @@ const docTemplate = `{
         "dto.RecommendUpdateRequest": {
             "type": "object",
             "properties": {
-                "activeFrom": {
+                "active_from": {
                     "type": "string"
                 },
-                "activeTo": {
+                "active_to": {
                     "type": "string"
                 },
                 "cover": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "position": {
                     "type": "integer"

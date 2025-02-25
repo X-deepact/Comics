@@ -103,11 +103,13 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 	id := c.Param("id")
 	if len(id) <= 0 {
 		c.JSON(http.StatusBadRequest, errorResponseMessage("id request author invalid"))
+		return
 	}
 
 	idInt64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	author, err := s.store.GetAuthorById(idInt64)
@@ -144,6 +146,8 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param     Authorization header string true "Bearer authorization token"
+// @Param sort_by query string false "Sort By"
+// @Param sort query string false "Sort"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
@@ -152,14 +156,16 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author [get]
 func (s *Server) GetAuthors(c *gin.Context) {
-	var req dto.ListRequest
+	var req dto.RequestQueryFilter
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	offset := (req.Page - 1) * req.PageSize
-	authors, total, err := s.store.GetAuthors(req.PageSize, offset)
+	req.SortBy = config.GetSortBy(req.SortBy)
+	req.Sort = config.GetSortOrder(req.Sort)
+
+	authors, total, err := s.store.GetAuthors(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -193,13 +199,7 @@ func (s *Server) GetAuthors(c *gin.Context) {
 			resp[i].UpdatedByName = updatedByName
 		}
 	}
-
-	pageNum := req.Page
-	if len(resp) == req.PageSize && total > int64(req.PageSize) {
-		pageNum++
-	}
-	ListResponse(c, pageNum, req.PageSize, int(total), resp)
-
+	ListResponse(c, req.Page, req.PageSize, int(total), resp)
 }
 
 // @Summary Update author by Id
@@ -208,7 +208,6 @@ func (s *Server) GetAuthors(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param     Authorization header string true "Bearer authorization token"
-// @Param id path int true "Author ID"
 // @Param author body dto.AuthorUpdateRequest true "Author Update Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.AuthorResponse
@@ -216,15 +215,6 @@ func (s *Server) GetAuthors(c *gin.Context) {
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author [put]
 func (s *Server) UpdateAuthorById(c *gin.Context) {
-	id := c.Param("id")
-	if len(id) <= 0 {
-		c.JSON(http.StatusBadRequest, errorResponseMessage("id request author invalid"))
-	}
-	idInt64, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-	}
-
 	var req dto.AuthorUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
@@ -232,7 +222,7 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 
 	}
 
-	author, err := s.store.GetAuthorById(idInt64)
+	author, err := s.store.GetAuthorById(req.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return

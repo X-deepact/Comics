@@ -1,7 +1,9 @@
 package db
 
 import (
+	"comics-admin/dto"
 	"context"
+	"fmt"
 	"pkg-common/model"
 )
 
@@ -17,11 +19,16 @@ func (q *Queries) GetAuthorById(id int64) (*model.AuthorModel, error) {
 	return &author, nil
 }
 
-func (q *Queries) GetAuthors(limit, offset int) ([]*model.AuthorModel, int64, error) {
+func (q *Queries) GetAuthors(req dto.RequestQueryFilter) ([]*model.AuthorModel, int64, error) {
 	var authors []*model.AuthorModel
 	var total int64
 
-	if err := q.db.WithContext(context.Background()).Limit(limit).Offset(offset).Find(&authors).Count(&total).Error; err != nil {
+	if err := q.db.WithContext(context.Background()).Model(&model.AuthorModel{}).
+		Count(&total).
+		Order(fmt.Sprintf("%s %s", req.SortBy, req.Sort)).
+		Limit(req.PageSize).
+		Offset((req.Page - 1) * req.PageSize).
+		Find(&authors).Error; err != nil {
 		return authors, total, err
 	}
 
@@ -39,9 +46,13 @@ func (q *Queries) UpdateAuthor(author *model.AuthorModel) (*model.AuthorModel, e
 
 func (q *Queries) DeleteAuthorById(id int64) (*model.AuthorModel, error) {
 	author := &model.AuthorModel{}
-	err := q.db.WithContext(context.Background()).Delete(author, "id = ?", id).Error
-	if err != nil {
-		return author, err
+	if err := q.db.WithContext(context.Background()).First(author, id).Error; err != nil {
+		return nil, err
 	}
+
+	if err := q.db.WithContext(context.Background()).Delete(author).Error; err != nil {
+		return nil, err
+	}
+
 	return author, nil
 }

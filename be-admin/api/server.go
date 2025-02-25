@@ -153,16 +153,9 @@ func (r *Server) GetUserIdFromContext(ctx *gin.Context) (int64, error) {
 }
 
 func (r *Server) GetUsernameFromContext(ctx *gin.Context) (string, error) {
-	claims, exists := ctx.Get("claims")
+	issuer, exists := ctx.Get("username")
 	if !exists {
 		return "", fmt.Errorf("claims not found")
 	}
-
-	userClaims, ok := claims.(*token.Claims)
-	if !ok {
-		return "", fmt.Errorf("invalid claims type")
-	}
-
-	username := userClaims.RegisteredClaims.Issuer
-	return username, nil
+	return issuer.(string), nil
 }

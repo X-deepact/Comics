@@ -3,9 +3,10 @@ package token
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"time"
 )
 
 var minSecretKeySize = 32
@@ -108,5 +109,4 @@ func (j *JWTMaker) VerifyToken(tokenID string) (*Payload, error) {
 
 		return payload, nil
 	}
-
 }

@@ -4,27 +4,19 @@
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="current-password">* Current Password</label>
-        <Input type="password" id="current-password" v-model="currentPassword" required />
+        <input type="password" id="current-password" v-model="currentPassword" required />
       </div>
       <div class="form-group">
-        <label for="new-password">* New Passwo  rd</label>
-        <Input type="password" id="new-password" v-model="newPassword" required />
+        <label for="new-password">* New Password</label>
+        <input type="password" id="new-password" v-model="newPassword" required />
       </div>
       <div class="form-group">
         <label for="repeat-password">* Repeat Password</label>
-        <Input type="password" id="repeat-password" v-model="repeatPassword" required />
+        <input type="password" id="repeat-password" v-model="repeatPassword" required />
       </div>
       <div class="form-actions">
-        <div class="flex justify-between items-center mb-4 gap-4">
-          <div class="flex items-center gap-4">
-        <Button
-        @click="$emit('clickAdd')"
-        class="bg-blue-500 hover:bg-blue-600 text-white"
-        >Add </Button>
-        </div>
-        </div>
-        <!-- <Button type="submit" class="submit-button">Save</Button> -->
-        <Button type="button" class="reset-button" @click="resetForm">Reset</Button>
+        <button type="submit" class="submit-button">Save</button>
+        <button type="button" class="reset-button" @click="resetForm">Reset</button>
       </div>
     </form>
   </div>
@@ -72,9 +64,18 @@ label {
 
 input {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background-color: #f8fafc;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .form-actions {
@@ -83,20 +84,33 @@ input {
 }
 
 .submit-button {
-  background-color: #007bff;
+  background-color: #3b82f6;
   color: white;
   border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: 6px 20px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #2563eb;
 }
 
 .reset-button {
-  background-color: #f8f9fa;
-  color: #000;
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 6px 20px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: #e2e8f0;
+  color: #475569;
 }
 </style> 

@@ -59,6 +59,7 @@ type Querier interface {
 	ListChapters(req dto.ChapterListRequest) ([]dto.ChapterResponse, int64, error)
 	UpdateChapter(chapter *model.ChapterModel) error
 	DeleteChapter(id int64) error
+	ActiveChapter(id int64, adminId int64) error
 
 	// ChapterItems
 	CreateChapterItem(item *model.ChapterItemModel) error
@@ -69,13 +70,13 @@ type Querier interface {
 
 	CreateAuthor(author *model.AuthorModel) error
 	GetAuthorById(id int64) (*model.AuthorModel, error)
-	GetAuthors(limit, offset int) ([]*model.AuthorModel, int64, error)
+	GetAuthors(req dto.RequestQueryFilter) ([]*model.AuthorModel, int64, error)
 	UpdateAuthor(author *model.AuthorModel) (*model.AuthorModel, error)
 	DeleteAuthorById(id int64) (*model.AuthorModel, error)
 
 	CreateRecomend(r *model.RecommendManagerModel) error
 	GetRecommendById(id int64) (*model.RecommendManagerModel, error)
-	GetRecommends(limit, offset int) ([]*model.RecommendManagerModel, int64, error)
+	GetRecommends(req dto.RequestQueryFilter) ([]*model.RecommendManagerModel, int64, error)
 	DeleteRecomendById(id int64) (*model.RecommendManagerModel, error)
 	UpdateRecomend(r *model.RecommendManagerModel) error
 }

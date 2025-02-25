@@ -322,6 +322,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	userRes, err := s.store.GetUser(userSave.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	if userRes.Avatar != "" {
@@ -375,6 +376,8 @@ func (s *Server) getUser(ctx *gin.Context) {
 // @Param name query string false "Name"
 // @Param display_name query string false "Display name"
 // @Param tier_id query integer false "Tier ID"
+// @Param sort_by query string false "Sort by"
+// @Param sort query string false "Sort order (asc, desc)"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.UserResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
@@ -494,6 +497,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	user, err := s.store.GetUserData(req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	user.Username = req.Username
@@ -531,6 +535,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	if userRes.Avatar != "" {
@@ -739,6 +744,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	user, err := s.store.GetUserData(userIDInt64)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	user.Username = req.Username
@@ -775,6 +781,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	if userRes.Avatar != "" {

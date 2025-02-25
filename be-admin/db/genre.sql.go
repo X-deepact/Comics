@@ -3,6 +3,7 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
+	"fmt"
 	"pkg-common/model"
 )
 
@@ -40,6 +41,11 @@ func (q *Queries) GetGenres(req dto.GenreListRequest) ([]dto.GenreResponse, int6
 	query = query.Select("genres.*, uc.username AS created_by_name, up.username AS updated_by_name").
 		Joins("LEFT JOIN users uc ON uc.id = genres.created_by").
 		Joins("LEFT JOIN users up ON up.id = genres.updated_by")
+
+	if req.SortBy != "" {
+		order := fmt.Sprintf("%s %s", req.SortBy, req.Sort)
+		query = query.Order(order)
+	}
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err

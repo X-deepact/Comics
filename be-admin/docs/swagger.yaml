@@ -121,8 +121,12 @@ definitions:
         type: string
       birth_day:
         type: string
+      id:
+        type: integer
       name:
         type: string
+    required:
+    - id
     type: object
   dto.ChapterItemCreateRequest:
     properties:
@@ -400,14 +404,12 @@ definitions:
     type: object
   dto.RecommendCreateRequest:
     properties:
-      activeFrom:
+      active_from:
         type: integer
-      activeTo:
+      active_to:
         type: integer
       cover:
         type: string
-      id:
-        type: integer
       position:
         type: integer
       title:
@@ -415,15 +417,15 @@ definitions:
     type: object
   dto.RecommendResponse:
     properties:
-      activeFrom:
+      active_from:
         type: string
-      activeTo:
+      active_to:
         type: string
       cover:
         type: string
-      createdAt:
+      created_at:
         type: string
-      createdBy:
+      created_by:
         type: integer
       id:
         type: integer
@@ -431,19 +433,21 @@ definitions:
         type: integer
       title:
         type: string
-      updatedAt:
+      updated_at:
         type: string
-      updatedBy:
+      updated_by:
         type: integer
     type: object
   dto.RecommendUpdateRequest:
     properties:
-      activeFrom:
+      active_from:
         type: string
-      activeTo:
+      active_to:
         type: string
       cover:
         type: string
+      id:
+        type: integer
       position:
         type: integer
       title:
@@ -719,6 +723,14 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: Sort By
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
       - description: Page number
         in: query
         name: page
@@ -795,11 +807,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Author ID
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: Author Update Request
         in: body
         name: author
@@ -1713,6 +1720,14 @@ paths:
         in: query
         name: language
         type: string
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc, desc)
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:
@@ -1863,6 +1878,54 @@ paths:
       tags:
       - genres
   /api/recommend:
+    get:
+      consumes:
+      - application/json
+      description: List all recommends
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Sort By
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.RecommendResponse'
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: List recommends
+      tags:
+      - recommends
     post:
       consumes:
       - application/json
@@ -1899,7 +1962,78 @@ paths:
       summary: Create recommend
       tags:
       - recommends
+    put:
+      consumes:
+      - application/json
+      description: Update an existing recommend
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Recommend Update Request
+        in: body
+        name: recommend
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecommendUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update recommend by Id
+      tags:
+      - recommends
   /api/recommend/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a recommend by Id
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Recommend ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recommend successfully deleted
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Delete recommend by Id
+      tags:
+      - recommends
     get:
       consumes:
       - application/json
@@ -1933,83 +2067,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get recommend by Id
-      tags:
-      - recommends
-    put:
-      consumes:
-      - application/json
-      description: Update an existing recommend
-      parameters:
-      - description: Recommend ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Recommend Update Request
-        in: body
-        name: recommend
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RecommendUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.RecommendResponse'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-      security:
-      - BearerAuth: []
-      summary: Update recommend by Id
-      tags:
-      - recommends
-  /api/recommend/list:
-    get:
-      consumes:
-      - application/json
-      description: List all recommends
-      parameters:
-      - description: Bearer authorization token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.RecommendResponse'
-            type: array
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ResponseMessage'
-      security:
-      - BearerAuth: []
-      summary: List recommends
       tags:
       - recommends
   /api/user:
@@ -2052,6 +2109,14 @@ paths:
         in: query
         name: tier_id
         type: integer
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc, desc)
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:

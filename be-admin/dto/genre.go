@@ -21,6 +21,8 @@ type GenreListRequest struct {
 	ListRequest
 	Name     string `form:"name" json:"name"`
 	Language string `form:"language" json:"language"`
+	SortBy   string `form:"sort_by" json:"sort_by"`
+	Sort     string `form:"sort" json:"sort"`
 }
 
 type GenreUpdateRequest struct {

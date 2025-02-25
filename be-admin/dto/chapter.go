@@ -5,7 +5,6 @@ type ChapterRequest struct {
 	Name    string `json:"name"`
 	Cover   bool   `json:"cover"`
 	Number  int    `json:"number"`
-	Active  bool   `json:"active"`
 }
 
 type ChapterResponse struct {
@@ -16,11 +15,9 @@ type ChapterResponse struct {
 	Number        int    `json:"number"`
 	Active        bool   `json:"active"`
 	CreatedAt     string `json:"created_at"`
-	CreatedBy     string `json:"created_by"`
 	UpdatedAt     string `json:"updated_at"`
-	UpdatedBy     string `json:"updated_by"`
-	CreatedByUser string `json:"created_by_user"`
-	UpdatedByUser string `json:"updated_by_user"`
+	CreatedByName string `json:"created_by_name"`
+	UpdatedByName string `json:"updated_by_name"`
 }
 
 type ChapterUpdateRequest struct {
@@ -31,5 +28,6 @@ type ChapterUpdateRequest struct {
 type ChapterListRequest struct {
 	ListRequest
 	ComicId int64  `form:"comic_id" json:"comic_id"`
-	Order   string `form:"order" json:"order"`
+	SortBy  string `form:"sort_by" json:"sort_by"`
+	Sort    string `form:"sort" json:"sort"`
 }

@@ -1,31 +1,31 @@
 package dto
 
 type RecommendCreateRequest struct {
-	Id         int64
-	Title      string
-	Cover      string
-	Position   int
-	ActiveFrom int64
-	ActiveTo   int64
+	Title      string `json:"title,omitempty"`
+	Cover      string `json:"cover,omitempty"`
+	Position   int    `json:"position,omitempty"`
+	ActiveFrom int64  `json:"active_from,omitempty"`
+	ActiveTo   int64  `json:"active_to,omitempty"`
 }
 
 type RecommendResponse struct {
-	Id         int64
-	Title      string
-	Cover      string
-	Position   int
-	ActiveFrom string
-	ActiveTo   string
-	CreatedAt  string
-	CreatedBy  int64
-	UpdatedAt  string
-	UpdatedBy  int64
+	Id         int64  `json:"id,omitempty"`
+	Title      string `json:"title,omitempty"`
+	Cover      string `json:"cover,omitempty"`
+	Position   int    `json:"position,omitempty"`
+	ActiveFrom string `json:"active_from,omitempty"`
+	ActiveTo   string `json:"active_to,omitempty"`
+	CreatedAt  string `json:"created_at,omitempty"`
+	CreatedBy  int64  `json:"created_by,omitempty"`
+	UpdatedAt  string `json:"updated_at,omitempty"`
+	UpdatedBy  int64  `json:"updated_by,omitempty"`
 }
 
 type RecommendUpdateRequest struct {
-	Title      string
-	Cover      string
-	Position   int
-	ActiveFrom string
-	ActiveTo   string
+	Id         int64  `json:"id,omitempty"`
+	Title      string `json:"title,omitempty"`
+	Cover      string `json:"cover,omitempty"`
+	Position   int    `json:"position,omitempty"`
+	ActiveFrom string `json:"active_from,omitempty"`
+	ActiveTo   string `json:"active_to,omitempty"`
 }

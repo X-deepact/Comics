@@ -18,6 +18,7 @@ type AuthorResponse struct {
 }
 
 type AuthorUpdateRequest struct {
+	Id        int64  `json:"id" binding:"required"`
 	Name      string `json:"name"`
 	BirthDay  string `json:"birth_day"`
 	Biography string `json:"biography"`

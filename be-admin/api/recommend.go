@@ -42,6 +42,7 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 	userId, err := s.GetUserIdFromContext(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
 	}
 
 	now := time.Now()
@@ -93,12 +94,6 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/recommend/{id} [get]
 func (s *Server) GetRecommendById(ctx *gin.Context) {
-	var req dto.ListRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponseMessage("invalid id"))
@@ -117,11 +112,13 @@ func (s *Server) GetRecommendById(ctx *gin.Context) {
 		Cover:      recommend.Cover,
 		Position:   recommend.Position,
 		ActiveFrom: recommend.ActiveFrom.Format(time.RFC3339),
-		ActiveTo:   recommend.ActiveTo.Format(time.RFC3339),
 		CreatedAt:  recommend.CreatedAt.Format(time.RFC3339),
 		CreatedBy:  recommend.CreatedBy,
 		UpdatedAt:  recommend.UpdatedAt.Format(time.RFC3339),
 		UpdatedBy:  recommend.UpdatedBy,
+	}
+	if recommend.ActiveTo != nil {
+		resp.ActiveTo = recommend.ActiveTo.Format(time.RFC3339)
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
@@ -132,22 +129,26 @@ func (s *Server) GetRecommendById(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param     Authorization header string true "Bearer authorization token"
+// @Param sort_by query string false "Sort By"
+// @Param sort query string false "Sort"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.RecommendResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Router /api/recommend/list [get]
+// @Router /api/recommend [get]
 func (s *Server) GetRecommends(ctx *gin.Context) {
-	var req dto.ListRequest
+	var req dto.RequestQueryFilter
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	offset := (req.Page - 1) * req.PageSize
-	recommend, total, err := s.store.GetRecommends(req.PageSize, offset)
+	req.SortBy = config.GetSortBy(req.SortBy)
+	req.Sort = config.GetSortOrder(req.Sort)
+
+	recommend, total, err := s.store.GetRecommends(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -160,14 +161,16 @@ func (s *Server) GetRecommends(ctx *gin.Context) {
 			Cover:      r.Cover,
 			Position:   r.Position,
 			ActiveFrom: r.ActiveFrom.Format(time.RFC3339),
-			ActiveTo:   r.ActiveTo.Format(time.RFC3339),
 			CreatedAt:  r.CreatedAt.Format(time.RFC3339),
 			CreatedBy:  r.CreatedBy,
 			UpdatedAt:  r.UpdatedAt.Format(time.RFC3339),
 			UpdatedBy:  r.UpdatedBy,
 		}
+		if r.ActiveTo != nil {
+			resp[i].ActiveTo = r.ActiveTo.Format(time.RFC3339)
+		}
 	}
-	ListResponse(ctx, req.Page+1, req.PageSize, int(total), resp)
+	ListResponse(ctx, req.Page, req.PageSize, int(total), resp)
 }
 
 // @Summary Update recommend by Id
@@ -175,13 +178,13 @@ func (s *Server) GetRecommends(ctx *gin.Context) {
 // @Tags recommends
 // @Accept json
 // @Produce json
-// @Param id path int true "Recommend ID"
+// @Param     Authorization header string true "Bearer authorization token"
 // @Param recommend body dto.RecommendUpdateRequest true "Recommend Update Request"
 // @Security     BearerAuth
 // @Success 200 {object} dto.RecommendResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Router /api/recommend/{id} [put]
+// @Router /api/recommend [put]
 func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	var req dto.RecommendUpdateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -189,13 +192,7 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 		return
 	}
 
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponseMessage("invalid id"))
-		return
-	}
-
-	recommend, err := s.store.GetRecommendById(id)
+	recommend, err := s.store.GetRecommendById(req.Id)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -273,6 +270,18 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	ctx.JSON(http.StatusBadRequest, errorResponseMessage("error update recommend"))
 }
 
+// @Summary Delete recommend by Id
+// @Description Delete a recommend by Id
+// @Tags recommends
+// @Accept json
+// @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
+// @Param id path int true "Recommend ID"
+// @Security     BearerAuth
+// @Success 200 {object} dto.ResponseMessage "Recommend successfully deleted"
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/recommend/{id} [delete]
 func (s *Server) DeleteRecommendById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {

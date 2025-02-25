@@ -68,6 +68,7 @@ func (s *Server) createGenre(ctx *gin.Context) {
 	genreDTO, err := s.store.GetGenre(genre.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, genreDTO)
@@ -109,6 +110,8 @@ func (s *Server) getGenre(ctx *gin.Context) {
 // @Param page_size query int true "Page size (must be between 10 and 50)" min(10) max(50)
 // @Param name query string false "Name"
 // @Param language query string false "Language"
+// @Param sort_by query string false "Sort by"
+// @Param sort query string false "Sort order (asc, desc)"
 // @Security     BearerAuth
 // @Success 200 {object} []dto.GenreResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
@@ -178,6 +181,7 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 	genreDTO, err := s.store.GetGenre(genre.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusOK, genreDTO)
