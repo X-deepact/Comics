@@ -81,8 +81,8 @@ const resetGenre = () => {
             async () => {
               isLoading = true;
               await genreStore.createGenre(genre);
-              genreStore.createDialogIsOpen = false;
               isLoading = false;
+              genreStore.createDialogIsOpen = false;
               genreStore.getGenreData();
               resetGenre();
             }

@@ -36,6 +36,7 @@ export const useGenreStore = defineStore("genreStore", () => {
   const searchKeyword = ref("");
   const totalItems = ref(0);
   const genreData = ref<Genre[]>([]);
+  const generalGenreData = ref<Genre[]>([]);
 
   async function getGenreData() {
     isLoading.value = true;
@@ -123,6 +124,19 @@ export const useGenreStore = defineStore("genreStore", () => {
       updated_by_name: "",
     };
   }
+  async function getGeneralGenreData() {
+    await axios
+      .get(`${API_URL}/general/genres`, { headers: authHeader() })
+      .then((response) => {
+        generalGenreData.value = response.data;
+      })
+      .catch((error) => {
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
+      });
+  }
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
@@ -134,9 +148,11 @@ export const useGenreStore = defineStore("genreStore", () => {
     searchKeyword,
     totalItems,
     genreData,
+    generalGenreData,
     getGenreData,
     createGenre,
     updateGenre,
     deleteGenre,
+    getGeneralGenreData,
   };
 });

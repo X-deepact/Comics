@@ -10,7 +10,7 @@ const Dashboard = () => import("../views/Dashboard.vue");
 const Comics = () => import("../views/content/comics/Comics.vue");
 const Subjects = () => import("../views/content/subjects/Subjects.vue");
 const Authors = () => import("../views/content/authors/Authors.vue");
-const Ads = () => import("../views/ads/Ads/Ads.vue");
+const Ads = () => import("../views/ads/Ads.vue");
 const Recommendation = () => import("../views/ads/Recommendation.vue");
 const Profile = () => import("../views/profile/Profile.vue");
 const Users = () => import("../views/system/Users.vue");

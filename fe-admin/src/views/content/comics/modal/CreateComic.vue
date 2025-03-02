@@ -13,30 +13,36 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
-import { ref, defineEmits } from "vue";
+import { ref } from "vue";
 import { useComicStore } from "../../../../stores/comicStore";
-import MultiSelect from "primevue/multiselect";
-import { Author, useAuthorStore } from "../../../../stores/authorStore";
-
+import VueMultiselect from "vue-multiselect";
+import { useAuthorStore } from "../../../../stores/authorStore";
+import loadingImg from "@/assets/loading.svg";
+import { useGenreStore } from "../../../../stores/genreStore";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
+const isLoading = ref(false);
 const comicStore = useComicStore();
 const authorStore = useAuthorStore();
+const genreStore = useGenreStore();
+genreStore.getGeneralGenreData();
 authorStore.getGeneralAuthorData();
 const comic = ref({
   title: "",
-  author: <Author>[],
-  subject: [],
+  author: [],
+  genre: [],
   code: "",
   cover: null as File | null,
   description: "",
   active: true,
   language: "all",
   audience: "all",
+  status: "ongoing",
 });
 
 const previewUrl = ref<string | null>(null);
@@ -44,13 +50,14 @@ const resetComic = () => {
   comic.value = {
     title: "",
     author: [],
-    subject: [],
+    genre: [],
     code: "",
     cover: null,
     description: "",
     active: true,
     language: "",
     audience: "",
+    status: "ongoing",
   };
   if (previewUrl.value) {
     URL.revokeObjectURL(previewUrl.value);
@@ -69,13 +76,24 @@ const handleFileChange = (event: Event) => {
     previewUrl.value = URL.createObjectURL(target.files[0]);
   }
 };
+const checkForm = () => {
+  if (comic.value.title == "") {
+    toast({
+      description: "Name is required",
+      variant: "destructive",
+    });
+    return false;
+  } else {
+    return true;
+  }
+};
 </script>
 <template>
   <Dialog
     :open="comicStore.createDialogIsOpen"
     @update:open="(value:boolean)=>{comicStore.createDialogIsOpen = value;}"
   >
-    <DialogContent>
+    <DialogContent class="overflow-y-scroll max-h-screen">
       <DialogHeader>
         <DialogTitle>Create Comic</DialogTitle>
       </DialogHeader>
@@ -86,40 +104,51 @@ const handleFileChange = (event: Event) => {
       />
       <Input
         type="file"
-        placeholder="cover"
+        placeholder="Cover"
         class="justify-self-center w-[50%]"
         @change="handleFileChange"
         accept="image/*"
       />
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Title</Label>
-        <Input v-model="comic.title" placeholder="Title" />
+        <Label class="text-center w-1/4">Name</Label>
+        <Input v-model="comic.title" placeholder="Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="author" class="text-center w-1/4">Author</Label>
-        <Input v-model="comic.author" placeholder="Author" />
-        <MultiSelect
-          v-model="comicStore.selectedAuthorForCreate"
-          :options="authorStore.authorData"
-          optionLabel="name"
-          filter
-          placeholder="Select Authors"
-        />
-      </div>
-      <div class="flex items-center gap-4">
-        <Label for="subject" class="text-center w-1/4">Subject</Label>
-        <Input v-model="comic.subject" placeholder="Subject" />
-      </div>
-      <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Description</Label>
+        <Label class="text-center w-1/4">Description</Label>
         <Input v-model="comic.description" placeholder="description" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Code</Label>
+        <Label class="text-center w-1/4">Author</Label>
+        <VueMultiselect
+          v-model="comic.author"
+          :options="authorStore.generalauthorData"
+          :multiple="true"
+          :close-on-select="false"
+          placeholder="Select authors"
+          label="name"
+          track-by="name"
+        >
+        </VueMultiselect>
+      </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Genre</Label>
+        <VueMultiselect
+          v-model="comic.genre"
+          :options="genreStore.generalGenreData"
+          :multiple="true"
+          :close-on-select="false"
+          placeholder="Select authors"
+          label="name"
+          track-by="name"
+        >
+        </VueMultiselect>
+      </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Code</Label>
         <Input v-model="comic.code" placeholder="code" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Active</Label>
+        <Label class="text-center w-1/4">Active</Label>
         <Select v-model="comic.active">
           <SelectTrigger>
             <SelectValue :value="comic.active.toString()" />
@@ -133,7 +162,7 @@ const handleFileChange = (event: Event) => {
         </Select>
       </div>
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Language</Label>
+        <Label class="text-center w-1/4">Language</Label>
         <Select v-model="comic.language">
           <SelectTrigger>
             <SelectValue />
@@ -149,7 +178,7 @@ const handleFileChange = (event: Event) => {
         </Select>
       </div>
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Audience</Label>
+        <Label class="text-center w-1/4">Audience</Label>
         <Select v-model="comic.audience">
           <SelectTrigger>
             <SelectValue />
@@ -164,6 +193,20 @@ const handleFileChange = (event: Event) => {
           </SelectContent>
         </Select>
       </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Status</Label>
+        <Select v-model="comic.status">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="ongoing">Ongoing</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
       <DialogFooter class="sm:justify-end">
         <Button
           variant="secondary"
@@ -172,17 +215,25 @@ const handleFileChange = (event: Event) => {
           Close
         </Button>
         <Button
+          :disabled="isLoading"
           @click="
             async () => {
-              await comicStore.createComic(comic);
-              comicStore.createDialogIsOpen = false;
-              comicStore.getComicData();
-              resetComic();
+              if (checkForm()) {
+                isLoading = true;
+                await comicStore.createComic(comic);
+                isLoading = false;
+                comicStore.createDialogIsOpen = false;
+                comicStore.getComicData();
+                resetComic();
+              }
             }
           "
-          >Add</Button
+        >
+          <img v-if="isLoading" :src="loadingImg" size="icon" />
+          Add</Button
         >
       </DialogFooter>
     </DialogContent>
   </Dialog>
 </template>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

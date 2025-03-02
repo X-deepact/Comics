@@ -6,25 +6,25 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { useComicStore } from "../../../../stores/comicStore";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
+import { useChapterStore } from "../../../../../stores/chapterStore";
 const isLoading = ref(false);
-const comicStore = useComicStore();
+const chapterStore = useChapterStore();
 </script>
 <template>
   <Dialog
-    :open="comicStore.deleteDialogIsOpen"
+    :open="chapterStore.deleteDialogIsOpen"
     @update:open="(value:boolean)=>{
-      comicStore.deleteDialogIsOpen = value;
+      chapterStore.deleteDialogIsOpen = value;
       }"
   >
     <DialogContent>
-      <DialogHeader>Do you really want to delete this comic?</DialogHeader>
+      <DialogHeader>Do you really want to delete this chapter?</DialogHeader>
       <DialogFooter class="justify-end gap-4">
         <Button
           variant="secondary"
-          @click="comicStore.deleteDialogIsOpen = false"
+          @click="chapterStore.deleteDialogIsOpen = false"
         >
           Close
         </Button>
@@ -33,10 +33,10 @@ const comicStore = useComicStore();
           @click="
             async () => {
               isLoading = true;
-              await comicStore.deleteComic(comicStore.selectedData.id);
+              await chapterStore.deleteChapter(chapterStore.selectedData.id);
               isLoading = false;
-              comicStore.deleteDialogIsOpen = false;
-              comicStore.getComicData();
+              chapterStore.deleteDialogIsOpen = false;
+              chapterStore.getChapterData();
             }
           "
         >

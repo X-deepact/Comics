@@ -21,6 +21,10 @@
             $emit('clickUpdate', data);
           }
         "
+        @clickAction="
+          (data: any) => {
+            $emit('clickAction', data);
+          }"
       />
     </TableBody>
   </Table>
@@ -47,5 +51,5 @@ defineProps({
   isLoading: Boolean,
   row: Object,
 });
-defineEmits(["clickDelete", "clickUpdate"]);
+defineEmits(["clickDelete", "clickUpdate", "clickAction"]);
 </script>

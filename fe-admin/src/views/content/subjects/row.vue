@@ -1,6 +1,5 @@
 <template>
   <TableRow>
-    <TableCell>{{ data.id }}</TableCell>
     <TableCell>{{ data.name }}</TableCell>
     <TableCell>{{ data.position }}</TableCell>
     <TableCell>{{ data.lang }}</TableCell>

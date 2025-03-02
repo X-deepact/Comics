@@ -1,8 +1,9 @@
 <template>
   <TableRow>
+    <TableCell>{{ data.number }}</TableCell>
     <TableCell>{{ data.name }}</TableCell>
-    <TableCell>{{ data.biography }}</TableCell>
-    <TableCell>{{ formatDateSafe(data.birth_day, false) }}</TableCell>
+    <TableCell>{{ data.active }}</TableCell>
+    <TableCell>{{ data.cover }}</TableCell>
     <TableCell>
       <p class="font-medium">{{ data.created_by_name }}</p>
     </TableCell>
@@ -27,48 +28,52 @@
     </TableCell>
     <TableCell>
       <div class="flex gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          @click="
-            () => {
-              $emit('clickUpdate', {
-                id: data.id,
-                name: data.name,
-                biography: data.biography,
-                birth_day: data.birth_day,
-              });
-            }
-          "
-          ><Pencil
-        /></Button>
-        <Button
-          variant="destructive"
-          size="icon"
-          @click="
-            () => {
-              $emit('clickDelete', data);
-            }
-          "
-          ><Trash2
-        /></Button>
+        <Button variant="outline" size="icon" @click="
+          () => {
+            $emit('clickAction', data.id);
+          }
+        ">
+          <FilePenLine />
+        </Button>
+        <Button variant="outline" size="icon" @click="
+          () => {
+            $emit('clickUpdate', {
+              id: data.id,
+              name: data.name,
+              number: data.number,
+              active: data.active,
+              comic_id: data.comic_id,
+              cover: data.cover,
+              birth_day: data.birth_day,
+            });
+          }
+        ">
+          <Pencil />
+        </Button>
+        <Button variant="destructive" size="icon" @click="
+          () => {
+            $emit('clickDelete', data);
+          }
+        ">
+          <Trash2 />
+        </Button>
       </div>
     </TableCell>
   </TableRow>
 </template>
 
 <script setup lang="ts">
-import { Author } from "@/stores/authorStore";
+import { Chapter } from "@/stores/chapterStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-vue-next";
+import { Trash2, Pencil, FilePenLine } from "lucide-vue-next";
 
 defineProps<{
-  data: Author;
+  data: Chapter;
 }>();
-defineEmits(["clickDelete", "clickUpdate"]);
+defineEmits(["clickDelete", "clickUpdate", "clickAction"]);
 const formatDateSafe = (
   date: Date | string | number,
   includeTime: boolean

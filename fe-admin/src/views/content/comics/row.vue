@@ -1,41 +1,73 @@
 <template>
   <TableRow>
-    <TableCell>{{ data.id }}</TableCell>
     <TableCell>
       <img :src="data.cover" alt="Comic cover" width="100" preview />
     </TableCell>
-    <TableCell>{{ data.name }}</TableCell>
-    <TableCell>{{ data.description }}</TableCell>
-    <TableCell>{{ data.lang }}</TableCell>
-    <TableCell>{{ data.audience }}</TableCell>
     <TableCell>
-      <div v-if="data.active"><Badge variant="outline">On</Badge></div>
-      <div v-if="!data.active"><Badge variant="destructive">Off</Badge></div>
-    </TableCell>
-    <TableCell>{{ data.code }}</TableCell>
-    <TableCell>
-      <p class="font-medium">{{ data.created_by_user.username }}</p>
-      <p class="text-muted-foreground text-xs">
-        {{ data.created_by_user?.email }}
-      </p>
+      <div class="flex flex-col gap-2">
+        <Label>{{ data.name }}</Label>
+        <p class="text-xs">{{ data.description }}</p>
+      </div>
     </TableCell>
     <TableCell>
+      <div class="flex flex-col gap-1">
+        <div v-for="author in data.authors">
+          <Badge variant="outline" class="text-xs">{{ author.Name }}</Badge>
+        </div>
+      </div>
+    </TableCell>
+    <TableCell>
+      <div class="flex flex-col gap-1">
+        <div v-for="genre in data.genres">
+          <Badge variant="outline" class="text-xs">{{ genre.name }}</Badge>
+        </div>
+      </div>
+    </TableCell>
+    <TableCell>
+      <div class="flex flex-col gap-1">
+        <div>
+          <Label>Code: </Label>
+          <Badge variant="outline" class="text-xs">
+            {{ data.code }}
+          </Badge>
+        </div>
+        <div>
+          <Label>Language: </Label>
+          <Badge variant="outline" class="text-xs">
+            {{ langConverter(data.lang) }}
+          </Badge>
+        </div>
+        <div>
+          <Label>Audience: </Label>
+          <Badge variant="outline" class="text-xs">{{ data.audience }}</Badge>
+        </div>
+        <div>
+          <Label>Status: </Label>
+          <Badge variant="outline" class="text-xs">{{ data.status }}</Badge>
+        </div>
+      </div>
+    </TableCell>
+    <TableCell>
+      <Badge variant="secondary" class="text-sm">{{
+        data.created_by_user.username
+      }}</Badge>
       <div>
-        <Label>{{ formatDateSafe(data.created_at, true) }}</Label>
+        <Label class="text-xs">{{
+          formatDateSafe(data.created_at, true)
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.created_at) }}
         </p>
       </div>
     </TableCell>
-    <TableCell
-      ><p class="font-medium">{{ data.updated_by_user.username }}</p>
-      <p class="text-muted-foreground text-xs">
-        {{ data.updated_by_user?.email }}
-      </p></TableCell
-    >
     <TableCell>
+      <Badge variant="secondary" class="text-sm">{{
+        data.updated_by_user.username
+      }}</Badge>
       <div>
-        <Label>{{ formatDateSafe(data.updated_at, true) }}</Label>
+        <Label class="text-xs">{{
+          formatDateSafe(data.updated_at, true)
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.updated_at) }}
         </p>
@@ -48,15 +80,28 @@
           size="icon"
           @click="
             () => {
+              $emit('clickAction', data.id);
+            }
+          "
+          ><FilePenLine
+        /></Button>
+        <Button
+          variant="outline"
+          size="icon"
+          @click="
+            () => {
               $emit('clickUpdate', {
                 id: data.id,
-                title: data.title,
+                name: data.name,
                 code: data.code,
                 cover: data.cover,
                 description: data.description,
                 active: data.active,
                 language: data.language,
                 audience: data.audience,
+                authors: data.authors,
+                genres: data.genres,
+                status: data.status,
               });
             }
           "
@@ -70,8 +115,9 @@
               $emit('clickDelete', data);
             }
           "
-          ><Trash2
-        /></Button>
+        >
+          <Trash2 />
+        </Button>
       </div>
     </TableCell>
   </TableRow>
@@ -79,18 +125,17 @@
 
 <script setup lang="ts">
 import { Comic } from "@/stores/comicStore";
-import { formatDate, getTimeAgo } from "@/lib/utils";
+import { formatDate, getTimeAgo, langConverter } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil } from "lucide-vue-next";
+import { Trash2, Pencil, FilePenLine } from "lucide-vue-next";
 import { Badge } from "@/components/ui/badge";
 
-const API_URL = import.meta.env.VITE_API_URL;
 defineProps<{
   data: Comic;
 }>();
-defineEmits(["clickDelete", "clickUpdate"]);
+defineEmits(["clickDelete", "clickUpdate", "clickAction"]);
 const formatDateSafe = (
   date: Date | string | number,
   includeTime: boolean

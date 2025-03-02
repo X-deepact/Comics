@@ -1,18 +1,22 @@
 export const ColumnNames = {
-  name: {
-    label: "Name",
-    sortKey: "name",
-    key: "name",
+  image: {
+    label: "Image",
+    key: "image",
   },
-  biography: {
-    label: "Biography",
-    sortKey: "biography",
-    key: "biography",
+  page: {
+    label: "Page",
+    sortKey: "page",
+    key: "page",
   },
-  birth_day: {
-    label: "BirthDay",
-    sortKey: "birth_day",
-    key: "birth_day",
+  active: {
+    label: "Active",
+    sortKey: "active",
+    key: "active",
+  },
+  active_from: {
+    label: "Active From",
+    key: "active_from",
+    sortKey: "active_from",
   },
   created_by: {
     label: "Creator",

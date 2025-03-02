@@ -26,6 +26,7 @@ export const useComicStore = defineStore("comicStore", () => {
   const createDialogIsOpen = ref(false);
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
+  const chapterDialogIsOpen = ref(false);
   const isLoading = ref(true);
   const selectedData = ref<Comic>({
     id: 0,
@@ -80,10 +81,9 @@ export const useComicStore = defineStore("comicStore", () => {
     formData.append("code", data.code);
     formData.append("lang", data.language);
     formData.append("audience", data.audience);
-    [1, 2, 3].forEach((genre) => formData.append("genres", genre.toString()));
-    [1, 2, 3].forEach((author) =>
-      formData.append("authors", author.toString())
-    );
+    formData.append("status", data.status);
+    data.author.forEach((author: any) => formData.append("authors", author.id));
+    data.genre.forEach((genre: any) => formData.append("genres", genre.id));
 
     try {
       await axios.post(`${API_URL}/comics`, formData, {
@@ -100,19 +100,32 @@ export const useComicStore = defineStore("comicStore", () => {
     }
   }
   async function updateComic(data: any) {
-    await axios
-      .put(`${API_URL}/comics`, data, { headers: authHeader() })
-      .then((response) => {
-        toast({
-          description: "Updated Successfully",
-        });
-      })
-      .catch((error) => {
-        toast({
-          description: error.message,
-          variant: "destructive",
-        });
+    const formData = new FormData();
+    formData.append("id", data.id);
+    formData.append("cover", data.cover);
+    formData.append("name", data.title);
+    formData.append("description", data.description);
+    formData.append("active", data.active);
+    formData.append("code", data.code);
+    formData.append("lang", data.language);
+    formData.append("audience", data.audience);
+    formData.append("status", data.status);
+    data.author.forEach((author: any) => formData.append("authors", author.id));
+    data.genre.forEach((genre: any) => formData.append("genres", genre.id));
+
+    try {
+      await axios.put(`${API_URL}/comics`, formData, {
+        headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
       });
+      toast({
+        description: "Updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        description: error.message,
+        variant: "destructive",
+      });
+    }
     selectedData.value = <Comic>{
       id: 0,
       cover: "",
@@ -167,6 +180,7 @@ export const useComicStore = defineStore("comicStore", () => {
     createDialogIsOpen,
     updateDialogIsOpen,
     deleteDialogIsOpen,
+    chapterDialogIsOpen,
     isLoading,
     selectedData,
     selectedAuthorForCreate,

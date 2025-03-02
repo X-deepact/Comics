@@ -3,52 +3,57 @@ import axios from "axios";
 import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
+import { useComicStore } from "./comicStore";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
+const comicStore = useComicStore();
 
-export interface Author {
+export interface Chapter {
   id: number;
   name: string;
-  biography: string;
-  birth_day: string;
+  number: number;
+  active: boolean;
+  comic_id: number;
+  cover: boolean;
+  created_by_name: string;
   created_at: string;
+  updated_by_name: string;
   updated_at: string;
-  created_by: string;
-  updated_by: string;
 }
-
-export const useAuthorStore = defineStore("authorStore", () => {
+export const useChapterStore = defineStore("chapterStore", () => {
   const createDialogIsOpen = ref(false);
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
-  const isLoading = ref(true);
-  const selectedData = ref<Author>({
+  const chapteritemDialogIsOpen = ref(false);
+  const chaptersData = ref<Chapter[]>([]);
+  const selectedData = ref<Chapter>({
     id: 0,
     name: "",
-    biography: "",
-    birth_day: "",
-    created_by: "",
+    number: 0,
+    active: false,
+    comic_id: 0,
+    cover: false,
+    created_by_name: "",
     created_at: "",
-    updated_by: "",
+    updated_by_name: "",
     updated_at: "",
   });
+  const searchKeyword = ref("");
+  const isLoading = ref(true);
   const current_page = ref(1);
   const page_size = ref(10);
-  const searchKeyword = ref("");
   const totalItems = ref(0);
-  const authorData = ref<Author[]>([]);
-  const generalauthorData = ref<Author[]>([]);
-  async function getAuthorData() {
+  async function getChapterData() {
     isLoading.value = true;
     await axios
       .get(
-        `${API_URL}/author?page=${current_page.value}&page_size=${page_size.value}`,
+        `${API_URL}/chapters?page=${current_page.value}&page_size=${page_size.value}&comic_id=${comicStore.selectedData.id}`,
         {
           headers: authHeader(),
         }
       )
       .then((response) => {
-        authorData.value = response.data.data;
+        chaptersData.value = response.data.data;
         current_page.value = response.data.pagination.page;
         totalItems.value = response.data.pagination.total;
         page_size.value = response.data.pagination.page_size;
@@ -61,10 +66,9 @@ export const useAuthorStore = defineStore("authorStore", () => {
         });
       });
   }
-
-  async function createAuthor(data: any) {
+  async function createChapter(data: any) {
     await axios
-      .post(`${API_URL}/author`, data, { headers: authHeader() })
+      .post(`${API_URL}/chapters`, data, { headers: authHeader() })
       .then((response) => {
         toast({
           description: "Created Successfully",
@@ -78,9 +82,9 @@ export const useAuthorStore = defineStore("authorStore", () => {
       });
   }
 
-  async function updateAuthor(data: any) {
+  async function updateChapter(data: any) {
     await axios
-      .put(`${API_URL}/author`, data, { headers: authHeader() })
+      .put(`${API_URL}/chapters`, data, { headers: authHeader() })
       .then((response) => {
         toast({
           description: "Updated Successfully",
@@ -92,20 +96,22 @@ export const useAuthorStore = defineStore("authorStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Author>{
+    selectedData.value = <Chapter>{
       id: 0,
       name: "",
-      biography: "",
-      birth_day: "",
-      created_by: "",
+      number: 0,
+      active: false,
+      comic_id: 0,
+      cover: false,
+      created_by_name: "",
       created_at: "",
-      updated_by: "",
+      updated_by_name: "",
       updated_at: "",
     };
   }
-  async function deleteAuthor(id: any) {
+  async function deleteChapter(id: any) {
     await axios
-      .delete(`${API_URL}/author/${id}`, {
+      .delete(`${API_URL}/chapters/${id}`, {
         headers: authHeader(),
       })
       .then((response) => {
@@ -119,46 +125,34 @@ export const useAuthorStore = defineStore("authorStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Author>{
+    selectedData.value = <Chapter>{
       id: 0,
       name: "",
-      biography: "",
-      birth_day: "",
-      created_by: "",
+      number: 0,
+      active: false,
+      comic_id: 0,
+      cover: false,
+      created_by_name: "",
       created_at: "",
-      updated_by: "",
+      updated_by_name: "",
       updated_at: "",
     };
-  }
-  async function getGeneralAuthorData() {
-    await axios
-      .get(`${API_URL}/general/authors`, { headers: authHeader() })
-      .then((response) => {
-        generalauthorData.value = response.data;
-      })
-      .catch((error) => {
-        toast({
-          description: error.message,
-          variant: "destructive",
-        });
-      });
   }
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
     deleteDialogIsOpen,
+    chapteritemDialogIsOpen,
+    chaptersData,
     selectedData,
-    authorData,
-    generalauthorData,
-    current_page,
-    page_size,
     searchKeyword,
-    totalItems,
     isLoading,
-    getAuthorData,
-    createAuthor,
-    updateAuthor,
-    deleteAuthor,
-    getGeneralAuthorData,
+    current_page,
+    totalItems,
+    page_size,
+    createChapter,
+    updateChapter,
+    getChapterData,
+    deleteChapter,
   };
 });

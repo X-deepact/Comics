@@ -6,25 +6,27 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { useComicStore } from "../../../../stores/comicStore";
+import { useAdStore } from "@/stores/adStore";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
+
 const isLoading = ref(false);
-const comicStore = useComicStore();
+const adStore = useAdStore();
 </script>
+
 <template>
   <Dialog
-    :open="comicStore.deleteDialogIsOpen"
-    @update:open="(value:boolean)=>{
-      comicStore.deleteDialogIsOpen = value;
-      }"
+    :open="adStore.deleteDialogIsOpen"
+    @update:open="(value: boolean) => {
+      adStore.deleteDialogIsOpen = value;
+    }"
   >
     <DialogContent>
-      <DialogHeader>Do you really want to delete this comic?</DialogHeader>
+      <DialogHeader>Do you really want to delete this ad?</DialogHeader>
       <DialogFooter class="justify-end gap-4">
         <Button
           variant="secondary"
-          @click="comicStore.deleteDialogIsOpen = false"
+          @click="adStore.deleteDialogIsOpen = false"
         >
           Close
         </Button>
@@ -33,10 +35,10 @@ const comicStore = useComicStore();
           @click="
             async () => {
               isLoading = true;
-              await comicStore.deleteComic(comicStore.selectedData.id);
+              await adStore.deleteAd(adStore.selectedData.id);
               isLoading = false;
-              comicStore.deleteDialogIsOpen = false;
-              comicStore.getComicData();
+              adStore.deleteDialogIsOpen = false;
+              adStore.getAdData();
             }
           "
         >
@@ -46,4 +48,4 @@ const comicStore = useComicStore();
       </DialogFooter>
     </DialogContent>
   </Dialog>
-</template>
+</template> 

@@ -17,9 +17,11 @@ export function valueUpdater<T extends Updater<any>>(
       : updaterOrValue;
 }
 export function formatDate(
-  date: Date | string | number,
+  date: Date | string | number | null | undefined,
   includeTime = false
 ): string {
+  if (!date) return "N/A";
+
   const parsedDate =
     typeof date === "string" || typeof date === "number"
       ? new Date(date)
@@ -28,32 +30,48 @@ export function formatDate(
   if (isNaN(parsedDate.getTime())) {
     throw new Error("Invalid date input");
   }
+
   const day = String(parsedDate.getDate()).padStart(2, "0");
-  const month = String(parsedDate.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
   const year = parsedDate.getFullYear();
+
   if (includeTime) {
-    const min = String(parsedDate.getMinutes()).padStart(2, "0");
-    const time = String(parsedDate.getHours()).padStart(2, "0");
-    return `${day}/${month}/${year} ${time}:${min}`;
+    const hours = String(parsedDate.getHours()).padStart(2, "0");
+    const minutes = String(parsedDate.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   }
 
   return `${day}/${month}/${year}`;
 }
 export const getTimeAgo = (
-  date: Date | string | number,
+  date: Date | string | number | null | undefined,
   addSuffix = true
 ): string => {
+  if (!date) return "N/A";
+
   try {
-    // Convert the input to a valid Date object
     const parsedDate =
       typeof date === "string" || typeof date === "number"
         ? new Date(date)
         : date;
 
-    // Return the "time ago" formatted string
     return formatDistanceToNow(parsedDate, { addSuffix });
   } catch (error) {
     console.error("Invalid date provided to getTimeAgo:", error);
     return "Invalid date";
   }
+};
+
+export const langConverter = (lang: string): string => {
+  switch (lang) {
+    case "en":
+      return "English";
+    case "cn":
+      return "Chinese";
+    case "vi":
+      return "Vietnamese";
+    case "all":
+      return "All";
+  }
+  return "";
 };

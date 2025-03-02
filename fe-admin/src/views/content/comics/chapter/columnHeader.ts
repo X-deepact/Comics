@@ -1,27 +1,36 @@
 export const ColumnNames = {
+  number: {
+    label: "Number",
+    sortKey: "number",
+    key: "number",
+  },
   name: {
     label: "Name",
     sortKey: "name",
     key: "name",
   },
-  position: {
-    label: "Position",
-    sortKey: "position",
-    key: "position",
+  active: {
+    label: "Active",
+    sortKey: "active",
+    key: "active",
   },
-  lang: { label: "Language", key: "lang" },
-  created_by_name: {
+  cover: {
+    label: "Cover",
+    sortKey: "cover",
+    key: "cover",
+  },
+  created_by: {
     label: "Creator",
-    key: "created_by_name",
+    key: "created_by",
   },
   created_at: {
     label: "Created At",
     sortKey: "created_at",
     key: "created_at",
   },
-  updated_by_name: {
+  updated_by: {
     label: "Updator",
-    key: "updated_by_name",
+    key: "updated_by",
   },
   updated_at: {
     label: "Updated At",
