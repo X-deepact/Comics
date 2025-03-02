@@ -84,7 +84,6 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import Component from '@/lib/Component.vue'
 import Pagination from '@/lib/Pagination.vue'
-import Modal from '@/lib/Modal.vue'
 import { Label } from '@/components/ui/label'
 import Table from '@/lib/Table.vue'
 

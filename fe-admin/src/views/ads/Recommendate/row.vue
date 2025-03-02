@@ -1,26 +1,25 @@
 <template>
   <TableRow>
-    <TableCell>{{ data.id }}</TableCell>
     <TableCell>{{ data.title }}</TableCell>
     <TableCell>
-      <img v-if="data.image" :src="data.image" alt="Ad Image" class="w-20 h-20 object-cover" />
+      <img 
+        v-if="data.cover" 
+        :src="data.cover" 
+        alt="cover" 
+        class="w-20 h-20 object-cover" 
+        @error="handleImageError"
+      />
       <span v-else>No image</span>
     </TableCell>
+    <TableCell>{{ data.position }}</TableCell>
     <TableCell>{{ formatDateSafe(data.active_from) }}</TableCell>
     <TableCell>{{ formatDateSafe(data.active_to) }}</TableCell>
-    <TableCell>{{ data.type }}</TableCell>
-    <TableCell>{{ data.direct_url }}</TableCell>
-    <TableCell>
-      <Badge :variant="getStatusVariant(data.status)">
-        {{ getStatusText(data.status) }}
-      </Badge>
-    </TableCell>
     <TableCell>
       <p class="font-medium">{{ data.created_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>
-        <Label>{{ formatDateSafe(data.created_at) }}</Label>
+        <Label>{{ formatDateSafe(data.created_at, true) }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.created_at) }}
         </p>
@@ -31,7 +30,7 @@
     </TableCell>
     <TableCell>
       <div>
-        <Label>{{ formatDateSafe(data.updated_at) }}</Label>
+        <Label>{{ formatDateSafe(data.updated_at, true) }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.updated_at) }}
         </p>
@@ -47,13 +46,10 @@
               $emit('clickUpdate', {
                 id: data.id,
                 title: data.title,
-                image: data.image,
+                cover: data.cover,
+                position: data.position,
                 active_from: data.active_from,
                 active_to: data.active_to,
-                type: data.type,
-                direct_url: data.direct_url,
-                comic_id: data.comic_id,
-                status: data.status,
               });
             }
           "
@@ -77,51 +73,46 @@
 </template>
 
 <script setup lang="ts">
-import { Ad } from "@/stores/adStore";
+import { Recommend } from "@/stores/recommendStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Trash2, Pencil } from "lucide-vue-next";
+import { ref } from 'vue';
 
 defineProps<{
-  data: Ad;
+  data: Recommend;
 }>();
 defineEmits(["clickDelete", "clickUpdate"]);
 
 const formatDateSafe = (
   date: Date | string | number | null | undefined,
-  includeTime: boolean = true
+  includeTime = false
 ): string => {
   if (!date) return "N/A";
-  
   try {
     return formatDate(date, includeTime);
   } catch (error) {
     console.error("Date formatting error:", error);
-    return "Invalid date";
+    return "N/A";
   }
 };
 
 const getTimeAgoSafe = (date: Date | string | number | null | undefined): string => {
   if (!date) return "N/A";
-  
   try {
     return getTimeAgo(date);
   } catch (error) {
     console.error("Time ago formatting error:", error);
-    return "Invalid date";
+    return "N/A";
   }
 };
 
-const getStatusVariant = (status: string | null | undefined): string => {
-  if (!status) return 'secondary';
-  return status.toLowerCase() === 'active' ? 'default' : 'secondary';
-};
-
-const getStatusText = (status: string | null | undefined): string => {
-  if (!status) return 'N/A';
-  return status.toLowerCase() === 'active' ? 'Active' : 'Inactive';
+// Add this function to handle image loading errors
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement;
+  target.src = ''; // You could set a default image here
+  target.alt = 'Image not available';
 };
 </script> 
