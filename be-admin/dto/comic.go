@@ -1,5 +1,7 @@
 package dto
 
+import "pkg-common/model"
+
 type ComicRequest struct {
 	Name        string  `form:"name" binding:"required"`
 	Code        string  `form:"code"`
@@ -45,8 +47,10 @@ type ComicResponse struct {
 
 type ComicReturn struct {
 	ComicResponse
-	CreatedByUser UserDetailDto `json:"created_by_user"`
-	UpdatedByUser UserDetailDto `json:"updated_by_user"`
+	CreatedByUser UserDetailDto       `json:"created_by_user"`
+	UpdatedByUser UserDetailDto       `json:"updated_by_user"`
+	Genres        []GenreResponse     `json:"genres"`
+	Authors       []model.AuthorModel `json:"authors"`
 }
 
 type ComicUpdateRequest struct {

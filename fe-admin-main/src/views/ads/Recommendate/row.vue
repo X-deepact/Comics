@@ -1,5 +1,6 @@
 <template>
   <TableRow>
+    <TableCell>{{ data.id }}</TableCell>
     <TableCell>{{ data.title }}</TableCell>
     <TableCell>
       <img 
@@ -43,14 +44,7 @@
           size="icon"
           @click="
             () => {
-              $emit('clickUpdate', {
-                id: data.id,
-                title: data.title,
-                cover: data.cover,
-                position: data.position,
-                active_from: data.active_from,
-                active_to: data.active_to,
-              });
+              $emit('clickUpdate', data);
             }
           "
         >
@@ -81,10 +75,9 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-vue-next";
 import { ref } from 'vue';
 
-defineProps<{
+const props = defineProps<{
   data: Recommend;
 }>();
-defineEmits(["clickDelete", "clickUpdate"]);
 
 const formatDateSafe = (
   date: Date | string | number | null | undefined,
@@ -115,4 +108,6 @@ const handleImageError = (event: Event) => {
   target.src = ''; // You could set a default image here
   target.alt = 'Image not available';
 };
+
+defineEmits(["clickDelete", "clickUpdate"]);
 </script> 

@@ -67,3 +67,20 @@ func (q *Queries) UpdateGenre(genre *model.GenreModel) error {
 func (q *Queries) DeleteGenre(id int64) error {
 	return q.db.WithContext(context.Background()).Delete(&model.GenreModel{Id: id}).Error
 }
+
+func (q *Queries) GetGenresOfAComic(comicID int64) ([]dto.GenreResponse, error) {
+	var genres []dto.GenreResponse
+
+	query := q.db.WithContext(context.Background()).Table("genres").
+		Joins("JOIN comic_genres cg ON cg.genre_id = genres.id").
+		Where("cg.comic_id = ?", comicID).
+		Select("genres.*, uc.username AS created_by_name, up.username AS updated_by_name").
+		Joins("LEFT JOIN users uc ON uc.id = genres.created_by").
+		Joins("LEFT JOIN users up ON up.id = genres.updated_by")
+
+	if err := query.Find(&genres).Error; err != nil {
+		return nil, err
+	}
+
+	return genres, nil
+}

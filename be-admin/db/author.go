@@ -56,3 +56,16 @@ func (q *Queries) DeleteAuthorById(id int64) (*model.AuthorModel, error) {
 
 	return author, nil
 }
+
+func (q *Queries) GetAuthorsOfAComic(comicId int64) ([]model.AuthorModel, error) {
+	var authors []model.AuthorModel
+	query := q.db.WithContext(context.Background()).Table("authors").
+		Joins("JOIN comic_authors ON authors.id = comic_authors.author_id").
+		Where("comic_authors.comic_id = ?", comicId)
+
+	if err := query.Find(&authors).Error; err != nil {
+		return nil, err
+	}
+
+	return authors, nil
+}

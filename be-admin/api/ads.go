@@ -183,3 +183,47 @@ func (s *Server) deleteAds(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, dto.ResponseMessage{Status: "success", Message: "Advertisement successfully deleted"})
 }
+
+// @Summary Update advertisement status
+// @Description Update the status of an advertisement to active or inactive
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param id path int true "Advertisement ID"
+// @Param status body dto.AdsUpdateStatusRequest true "Status Request"
+// @Security BearerAuth
+// @Success 200 {object} dto.AdsResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/ads/{id}/status [patch]
+func (s *Server) updateAdsStatus(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	var req dto.AdsUpdateStatusRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if err := s.store.UpdateAdsStatus(id, req.Status); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Get updated ads information
+	response, err := s.store.GetAds(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Advertisement status updated successfully",
+		"data":    response,
+	})
+}

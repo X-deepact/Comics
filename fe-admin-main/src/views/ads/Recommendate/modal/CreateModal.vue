@@ -201,104 +201,73 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
         </DialogDescription>
       </DialogHeader>
       
-      <div class="flex items-center gap-4">
-        <Label for="title" class="text-center w-1/4">Title</Label>
-        <Input
-          id="title"
-          v-model="formData.title"
-          placeholder="Title"
-        />
-      </div>
+      <div class="grid gap-4">
+        <div class="space-y-4">
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">Title</Label>
+            <Input v-model="formData.title" class="col-span-3" placeholder="Enter title" />
+          </div>
 
-      <div class="flex items-center gap-4">
-        <Label class="text-center w-1/4">Cover Image</Label>
-        <div class="flex flex-col gap-2 w-3/4">
-          <input
-            ref="fileInput"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="handleFileUpload"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            @click="triggerFileInput"
-          >
-            Choose Image
-          </Button>
-          <div v-if="previewImage" class="mt-2">
-            <img
-              :src="previewImage"
-              alt="Preview"
-              class="max-w-[200px] max-h-[200px] object-contain"
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">Cover Image</Label>
+            <div class="col-span-3">
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleFileUpload"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                class="w-full"
+                @click="fileInput?.click()"
+              >
+                Choose Image
+              </Button>
+              <div v-if="previewImage" class="mt-2">
+                <img
+                  :src="previewImage"
+                  alt="Preview"
+                  class="max-w-full max-h-[200px] object-contain rounded-md border"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">Position</Label>
+            <Input 
+              type="number" 
+              v-model="formData.position" 
+              class="col-span-3"
+              placeholder="Enter position number"
+            />
+          </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">Active From</Label>
+            <Input 
+              id="active_from"
+              type="date" 
+              v-model="formData.active_from"
+              class="col-span-3"
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">Active To</Label>
+            <Input 
+              id="active_to"
+              type="date"
+              v-model="formData.active_to"
+              class="col-span-3" 
+              required
             />
           </div>
         </div>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <Label for="position" class="text-center w-1/4">Position</Label>
-        <Input
-          id="position"
-          type="number"
-          v-model="formData.position"
-          placeholder="Position"
-        />
-      </div>
-
-      <div class="flex items-center gap-4">
-        <Label for="active_from" class="text-center w-1/4">Active From</Label>
-        <Popover>
-          <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn(
-                  'w-[280px] justify-start text-left font-normal',
-                  !activeFromValue && 'text-muted-foreground'
-                )
-              "
-            >
-              <CalendarIcon class="mr-2 h-4 w-4" />
-              {{
-                activeFromValue
-                  ? df.format(activeFromValue.toDate(getLocalTimeZone()))
-                  : "Pick a date"
-              }}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0">
-            <Calendar v-model="activeFromValue" initial-focus />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <Label for="active_to" class="text-center w-1/4">Active To</Label>
-        <Popover>
-          <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn(
-                  'w-[280px] justify-start text-left font-normal',
-                  !activeToValue && 'text-muted-foreground'
-                )
-              "
-            >
-              <CalendarIcon class="mr-2 h-4 w-4" />
-              {{
-                activeToValue
-                  ? df.format(activeToValue.toDate(getLocalTimeZone()))
-                  : "Pick a date"
-              }}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0">
-            <Calendar v-model="activeToValue" initial-focus />
-          </PopoverContent>
-        </Popover>
       </div>
 
       <DialogFooter class="sm:justify-end">
@@ -312,7 +281,7 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
           :disabled="isLoading"
           @click="handleSubmit"
         >
-          <img v-if="isLoading" :src="loadingImg" size="icon" />
+          <img v-if="isLoading" :src="loadingImg" alt="loading" class="mr-2 h-4 w-4" />
           Add
         </Button>
       </DialogFooter>

@@ -1,28 +1,27 @@
 export const columns = {
+  id: {
+    label: "ID",
+    sortKey: "id",
+  },
   title: {
     label: "Title",
     sortKey: "title",
-    key: "title",
   },
   cover: {
     label: "Cover",
-    sortKey: "cover",
     key: "cover",
   },
   position: {
     label: "Position",
     sortKey: "position",
-    key: "position",
   },
   active_from: {
     label: "Active From",
     sortKey: "active_from",
-    key: "active_from",
   },
   active_to: {
     label: "Active To",
     sortKey: "active_to",
-    key: "active_to",
   },
   created_by: {
     label: "Creator",

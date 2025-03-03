@@ -5,10 +5,7 @@
             :pageSize="recommendStore.page_size"
             @clickAdd="() => (recommendStore.createDialogIsOpen = true)"
             @clickRefresh="() => { recommendStore.getRecommendData() }"
-            @update:search="(keyword: string) => {
-                recommendStore.searchKeyword = keyword;
-                recommendStore.getRecommendData();
-            }"
+            @update:search="recommendStore.handleSearch"
             @update:pageSize="(pageSize: number) => {
                 recommendStore.page_size = pageSize;
                 recommendStore.getRecommendData();
@@ -33,10 +30,8 @@
         <Pagination 
             :currentPage="recommendStore.current_page"
             :totalItems="recommendStore.totalItems"
-            :totalPages="recommendStore.totalItems % recommendStore.page_size === 0
-                ? recommendStore.totalItems / recommendStore.page_size
-                : Math.ceil(recommendStore.totalItems / recommendStore.page_size)"
-            @update:currentPage="(currentPage: any) => {
+            :totalPages="Math.ceil(recommendStore.totalItems / recommendStore.page_size)"
+            @update:currentPage="(currentPage: number) => {
                 recommendStore.current_page = currentPage;
                 recommendStore.getRecommendData();
             }"
@@ -60,5 +55,7 @@ import { columns } from './columnHeader'
 import RecommendRow from './row.vue'
 
 const recommendStore = useRecommendStore()
+
+// Initial data load
 recommendStore.getRecommendData()
 </script>

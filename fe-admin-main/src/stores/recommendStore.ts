@@ -23,46 +23,58 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   const createDialogIsOpen = ref(false);
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
-  const isLoading = ref(true);
-  const selectedData = ref<Recommend>({
-    id: 0,
-    title: "",
-    cover: "",
-    position: 0,
-    active_from: "",
-    active_to: "",
-    created_by: 0,
-    created_at: "",
-    updated_by: 0,
-    updated_at: "",
-  });
+  const isLoading = ref(false);
+  const selectedData = ref<Recommend | null>(null);
+  const recommendData = ref([]);
   const current_page = ref(1);
   const page_size = ref(10);
   const searchKeyword = ref("");
   const totalItems = ref(0);
-  const recommendData = ref<Recommend[]>([]);
 
   async function getRecommendData() {
     isLoading.value = true;
     try {
+      const params = new URLSearchParams({
+        page: current_page.value.toString(),
+        page_size: page_size.value.toString(),
+      });
+
+      // Only add search parameter if there's a search keyword
+      if (searchKeyword.value.trim()) {
+        params.append('search', searchKeyword.value.trim());
+      }
+
+      console.log('Search URL:', `${API_URL}/recommend?${params.toString()}`); // Debug log
+
       const response = await axios.get(
-        `${API_URL}/recommend?page=${current_page.value}&page_size=${page_size.value}&title=${searchKeyword.value}`,
+        `${API_URL}/recommend?${params.toString()}`,
         {
           headers: authHeader(),
         }
       );
+
+      console.log('Search response:', response.data); // Debug log
+
       recommendData.value = response.data.data;
       current_page.value = response.data.pagination.page;
       totalItems.value = response.data.pagination.total;
       page_size.value = response.data.pagination.page_size;
-      isLoading.value = false;
     } catch (error: any) {
+      console.error('Search error:', error); // Debug log
       toast({
         description: error.message,
         variant: "destructive",
       });
+    } finally {
       isLoading.value = false;
     }
+  }
+
+  // Reset page when searching
+  async function handleSearch(keyword: string) {
+    searchKeyword.value = keyword;
+    current_page.value = 1; // Reset to first page when searching
+    await getRecommendData();
   }
 
   async function createRecommend(data: any) {
@@ -98,32 +110,30 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   }
 
   async function updateRecommend(data: any) {
-    console.log('Updating recommend with data:', data);
-    const formattedData = {
-      id: data.id,
-      title: data.title,
-      cover: data.cover,
-      position: Number(data.position),
-      active_from: new Date(data.active_from * 1000).toISOString().split('T')[0],
-      active_to: new Date(data.active_to * 1000).toISOString().split('T')[0],
-    };
-    console.log('Formatted data:', formattedData);
-
     try {
+      // Format the data according to API requirements
+      const requestData = {
+        id: data.id,
+        title: data.title,
+        cover: data.cover,
+        position: Number(data.position),
+        active_from: data.active_from,
+        active_to: data.active_to
+      };
+
       const response = await axios.put(
-        `${API_URL}/recommend`, 
-        formattedData, 
+        `${API_URL}/recommend`, // Remove the ID from URL
+        requestData,
         { headers: authHeader() }
       );
-      console.log('Update response:', response);
+
       toast({
         description: "Updated Successfully",
       });
       return response.data;
     } catch (error: any) {
-      console.error('Update error:', error.response?.data || error);
       toast({
-        description: error.response?.data?.message || "Failed to update recommendation",
+        description: error.response?.data?.message || "Update failed",
         variant: "destructive",
       });
       throw error;
@@ -160,6 +170,7 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     totalItems,
     isLoading,
     getRecommendData,
+    handleSearch,
     createRecommend,
     updateRecommend,
     deleteRecommend,

@@ -70,3 +70,12 @@ func (q *Queries) UpdateAds(ads *model.AdModel) error {
 func (q *Queries) DeleteAds(id int64) error {
 	return q.db.WithContext(context.Background()).Delete(&model.AdModel{Id: id}).Error
 }
+
+// UpdateAdsStatus updates the status of an advertisement
+func (q *Queries) UpdateAdsStatus(id int64, status string) error {
+	return q.db.WithContext(context.Background()).
+		Model(&model.AdModel{}).
+		Where("id = ?", id).
+		Update("status", status).
+		Error
+}

@@ -34,6 +34,7 @@ type Querier interface {
 	GetGenres(req dto.GenreListRequest) ([]dto.GenreResponse, int64, error)
 	UpdateGenre(comic *model.GenreModel) error
 	DeleteGenre(id int64) error
+	GetGenresOfAComic(comicId int64) ([]dto.GenreResponse, error)
 
 	// Roles
 	GetRole(name string) (*model.RoleModel, error)
@@ -73,6 +74,7 @@ type Querier interface {
 	GetAuthors(req dto.RequestQueryFilter) ([]*model.AuthorModel, int64, error)
 	UpdateAuthor(author *model.AuthorModel) (*model.AuthorModel, error)
 	DeleteAuthorById(id int64) (*model.AuthorModel, error)
+	GetAuthorsOfAComic(comicId int64) ([]model.AuthorModel, error)
 
 	CreateRecomend(r *model.RecommendManagerModel) error
 	GetRecommendById(id int64) (*model.RecommendManagerModel, error)

@@ -116,6 +116,7 @@ func (s *Server) setUpRouter() {
 		adsGroup.GET("", s.getAdsList)
 		adsGroup.PUT("", s.updateAds)
 		adsGroup.DELETE("/:id", s.deleteAds)
+		adsGroup.PATCH("/:id/status", s.updateAdsStatus)
 	}
 
 	chapterItemGroup := s.router.Group("/api/chapter-items")

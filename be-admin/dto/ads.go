@@ -47,3 +47,7 @@ type AdsListRequest struct {
 	Type     string `form:"type" binding:"omitempty,oneof=internal external"`
 	Status   string `form:"status" binding:"omitempty,oneof=active inactive"`
 }
+
+type AdsUpdateStatusRequest struct {
+	Status string `json:"status" binding:"required,oneof=active inactive"`
+}

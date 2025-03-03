@@ -128,11 +128,16 @@ func (s *Server) getComic(ctx *gin.Context) {
 	if !strings.HasPrefix(comic.Cover, "http") {
 		comic.Cover = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, comic.Cover)
 	}
+
+	genres, _ := s.store.GetGenresOfAComic(comic.ID)
+	authors, _ := s.store.GetAuthorsOfAComic(comic.ID)
 	returnComic := dto.ComicReturn{
 
 		ComicResponse: *comic,
 		CreatedByUser: *userCreate,
 		UpdatedByUser: *userUpdate,
+		Genres:        genres,
+		Authors:       authors,
 	}
 
 	ctx.JSON(http.StatusOK, returnComic)
@@ -198,6 +203,10 @@ func (s *Server) getComics(ctx *gin.Context) {
 			}
 			comicsReturn[i].UpdatedByUser = *user[comic.UpdatedBy]
 		}
+		genres, _ := s.store.GetGenresOfAComic(comic.ID)
+		authors, _ := s.store.GetAuthorsOfAComic(comic.ID)
+		comicsReturn[i].Genres = genres
+		comicsReturn[i].Authors = authors
 	}
 
 	ListResponse(ctx, req.Page, req.PageSize, int(total), comicsReturn)
