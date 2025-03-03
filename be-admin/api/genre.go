@@ -3,10 +3,11 @@ package api
 import (
 	"comics-admin/dto"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) genreRouter() {

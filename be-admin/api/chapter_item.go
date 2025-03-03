@@ -94,6 +94,8 @@ func (s *Server) getChapterItem(ctx *gin.Context) {
 // @Param chapter_id query int true "Chapter ID"
 // @Param page query int true "Page number"
 // @Param page_size query int true "Page size"
+// @Param sort_by query string false "Sort by field (e.g. page, created_at, updated_at)"
+// @Param sort query string false "Sort order (ASC/DESC)"
 // @Security BearerAuth
 // @Success 200 {object} []dto.ChapterItemResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"

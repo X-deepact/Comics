@@ -2,11 +2,12 @@ package api
 
 import (
 	"comics-admin/dto"
-	"comics-admin/util"
-	"github.com/gin-gonic/gin"
+	config "comics-admin/util"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) comicRouter() {
@@ -97,7 +98,7 @@ func (s *Server) createComic(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ComicReturn
+// @Success 200 {object} dto.ComicModelReturn "Comic found"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics/{id} [get]
@@ -160,7 +161,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 // @Param author query int false "Author ID"
 // @Param genre query int false "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ListResponse{data=dto.ComicReturn} "List of comics"
+// @Success 200 {object} dto.ListResponse{data=dto.ComicModelReturn} "List of comics"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics [get]

@@ -33,8 +33,19 @@ func (q *Queries) ListChapterItems(req dto.ChapterItemListRequest) ([]dto.Chapte
 
 	query := q.db.WithContext(context.Background()).
 		Table("chapter_items").
-		Where("chapter_id = ?", req.ChapterId).
-		Order("page ASC")
+		Where("chapter_id = ?", req.ChapterId)
+
+	if req.SortBy != "" {
+		order := req.SortBy
+		if req.Sort != "" {
+			order += " " + req.Sort
+		} else {
+			order += " ASC"
+		}
+		query = query.Order(order)
+	} else {
+		query = query.Order("page ASC")
+	}
 
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err

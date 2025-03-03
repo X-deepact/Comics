@@ -36,7 +36,9 @@ type ChapterItemResponse struct {
 
 // ChapterItemListRequest represents request to list chapter items
 type ChapterItemListRequest struct {
-	ChapterId int64 `form:"chapter_id" binding:"required"`
-	Page      int   `form:"page" binding:"required,min=1"`
-	PageSize  int   `form:"page_size" binding:"required,min=1,max=100"`
+	ChapterId int64  `form:"chapter_id" binding:"required"`
+	Page      int    `form:"page" binding:"required,min=1"`
+	PageSize  int    `form:"page_size" binding:"required,min=1,max=100"`
+	SortBy    string `form:"sort_by"`
+	Sort      string `form:"sort"`
 }

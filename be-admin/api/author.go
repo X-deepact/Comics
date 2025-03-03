@@ -146,6 +146,7 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param     Authorization header string true "Bearer authorization token"
+// @Param name query string false "Name"
 // @Param sort_by query string false "Sort By"
 // @Param sort query string false "Sort"
 // @Param page query int false "Page number"

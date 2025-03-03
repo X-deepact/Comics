@@ -114,6 +114,7 @@ func (s *Server) setUpRouter() {
 	{
 		adsGroup.POST("", s.createAds)
 		adsGroup.GET("", s.getAdsList)
+		adsGroup.GET("/:id", s.getAdsById)
 		adsGroup.PUT("", s.updateAds)
 		adsGroup.DELETE("/:id", s.deleteAds)
 		adsGroup.PATCH("/:id/status", s.updateAdsStatus)

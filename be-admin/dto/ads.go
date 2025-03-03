@@ -31,6 +31,7 @@ type AdsResponse struct {
 	Image         string     `json:"image"`
 	ComicID       int64      `json:"comic_id"`
 	Type          string     `json:"type"`
+	Status        string     `json:"status"`
 	DirectURL     string     `json:"direct_url"`
 	ActiveFrom    *time.Time `json:"active_from"`
 	ActiveTo      *time.Time `json:"active_to"`

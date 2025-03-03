@@ -23,7 +23,11 @@ func (q *Queries) GetAuthors(req dto.RequestQueryFilter) ([]*model.AuthorModel, 
 	var authors []*model.AuthorModel
 	var total int64
 
-	if err := q.db.WithContext(context.Background()).Model(&model.AuthorModel{}).
+	query := q.db.WithContext(context.Background()).Model(&model.AuthorModel{})
+	if req.Name != "" {
+		query = query.Where("name LIKE ?", "%"+req.Name+"%")
+	}
+	if err := query.
 		Count(&total).
 		Order(fmt.Sprintf("%s %s", req.SortBy, req.Sort)).
 		Limit(req.PageSize).

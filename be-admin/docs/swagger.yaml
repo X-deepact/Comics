@@ -47,6 +47,8 @@ definitions:
         type: integer
       image:
         type: string
+      status:
+        type: string
       title:
         type: string
       type:
@@ -84,6 +86,35 @@ definitions:
         type: string
     required:
     - id
+    type: object
+  dto.AdsUpdateStatusRequest:
+    properties:
+      status:
+        enum:
+        - active
+        - inactive
+        type: string
+    required:
+    - status
+    type: object
+  dto.AuthorModelReturn:
+    properties:
+      biography:
+        type: string
+      birthDay:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: integer
     type: object
   dto.AuthorRequest:
     properties:
@@ -185,8 +216,6 @@ definitions:
     type: object
   dto.ChapterRequest:
     properties:
-      active:
-        type: boolean
       comic_id:
         type: integer
       cover:
@@ -208,9 +237,7 @@ definitions:
         type: boolean
       created_at:
         type: string
-      created_by:
-        type: string
-      created_by_user:
+      created_by_name:
         type: string
       id:
         type: integer
@@ -220,15 +247,11 @@ definitions:
         type: integer
       updated_at:
         type: string
-      updated_by:
-        type: string
-      updated_by_user:
+      updated_by_name:
         type: string
     type: object
   dto.ChapterUpdateRequest:
     properties:
-      active:
-        type: boolean
       comic_id:
         type: integer
       cover:
@@ -242,6 +265,47 @@ definitions:
     required:
     - comic_id
     - id
+    type: object
+  dto.ComicModelReturn:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      authors:
+        items:
+          $ref: '#/definitions/dto.AuthorModelReturn'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      created_by_user:
+        $ref: '#/definitions/dto.UserDetailDto'
+      description:
+        type: string
+      genres:
+        items:
+          $ref: '#/definitions/dto.GenreResponse'
+        type: array
+      id:
+        type: integer
+      lang:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+      updated_by_user:
+        $ref: '#/definitions/dto.UserDetailDto'
     type: object
   dto.ComicResponse:
     properties:
@@ -271,39 +335,6 @@ definitions:
         type: string
       updated_by:
         type: integer
-    type: object
-  dto.ComicReturn:
-    properties:
-      active:
-        type: boolean
-      audience:
-        type: string
-      code:
-        type: string
-      cover:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      created_by_user:
-        $ref: '#/definitions/dto.UserDetailDto'
-      description:
-        type: string
-      id:
-        type: integer
-      lang:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-      updated_at:
-        type: string
-      updated_by:
-        type: integer
-      updated_by_user:
-        $ref: '#/definitions/dto.UserDetailDto'
     type: object
   dto.GeneralAuthorResponse:
     properties:
@@ -712,6 +743,77 @@ paths:
       summary: Delete advertisement
       tags:
       - ads
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information of an advertisement by ID
+      parameters:
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AdsResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "404":
+          description: Advertisement not found
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Get advertisement by ID
+      tags:
+      - ads
+  /api/ads/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of an advertisement to active or inactive
+      parameters:
+      - description: Advertisement ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Status Request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdsUpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AdsResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Update advertisement status
+      tags:
+      - ads
   /api/author:
     get:
       consumes:
@@ -722,6 +824,10 @@ paths:
         in: header
         name: Authorization
         required: true
+        type: string
+      - description: Name
+        in: query
+        name: name
         type: string
       - description: Sort By
         in: query
@@ -925,6 +1031,14 @@ paths:
         name: page_size
         required: true
         type: integer
+      - description: Sort by field (e.g. page, created_at, updated_at)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (ASC/DESC)
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:
@@ -1266,6 +1380,35 @@ paths:
       summary: Get a chapter
       tags:
       - chapters
+  /api/chapters/active/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Active a chapter by ID
+      parameters:
+      - description: Chapter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Record updated successfully
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Active a chapter
+      tags:
+      - chapters
   /api/comics:
     get:
       consumes:
@@ -1322,7 +1465,7 @@ paths:
             - $ref: '#/definitions/dto.ListResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ComicReturn'
+                  $ref: '#/definitions/dto.ComicModelReturn'
               type: object
         "400":
           description: Invalid request
@@ -1519,9 +1662,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Comic found
           schema:
-            $ref: '#/definitions/dto.ComicReturn'
+            $ref: '#/definitions/dto.ComicModelReturn'
         "400":
           description: Invalid request
           schema:

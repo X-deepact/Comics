@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // @Summary Create a new advertisement
@@ -94,12 +95,16 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"pagination": gin.H{
-			"page":      req.Page,
-			"page_size": req.PageSize,
-			"total":     total,
+		"status":  "success",
+		"message": "Get advertisements list successfully",
+		"data": gin.H{
+			"pagination": gin.H{
+				"page":      req.Page,
+				"page_size": req.PageSize,
+				"total":     total,
+			},
+			"items": ads,
 		},
-		"data": ads,
 	})
 }
 
@@ -224,6 +229,42 @@ func (s *Server) updateAdsStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Advertisement status updated successfully",
+		"data":    response,
+	})
+}
+
+// @Summary Get advertisement by ID
+// @Description Get detailed information of an advertisement by ID
+// @Tags ads
+// @Accept json
+// @Produce json
+// @Param id path int true "Advertisement ID"
+// @Security BearerAuth
+// @Success 200 {object} dto.AdsResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 404 {object} dto.ResponseMessage "Advertisement not found"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/ads/{id} [get]
+func (s *Server) getAdsById(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	response, err := s.store.GetAds(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			ctx.JSON(http.StatusNotFound, dto.ResponseMessage{Status: "error", Message: "Advertisement not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Get advertisement successfully",
 		"data":    response,
 	})
 }
