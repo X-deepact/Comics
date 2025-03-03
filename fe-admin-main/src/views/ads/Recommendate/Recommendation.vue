@@ -3,11 +3,13 @@
         <Component 
             title="Recommendation"
             :pageSize="recommendStore.page_size"
+            :isLoading="recommendStore.isLoading"
             @clickAdd="() => (recommendStore.createDialogIsOpen = true)"
             @clickRefresh="() => { recommendStore.getRecommendData() }"
-            @update:search="recommendStore.handleSearch"
+            @update:search="(keyword: string) => recommendStore.handleSearch(keyword)"
             @update:pageSize="(pageSize: number) => {
                 recommendStore.page_size = pageSize;
+                recommendStore.current_page = 1;
                 recommendStore.getRecommendData();
             }"
         />

@@ -30,6 +30,8 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   const page_size = ref(10);
   const searchKeyword = ref("");
   const totalItems = ref(0);
+  const sortBy = ref("title"); // Default sort by title
+  const sortDirection = ref("asc"); // Default sort direction
 
   async function getRecommendData() {
     isLoading.value = true;
@@ -37,14 +39,11 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       const params = new URLSearchParams({
         page: current_page.value.toString(),
         page_size: page_size.value.toString(),
+        sort_by: sortBy.value,
+        sort: sortDirection.value,
       });
 
-      // Only add search parameter if there's a search keyword
-      if (searchKeyword.value.trim()) {
-        params.append('search', searchKeyword.value.trim());
-      }
-
-      console.log('Search URL:', `${API_URL}/recommend?${params.toString()}`); // Debug log
+      console.log('Request URL:', `${API_URL}/recommend?${params.toString()}`);
 
       const response = await axios.get(
         `${API_URL}/recommend?${params.toString()}`,
@@ -53,16 +52,22 @@ export const useRecommendStore = defineStore("recommendStore", () => {
         }
       );
 
-      console.log('Search response:', response.data); // Debug log
+      // If searching, filter results client-side
+      if (searchKeyword.value.trim()) {
+        recommendData.value = response.data.data.filter((item: any) => 
+          item.title.toLowerCase().includes(searchKeyword.value.toLowerCase())
+        );
+      } else {
+        recommendData.value = response.data.data;
+      }
 
-      recommendData.value = response.data.data;
       current_page.value = response.data.pagination.page;
       totalItems.value = response.data.pagination.total;
       page_size.value = response.data.pagination.page_size;
     } catch (error: any) {
-      console.error('Search error:', error); // Debug log
+      console.error('API Error:', error.response || error);
       toast({
-        description: error.message,
+        description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
     } finally {
@@ -70,11 +75,18 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     }
   }
 
-  // Reset page when searching
+  // Debounced search function
+  let searchTimeout: NodeJS.Timeout;
   async function handleSearch(keyword: string) {
-    searchKeyword.value = keyword;
-    current_page.value = 1; // Reset to first page when searching
-    await getRecommendData();
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    searchTimeout = setTimeout(() => {
+      searchKeyword.value = keyword;
+      current_page.value = 1;
+      getRecommendData();
+    }, 300);
   }
 
   async function createRecommend(data: any) {
@@ -169,6 +181,8 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     searchKeyword,
     totalItems,
     isLoading,
+    sortBy,
+    sortDirection,
     getRecommendData,
     handleSearch,
     createRecommend,
