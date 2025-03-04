@@ -11,7 +11,6 @@ export const ColumnNames = {
   },
   image: {
     label: "Image",
-    sortKey: "image",
     key: "image",
   },
   active_from: {
@@ -41,6 +40,7 @@ export const ColumnNames = {
   created_by: {
     label: "Creator",
     key: "created_by_name",
+    sortKey: "created_by",
   },
   created_at: {
     label: "Created At",
@@ -50,6 +50,7 @@ export const ColumnNames = {
   updated_by: {
     label: "Updator",
     key: "updated_by_name",
+    sortKey: "updated_by",
   },
   updated_at: {
     label: "Updated At",

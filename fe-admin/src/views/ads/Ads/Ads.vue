@@ -20,17 +20,23 @@
             :columns="ColumnNames"
             :isLoading="adStore.isLoading"
             :row="AdRow"
-            @clickDelete="(data: any) => {
+            :currentSort="adStore.sort"
+            @clickDelete="(data: Ad) => {
                 adStore.selectedData = data;
                 adStore.deleteDialogIsOpen = true;
             }"
-            @clickUpdate="(data: any) => {
+            @clickUpdate="(data: Ad) => {
                 adStore.selectedData = data;
                 adStore.updateDialogIsOpen = true;
+            }"
+            @clickSorting="(sortKey: string) => {
+                console.log('Sorting clicked:', sortKey); // Debug log
+                adStore.updateSort(sortKey);
             }"
         />
 
         <Pagination
+            v-if="adStore.totalItems > 0"
             :currentPage="adStore.current_page"
             :totalItems="adStore.totalItems"
             :totalPages="Math.ceil(adStore.totalItems / adStore.page_size)"

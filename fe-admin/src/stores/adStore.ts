@@ -13,10 +13,10 @@ export interface Ad {
   image: string;
   active_from: string;
   active_to: string;
-  type: string;
+  type: 'internal' | 'external';
   direct_url: string;
   comic_id: number;
-  status: string | boolean | null;
+  status: string;
   created_at: string;
   updated_at: string;
   created_by_name: string;
@@ -32,6 +32,17 @@ export interface AdCreateRequest {
   direct_url: string;
   comic_id: number | null;
   status: string;
+}
+
+export interface AdFilters {
+  title?: string;
+  type?: 'internal' | 'external';
+  status?: 'active' | 'inactive';
+}
+
+interface SortState {
+  sort_by: string;
+  sort_order: 'asc' | 'desc';
 }
 
 export const useAdStore = defineStore("adStore", () => {
@@ -60,51 +71,75 @@ export const useAdStore = defineStore("adStore", () => {
   const searchKeyword = ref("");
   const totalItems = ref(0);
   const adData = ref<Ad[]>([]);
+  const filters = ref<AdFilters>({});
+
+  const sort = ref<SortState>({
+    sort_by: 'id',
+    sort_order: 'desc'
+  });
 
   async function getAdData() {
     isLoading.value = true;
     try {
+      const params = new URLSearchParams({
+        page: current_page.value.toString(),
+        page_size: page_size.value.toString(),
+      });
+
+      if (sort.value.sort_by) {
+        params.append('sort_by', sort.value.sort_by);
+        params.append('sort_order', sort.value.sort_order);
+      }
+
+      if (searchKeyword.value) params.append('title', searchKeyword.value);
+      if (filters.value.type) params.append('type', filters.value.type);
+      if (filters.value.status) params.append('status', filters.value.status);
+
+      console.log('Request params:', params.toString());
+
       const response = await axios.get(
-        `${API_URL}/ads?page=${current_page.value}&page_size=${page_size.value}&title=${searchKeyword.value}`,
+        `${API_URL}/ads?${params.toString()}`,
         { headers: authHeader() }
       );
-      adData.value = response.data.data;
-      totalItems.value = response.data.pagination.total;
-      isLoading.value = false;
+
+      console.log('API Response:', response.data);
+
+      if (response.data && response.data.data && response.data.data.items) {
+        adData.value = response.data.data.items;
+        totalItems.value = response.data.data.pagination.total;
+      } else {
+        adData.value = [];
+        totalItems.value = 0;
+      }
+
+      console.log('Processed Data:', adData.value);
     } catch (error: any) {
+      console.error('Error fetching ads:', error);
       toast({
-        description: error.message,
+        description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
+      adData.value = [];
+      totalItems.value = 0;
+    } finally {
       isLoading.value = false;
     }
   }
 
-  async function createAd(data: any) {
+  async function createAd(data: AdCreateRequest) {
     try {
-      const requestData: AdCreateRequest = {
-        title: data.title,
-        image: data.image,
-        active_from: data.active_from,
-        active_to: data.active_to || null,
-        type: data.type as 'internal' | 'external',
-        direct_url: data.direct_url || '',
-        comic_id: data.type === 'internal' ? Number(data.comic_id) || null : null,
-        status: data.status === 'active' ? 'active' : 'inactive'
-      };
-
-      console.log('Creating ad with data:', requestData);
-
       const response = await axios.post(
-        `${API_URL}/ads`, 
-        requestData, 
+        `${API_URL}/ads`,
+        {
+          ...data,
+          status: data.status === 'active' ? 'active' : 'inactive',
+          comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
+        },
         { headers: authHeader() }
       );
-
       toast({ description: "Created Successfully" });
       return response.data;
     } catch (error: any) {
-      console.error('Error creating ad:', error.response?.data || error.message);
       toast({
         description: error.response?.data?.message || error.message,
         variant: "destructive",
@@ -113,32 +148,20 @@ export const useAdStore = defineStore("adStore", () => {
     }
   }
 
-  async function updateAd(data: any) {
+  async function updateAd(data: Ad) {
     try {
-      const requestData = {
-        id: data.id,
-        title: data.title,
-        image: data.image,
-        active_from: data.active_from,
-        active_to: data.active_to || null,
-        type: data.type as 'internal' | 'external',
-        direct_url: data.direct_url || '',
-        comic_id: data.type === 'internal' ? Number(data.comic_id) || null : null,
-        status: data.status === 'active' ? 'active' : 'inactive'
-      };
-
-      console.log('Updating ad with data:', requestData);
-
       const response = await axios.put(
-        `${API_URL}/ads`, 
-        requestData, 
+        `${API_URL}/ads`,
+        {
+          ...data,
+          status: data.status === 'active' ? 'active' : 'inactive',
+          comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
+        },
         { headers: authHeader() }
       );
-
       toast({ description: "Updated Successfully" });
       return response.data;
     } catch (error: any) {
-      console.error('Error updating ad:', error.response?.data || error.message);
       toast({
         description: error.response?.data?.message || error.message,
         variant: "destructive",
@@ -174,6 +197,35 @@ export const useAdStore = defineStore("adStore", () => {
     }
   }
 
+  async function updateAdStatus(id: number, status: 'active' | 'inactive') {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/ads/${id}/status`,
+        { status },
+        { headers: authHeader() }
+      );
+      toast({ description: "Status Updated Successfully" });
+      return response.data;
+    } catch (error: any) {
+      toast({
+        description: error.response?.data?.message || error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  }
+
+  function updateSort(sortKey: string) {
+    if (sort.value.sort_by === sortKey) {
+      sort.value.sort_order = sort.value.sort_order === 'asc' ? 'desc' : 'asc';
+    } else {
+      sort.value.sort_by = sortKey;
+      sort.value.sort_order = 'desc';
+    }
+    console.log('Sort updated:', sort.value);
+    getAdData();
+  }
+
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
@@ -189,5 +241,9 @@ export const useAdStore = defineStore("adStore", () => {
     createAd,
     updateAd,
     deleteAd,
+    filters,
+    updateAdStatus,
+    sort,
+    updateSort
   };
 }); 
