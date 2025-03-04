@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
 
@@ -16,7 +16,7 @@ export interface Ad {
   type: 'internal' | 'external';
   direct_url: string;
   comic_id: number;
-  status: string;
+  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
   created_by_name: string;
@@ -31,7 +31,7 @@ export interface AdCreateRequest {
   type: 'internal' | 'external';
   direct_url: string;
   comic_id: number | null;
-  status: string;
+  status: 'active' | 'inactive';
 }
 
 export interface AdFilters {
@@ -59,7 +59,7 @@ export const useAdStore = defineStore("adStore", () => {
     type: "internal",
     direct_url: "",
     comic_id: 0,
-    status: "active",
+    status: "active" as 'active' | 'inactive',
     created_at: "",
     updated_at: "",
     created_by_name: "",
@@ -78,6 +78,23 @@ export const useAdStore = defineStore("adStore", () => {
     sort_order: 'desc'
   });
 
+  // Add computed property for sorted data
+  const sortedAdData = computed(() => {
+    if (!sort.value.sort_by) return adData.value;
+
+    return [...adData.value].sort((a, b) => {
+      const sortField = sort.value.sort_by === 'updated_by' ? 'updated_by_name' : sort.value.sort_by;
+      const aValue = a[sortField as keyof typeof a] || '';
+      const bValue = b[sortField as keyof typeof b] || '';
+
+      if (sort.value.sort_order === 'asc') {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return bValue < aValue ? -1 : bValue > aValue ? 1 : 0;
+      }
+    });
+  });
+
   async function getAdData() {
     isLoading.value = true;
     try {
@@ -86,23 +103,14 @@ export const useAdStore = defineStore("adStore", () => {
         page_size: page_size.value.toString(),
       });
 
-      if (sort.value.sort_by) {
-        params.append('sort_by', sort.value.sort_by);
-        params.append('sort_order', sort.value.sort_order);
-      }
-
       if (searchKeyword.value) params.append('title', searchKeyword.value);
       if (filters.value.type) params.append('type', filters.value.type);
       if (filters.value.status) params.append('status', filters.value.status);
-
-      console.log('Request params:', params.toString());
 
       const response = await axios.get(
         `${API_URL}/ads?${params.toString()}`,
         { headers: authHeader() }
       );
-
-      console.log('API Response:', response.data);
 
       if (response.data && response.data.data && response.data.data.items) {
         adData.value = response.data.data.items;
@@ -111,8 +119,6 @@ export const useAdStore = defineStore("adStore", () => {
         adData.value = [];
         totalItems.value = 0;
       }
-
-      console.log('Processed Data:', adData.value);
     } catch (error: any) {
       console.error('Error fetching ads:', error);
       toast({
@@ -132,7 +138,6 @@ export const useAdStore = defineStore("adStore", () => {
         `${API_URL}/ads`,
         {
           ...data,
-          status: data.status === 'active' ? 'active' : 'inactive',
           comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
         },
         { headers: authHeader() }
@@ -154,7 +159,6 @@ export const useAdStore = defineStore("adStore", () => {
         `${API_URL}/ads`,
         {
           ...data,
-          status: data.status === 'active' ? 'active' : 'inactive',
           comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
         },
         { headers: authHeader() }
@@ -183,7 +187,7 @@ export const useAdStore = defineStore("adStore", () => {
         type: "internal",
         direct_url: "",
         comic_id: 0,
-        status: "active",
+        status: "active" as 'active' | 'inactive',
         created_at: "",
         updated_at: "",
         created_by_name: "",
@@ -222,8 +226,6 @@ export const useAdStore = defineStore("adStore", () => {
       sort.value.sort_by = sortKey;
       sort.value.sort_order = 'desc';
     }
-    console.log('Sort updated:', sort.value);
-    getAdData();
   }
 
   return {
@@ -231,7 +233,7 @@ export const useAdStore = defineStore("adStore", () => {
     updateDialogIsOpen,
     deleteDialogIsOpen,
     selectedData,
-    adData,
+    adData: sortedAdData,
     current_page,
     page_size,
     searchKeyword,

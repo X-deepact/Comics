@@ -42,7 +42,6 @@ const handleSubmit = async () => {
     isLoading.value = true;
     const formattedData = {
       ...adStore.selectedData,
-      status: adStore.selectedData.status === 'active',
       comic_id: parseInt(adStore.selectedData.comic_id.toString()),
       active_from: new Date(adStore.selectedData.active_from).toISOString(),
       active_to: new Date(adStore.selectedData.active_to).toISOString(),

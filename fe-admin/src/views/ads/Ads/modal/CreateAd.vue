@@ -28,10 +28,10 @@ const ad = ref({
   image: "",
   active_from: "",
   active_to: "",
-  type: "internal",
+  type: "internal" as 'internal' | 'external',
   direct_url: "",
   comic_id: 0,
-  status: "active",
+  status: "active" as 'active' | 'inactive',
 });
 
 const resetAd = () => {
@@ -40,10 +40,10 @@ const resetAd = () => {
     image: "",
     active_from: "",
     active_to: "",
-    type: "internal",
+    type: "internal" as 'internal' | 'external',
     direct_url: "",
     comic_id: 0,
-    status: "active",
+    status: "active" as 'active' | 'inactive',
   };
 };
 
@@ -66,7 +66,6 @@ const handleSubmit = async () => {
     isLoading.value = true;
     const formattedData = {
       ...ad.value,
-      status: ad.value.status === 'active',
       comic_id: parseInt(ad.value.comic_id.toString()),
       active_from: new Date(ad.value.active_from).toISOString(),
       active_to: new Date(ad.value.active_to).toISOString(),

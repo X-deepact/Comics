@@ -20,7 +20,7 @@
             :columns="ColumnNames"
             :isLoading="adStore.isLoading"
             :row="AdRow"
-            :currentSort="adStore.sort"
+            @clickSorting="handleSort"
             @clickDelete="(data: Ad) => {
                 adStore.selectedData = data;
                 adStore.deleteDialogIsOpen = true;
@@ -28,10 +28,6 @@
             @clickUpdate="(data: Ad) => {
                 adStore.selectedData = data;
                 adStore.updateDialogIsOpen = true;
-            }"
-            @clickSorting="(sortKey: string) => {
-                console.log('Sorting clicked:', sortKey); // Debug log
-                adStore.updateSort(sortKey);
             }"
         />
 
@@ -62,7 +58,22 @@ import DeleteAd from './modal/DeleteAd.vue';
 import UpdateAd from './modal/UpdateAd.vue';
 import AdRow from './row.vue';
 import { ColumnNames } from './columnHeader';
+import { onMounted } from 'vue';
 
 const adStore = useAdStore();
-adStore.getAdData();
+
+const handleSort = (key: string) => {
+    console.log('Sort clicked for key:', key);
+    console.log('Current sort state:', adStore.sort);
+    
+    if (key === 'updated_at' || key === 'updated_by') {
+        console.log(`Attempting to sort by ${key}`);
+        adStore.updateSort(key);
+        console.log('New sort state:', adStore.sort);
+    }
+};
+
+onMounted(() => {
+    adStore.getAdData();
+});
 </script>
