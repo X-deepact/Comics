@@ -29,6 +29,12 @@ const recommendStore = useRecommendStore();
 const previewImage = ref<string>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
+const formatDateForInput = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+};
+
 const formData = ref({
   id: 0,
   title: "",
@@ -46,8 +52,8 @@ watch(() => recommendStore.selectedData, (newData) => {
       title: newData.title || "",
       cover: newData.cover || "",
       position: newData.position || RecommendPosition.COMPLETE_MASTERPIECE,
-      active_from: "",  // We'll handle dates separately
-      active_to: "",    // We'll handle dates separately
+      active_from: formatDateForInput(newData.active_from),
+      active_to: formatDateForInput(newData.active_to),
     };
   }
 }, { immediate: true });
@@ -68,6 +74,9 @@ const handleFileUpload = (event: Event) => {
 };
 
 const handleSubmit = async () => {
+  // Validate form data
+  console.log('Current form data:', formData.value);
+
   if (!formData.value.title?.trim()) {
     toast({
       description: "Title is required",
@@ -76,12 +85,29 @@ const handleSubmit = async () => {
     return;
   }
 
-  const activeFromDate = document.getElementById('active_from') as HTMLInputElement;
-  const activeToDate = document.getElementById('active_to') as HTMLInputElement;
-
-  if (!activeFromDate.value || !activeToDate.value) {
+  if (!formData.value.active_from || !formData.value.active_to) {
     toast({
       description: "Active dates are required",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  // Validate dates
+  const fromDate = new Date(formData.value.active_from);
+  const toDate = new Date(formData.value.active_to);
+  
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+    toast({
+      description: "Invalid date format",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  if (fromDate > toDate) {
+    toast({
+      description: "Active from date must be before active to date",
       variant: "destructive",
     });
     return;
@@ -91,18 +117,33 @@ const handleSubmit = async () => {
   try {
     const submitData = {
       ...formData.value,
-      position: formData.value.position,
-      active_from: activeFromDate.value,
-      active_to: activeToDate.value,
+      id: Number(formData.value.id),
+      position: Number(formData.value.position),
+      active_from: formData.value.active_from,
+      active_to: formData.value.active_to,
     };
 
+    console.log('Preparing to submit update data:', submitData);
+    console.log('Current store state:', {
+      isOpen: recommendStore.updateDialogIsOpen,
+      selectedData: recommendStore.selectedData,
+    });
+
     await recommendStore.updateRecommend(submitData);
+    console.log('Update successful');
+    
     recommendStore.updateDialogIsOpen = false;
     await recommendStore.getRecommendData();
   } catch (error: any) {
-    console.error('Update error:', error);
+    console.error('Update error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      data: error.config?.data,
+    });
+    
     toast({
-      description: error.message || "Failed to update recommendation",
+      description: error.response?.data?.message || "Failed to update recommendation",
       variant: "destructive",
     });
   } finally {
@@ -164,7 +205,8 @@ const handleSubmit = async () => {
           </div>
             <div class="grid grid-cols-4 items-center gap-4">
               <Label class="text-right">Position</Label>
-              <Select v-model="formData.position" class="col-span-3">
+              <div class="col-span-3">
+              <Select v-model="formData.position" >
                 <SelectTrigger>
                   <SelectValue :placeholder="positionLabels[formData.position]" />
                 </SelectTrigger>
@@ -183,14 +225,15 @@ const handleSubmit = async () => {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              </div>
             </div>
 
             
             <div class="grid grid-cols-4 items-center gap-4">
               <Label class="text-right">Active From</Label>
               <Input 
-                id="active_from"
-                type="date" 
+                type="date"
+                v-model="formData.active_from"
                 class="col-span-3"
                 required
               />
@@ -199,8 +242,8 @@ const handleSubmit = async () => {
             <div class="grid grid-cols-4 items-center gap-4">
               <Label class="text-right">Active To</Label>
               <Input 
-                id="active_to"
                 type="date"
+                v-model="formData.active_to"
                 class="col-span-3" 
                 required
               />

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAdStore } from "@/stores/adStore";
 import loadingImg from "@/assets/loading.svg";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,23 @@ import {
 
 const adStore = useAdStore();
 const isLoading = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const formatDateForInput = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  // Format: YYYY-MM-DDThh:mm
+  return date.toISOString().slice(0, 16);
+};
+
+// Watch for changes to selectedData to format dates when modal opens
+watch(() => adStore.updateDialogIsOpen, (newValue) => {
+  if (newValue && adStore.selectedData) {
+    // Format dates when modal opens
+    adStore.selectedData.active_from = formatDateForInput(adStore.selectedData.active_from);
+    adStore.selectedData.active_to = formatDateForInput(adStore.selectedData.active_to);
+  }
+});
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -68,54 +85,97 @@ const handleSubmit = async () => {
       <DialogHeader>
         <DialogTitle>Update Ad</DialogTitle>
       </DialogHeader>
+      
       <div class="grid gap-4">
-        <div class="flex items-center gap-4">
-          <Label for="title" class="text-right w-1/4">Title</Label>
-          <Input v-model="adStore.selectedData.title" placeholder="Title" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="image" class="text-right w-1/4">Image</Label>
-          <Input type="file" @change="handleFileUpload" accept="image/*" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="active_from" class="text-right w-1/4">Start Date</Label>
-          <Input type="datetime-local" v-model="adStore.selectedData.active_from" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="active_to" class="text-right w-1/4">End Date</Label>
-          <Input type="datetime-local" v-model="adStore.selectedData.active_to" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="type" class="text-right w-1/4">Type</Label>
-          <Select v-model="adStore.selectedData.type">
-            <SelectTrigger>
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="internal">Internal</SelectItem>
-              <SelectItem value="external">External</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="direct_url" class="text-right w-1/4">URL</Label>
-          <Input v-model="adStore.selectedData.direct_url" placeholder="URL" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="comic_id" class="text-right w-1/4">Comic ID</Label>
-          <Input type="number" v-model="adStore.selectedData.comic_id" placeholder="Comic ID" />
-        </div>
-        <div class="flex items-center gap-4">
-          <Label for="status" class="text-right w-1/4">Status</Label>
-          <Select v-model="adStore.selectedData.status">
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
+        <div class=" gap-4">
+          <div class="space-y-4">
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Title</Label>
+              <Input v-model="adStore.selectedData.title" class="col-span-3" placeholder="Enter title" />
+            </div>
+            <div class="space-y-4">
+              <div class="grid grid-cols-4 items-center gap-4">
+                <Label class="text-right">Cover Image</Label>
+                <div class="col-span-3">
+                  <input
+                    ref="fileInput"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="handleFileUpload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    class="w-full"
+                    @click="fileInput?.click()"
+                  >
+                    Choose Image
+                  </Button>
+                  <div v-if="adStore.selectedData.image" class="mt-2">
+                    <img
+                      :src="adStore.selectedData.image"
+                      alt="Preview"
+                      class="max-w-full max-h-[200px] object-contain rounded-md border"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Type</Label>
+              <div class="col-span-3">
+                <Select v-model="adStore.selectedData.type">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="internal">Internal</SelectItem>
+                    <SelectItem value="external">External</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">URL</Label>
+              <Input v-model="adStore.selectedData.direct_url" class="col-span-3" placeholder="Enter URL" />
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Status</Label>
+              <div class="col-span-3">
+                <Select v-model="adStore.selectedData.status">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Start Date</Label>
+              <Input 
+                type="datetime-local" 
+                v-model="adStore.selectedData.active_from"
+                class="col-span-3"
+              />
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">End Date</Label>
+              <Input 
+                type="datetime-local" 
+                v-model="adStore.selectedData.active_to"
+                class="col-span-3"
+              />
+            </div>
+            <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Comic ID</Label>
+              <Input type="number" v-model="adStore.selectedData.comic_id" class="col-span-3" placeholder="Enter Comic ID" />
+            </div>
+          </div>
         </div>
       </div>
 

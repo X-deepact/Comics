@@ -137,29 +137,57 @@ export const useRecommendStore = defineStore("recommendStore", () => {
 
   async function updateRecommend(data: any) {
     try {
-      // Format the data according to API requirements
+      console.log('Raw update data received:', data);
+
+      if (!data.id) {
+        throw new Error('Missing ID for update');
+      }
+
+      // Format the dates as ISO strings instead of Unix timestamps
       const requestData = {
-        id: data.id,
-        title: data.title,
-        cover: data.cover,
-        position: data.position,
+        id: Number(data.id),
+        title: data.title?.trim(),
+        cover: data.cover || '',
+        position: Number(data.position),
+        // Format dates as ISO strings (YYYY-MM-DD)
         active_from: data.active_from,
         active_to: data.active_to
       };
 
+      console.log('Formatted request data:', requestData);
+      console.log('Request URL:', `${API_URL}/recommend`);
+
       const response = await axios.put(
-        `${API_URL}/recommend`, // Remove the ID from URL
+        `${API_URL}/recommend`,
         requestData,
-        { headers: authHeader() }
+        { 
+          headers: {
+            ...authHeader(),
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
+      console.log('Update response:', response);
       toast({
         description: "Updated Successfully",
       });
       return response.data;
     } catch (error: any) {
+      console.error('Update error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        requestData: error.config?.data,
+      });
+
+      // More specific error message
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error 
+        || "Failed to update recommendation";
+      
       toast({
-        description: error.response?.data?.message || "Update failed",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;

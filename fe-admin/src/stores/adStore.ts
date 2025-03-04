@@ -106,6 +106,12 @@ export const useAdStore = defineStore("adStore", () => {
       if (searchKeyword.value) params.append('title', searchKeyword.value);
       if (filters.value.type) params.append('type', filters.value.type);
       if (filters.value.status) params.append('status', filters.value.status);
+      
+      // Add sorting parameters
+      if (sort.value.sort_by === 'updated_at') {
+        params.append('sort_by', 'updated_at');
+        params.append('sort_order', sort.value.sort_order.toUpperCase());
+      }
 
       const response = await axios.get(
         `${API_URL}/ads?${params.toString()}`,

@@ -62,14 +62,10 @@ import { onMounted } from 'vue';
 
 const adStore = useAdStore();
 
-const handleSort = (key: string) => {
-    console.log('Sort clicked for key:', key);
-    console.log('Current sort state:', adStore.sort);
-    
-    if (key === 'updated_at' || key === 'updated_by') {
-        console.log(`Attempting to sort by ${key}`);
+const handleSort = async (key: string) => {
+    if (key === 'updated_at') {
         adStore.updateSort(key);
-        console.log('New sort state:', adStore.sort);
+        await adStore.getAdData();
     }
 };
 

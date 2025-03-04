@@ -244,9 +244,10 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
             </div>
           </div>
 
-          <div class="grid grid-cols-4 col-span-3 items-center gap-4">
+          <div class="grid grid-cols-4  items-center gap-4">
             <Label class="text-right">Position</Label>
-            <Select v-model="formData.position" class="w-full">
+            <div class="col-span-3">
+            <Select v-model="formData.position" >
               <SelectTrigger>
                 <SelectValue :placeholder="positionLabels[formData.position]" />
               </SelectTrigger>
@@ -265,6 +266,7 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
