@@ -32,7 +32,7 @@ export const ColumnNames = {
     key: "status",
   },
   created_by: {
-    label: "Creator",
+    label: "Created by",
     key: "created_by_name",
   },
   created_at: {
@@ -40,7 +40,7 @@ export const ColumnNames = {
     key: "created_at",
   },
   updated_by: {
-    label: "Updator",
+    label: "Updated by",
     key: "updated_by_name",
   },
   updated_at: {

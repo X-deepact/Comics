@@ -44,8 +44,8 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   const page_size = ref(10);
   const searchKeyword = ref("");
   const totalItems = ref(0);
-  const sortBy = ref("title"); // Default sort by title
-  const sortDirection = ref("asc"); // Default sort direction
+  const sortBy = ref("updated_at"); // Change default sort to updated_at
+  const sortDirection = ref("desc"); // Default to newest first
 
   async function getRecommendData() {
     isLoading.value = true;
@@ -184,6 +184,20 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       });
   }
 
+  // Add this new function to handle sorting
+  function handleSort(sortKey: string) {
+    if (sortBy.value === sortKey) {
+      // Toggle direction if clicking same column
+      sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+    } else {
+      // New column, set as default desc
+      sortBy.value = sortKey;
+      sortDirection.value = "desc";
+    }
+    current_page.value = 1; // Reset to first page
+    getRecommendData();
+  }
+
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
@@ -202,5 +216,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     createRecommend,
     updateRecommend,
     deleteRecommend,
+    handleSort,
   };
 }); 

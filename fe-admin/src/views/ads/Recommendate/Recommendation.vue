@@ -27,6 +27,7 @@
                 recommendStore.selectedData = data;
                 recommendStore.updateDialogIsOpen = true;
             }"
+            @clickSorting="(sortKey: string) => recommendStore.handleSort(sortKey)"
         />
 
         <Pagination 
