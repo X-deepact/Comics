@@ -3,6 +3,7 @@ import axios from "axios";
 import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
+import { type DateValue } from "@internationalized/date";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
 
@@ -22,15 +23,11 @@ export const useAuthorStore = defineStore("authorStore", () => {
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
   const isLoading = ref(true);
-  const selectedData = ref<Author>({
+  const selectedData = ref({
     id: 0,
     name: "",
     biography: "",
-    birth_day: "",
-    created_by: "",
-    created_at: "",
-    updated_by: "",
-    updated_at: "",
+    birth_day: null as DateValue | null,
   });
   const current_page = ref(1);
   const page_size = ref(10);
@@ -94,15 +91,11 @@ export const useAuthorStore = defineStore("authorStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Author>{
+    selectedData.value = {
       id: 0,
       name: "",
       biography: "",
-      birth_day: "",
-      created_by: "",
-      created_at: "",
-      updated_by: "",
-      updated_at: "",
+      birth_day: null as DateValue | null,
     };
   }
   async function deleteAuthor(id: any) {
@@ -121,15 +114,11 @@ export const useAuthorStore = defineStore("authorStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Author>{
+    selectedData.value = {
       id: 0,
       name: "",
       biography: "",
-      birth_day: "",
-      created_by: "",
-      created_at: "",
-      updated_by: "",
-      updated_at: "",
+      birth_day: null as DateValue | null,
     };
   }
   async function getGeneralAuthorData() {

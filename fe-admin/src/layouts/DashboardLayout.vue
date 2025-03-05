@@ -11,28 +11,25 @@ const { navigation } = useNavigation();
 <template>
     <div class="min-h-screen">
         <AppHeader />
-        
+
         <div class="flex">
             <AppSidebar :navigation="navigation" />
-            
-            <main class="flex-1 flex flex-col ml-[260px]">
+
+            <main class="flex-1 flex flex-col ml-[260px] overflow-auto">
                 <!-- Breadcrumb -->
                 <div class="flex items-center gap-2 px-6 py-4 text-sm bg-white border-b sticky top-16 z-10">
-                    <router-link 
-                        to="/dashboard" 
-                        class="text-gray-500 hover:text-gray-700"
-                    >
+                    <router-link to="/dashboard" class="text-gray-500 hover:text-gray-700">
                         Home
                     </router-link>
                     <span class="text-gray-400">/</span>
                     <span class="text-gray-900 capitalize">
-                        {{ route.name?.toString().replace(/-/g, ' ') }} 
+                        {{ route.name?.toString().replace(/-/g, ' ') }}
                     </span>
                 </div>
 
                 <!-- Content area -->
                 <div class="flex-1 w-full px-6 py-6 mt-16">
-                        <router-view></router-view>
+                    <router-view></router-view>
                 </div>
             </main>
         </div>

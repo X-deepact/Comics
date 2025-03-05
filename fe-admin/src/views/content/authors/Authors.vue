@@ -25,7 +25,11 @@
         }
       " @clickUpdate="
         (data: any) => {
-          authorStore.selectedData = data;
+          authorStore.selectedData.id = data.id;
+          authorStore.selectedData.name = data.name;
+          authorStore.selectedData.biography = data.biography;
+          const date = new Date(data.birth_day);
+          authorStore.selectedData.birth_day = new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
           authorStore.updateDialogIsOpen = true;
         }
       " @clickSorting="
@@ -60,6 +64,7 @@ import CreateAuthor from "./modal/CreateAuthor.vue";
 import DeleteAuthor from "./modal/DeleteAuthor.vue";
 import UpdateAuthor from "./modal/UpdateAuthor.vue";
 import AuthorRow from "./row.vue";
+import { CalendarDate } from "@internationalized/date";
 // Define columns structure
 const authorStore = useAuthorStore();
 authorStore.getAuthorData();

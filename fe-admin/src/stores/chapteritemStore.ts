@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
 import { useChapterStore } from "./chapterStore";
+import { type DateValue } from "@internationalized/date";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
 const chapterStore = useChapterStore();
@@ -26,17 +27,13 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
   const chapteritemsData = ref<ChapterItem[]>([]);
-  const selectedData = ref<ChapterItem>({
+  const selectedData = ref({
     id: 0,
     image: "",
     page: 0,
     chapter_id: 0,
     active: true,
-    active_from: "",
-    created_by_name: "",
-    created_at: "",
-    updated_by_name: "",
-    updated_at: "",
+    active_from: null as DateValue | null,
   });
   const searchKeyword = ref("");
   const isLoading = ref(true);
@@ -122,17 +119,13 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <ChapterItem>{
+    selectedData.value = {
       id: 0,
       image: "",
       page: 0,
       chapter_id: 0,
       active: true,
-      active_from: "",
-      created_by_name: "",
-      created_at: "",
-      updated_by_name: "",
-      updated_at: "",
+      active_from: null as DateValue | null,
     };
   }
   async function deleteChapterItem(id: any) {
@@ -151,17 +144,13 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <ChapterItem>{
+    selectedData.value = {
       id: 0,
       image: "",
       page: 0,
       chapter_id: 0,
       active: true,
-      active_from: "",
-      created_by_name: "",
-      created_at: "",
-      updated_by_name: "",
-      updated_at: "",
+      active_from: null as DateValue | null,
     };
   }
   function setSorting() {

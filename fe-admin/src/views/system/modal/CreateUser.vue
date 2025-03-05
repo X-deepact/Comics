@@ -8,14 +8,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ref } from "vue";
 import { useUserStore } from "../../../stores/userStore";
@@ -33,7 +25,8 @@ import {
   getLocalTimeZone,
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
-
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
@@ -77,12 +70,21 @@ const setBirthday = () => {
     user.value.Birthday = `${year}-${month}-${day}`;
   }
 };
+const checkForm = () => {
+  if (user.value.password.length < 8) {
+    toast({
+      description: "Password length is less than 8",
+      variant: "destructive",
+    });
+    return false;
+  } else {
+    return true;
+  }
+};
 </script>
 <template>
-  <Dialog
-    :open="userStore.createDialogIsOpen"
-    @update:open="(value:boolean)=>{userStore.createDialogIsOpen = value;}"
-  >
+  <Dialog :open="userStore.createDialogIsOpen"
+    @update:open="(value: boolean) => { userStore.createDialogIsOpen = value; }">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Create Subject</DialogTitle>
@@ -123,15 +125,11 @@ const setBirthday = () => {
         <Label for="birthday" class="text-center w-1/4">Birthday</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn(
-                  'w-[280px] justify-start text-left font-normal',
-                  !value && 'text-muted-foreground'
-                )
-              "
-            >
+            <Button variant="outline" :class="cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground'
+            )
+              ">
               <CalendarIcon class="mr-2 h-4 w-4" />
               {{
                 value
@@ -165,16 +163,12 @@ const setBirthday = () => {
         <Input v-model="genre.position" placeholder="Position" type="number" />
       </div> -->
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="userStore.createDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="userStore.createDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
+        <Button :disabled="isLoading" @click="
+          async () => {
+            if (checkForm()) {
               isLoading = true;
               setBirthday();
               await userStore.createUser(user);
@@ -183,9 +177,8 @@ const setBirthday = () => {
               userStore.getUserData();
               resetUser();
             }
-          "
-          ><img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button
-        >
+          }
+        "><img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

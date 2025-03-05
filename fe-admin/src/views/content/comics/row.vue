@@ -4,13 +4,13 @@
       <img :src="data.cover" alt="Comic cover" width="100" preview />
     </TableCell>
     <TableCell>
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2 max-w-[200px]">
         <Label>{{ data.name }}</Label>
         <p class="text-xs">{{ data.description }}</p>
       </div>
     </TableCell>
     <TableCell>
-      <div class="flex flex-col gap-1">
+      <div class=" flex flex-col gap-1">
         <div v-for="author in data.authors">
           <Badge variant="outline" class="text-xs">{{ author.name }}</Badge>
         </div>
@@ -24,7 +24,13 @@
       </div>
     </TableCell>
     <TableCell>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 min-w-[200px]">
+        <div>
+          <Label>Active: </Label>
+          <Badge variant="outline" class="text-xs">
+            {{ data.active ? "On" : "Off" }}
+          </Badge>
+        </div>
         <div>
           <Label>Code: </Label>
           <Badge variant="outline" class="text-xs">

@@ -1,7 +1,7 @@
 <template>
     <Dialog :open="chapterStore.chapteritemDialogIsOpen"
         @update:open="(value: boolean) => { chapterStore.chapteritemDialogIsOpen = value; }">
-        <DialogContent class="min-w-[100rem] overflow-y-scroll max-h-screen">
+        <DialogContent class="min-w-[80%] overflow-y-scroll max-h-screen">
             <Component title="ChapterItem" :pageSize="chapteritemStore.page_size" :searchIsEnable="true"
                 @clickAdd="() => (chapteritemStore.createDialogIsOpen = true)" @clickRefresh="
                     () => {
@@ -26,7 +26,13 @@
                     }
                 " @clickUpdate="
                     (data: any) => {
-                        chapteritemStore.selectedData = data;
+                        chapteritemStore.selectedData.id = data.id;
+                        chapteritemStore.selectedData.active = data.active;
+                        chapteritemStore.selectedData.chapter_id = data.chapter_id;
+                        chapteritemStore.selectedData.image = data.image;
+                        chapteritemStore.selectedData.page = data.page;
+                        const date = new Date(data.active_from);
+                        chapteritemStore.selectedData.active_from = new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
                         chapteritemStore.updateDialogIsOpen = true;
                     }
                 " @clickSorting="
@@ -63,6 +69,7 @@ import CreateChapterItem from "./modal/CreateChapterItem.vue";
 import UpdateChapterItem from "./modal/UpdateChapterItem.vue";
 import DeleteChapterItem from "./modal/DeleteChapterItem.vue";
 import { useChapterItemStore } from "../../../../../stores/chapteritemStore";
+import { CalendarDate } from "@internationalized/date";
 const chapterStore = useChapterStore();
 const chapteritemStore = useChapterItemStore();
 </script>

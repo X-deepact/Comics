@@ -22,36 +22,21 @@ import {
 } from "@/components/ui/popover";
 import {
   DateFormatter,
-  type DateValue,
   getLocalTimeZone,
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
-const value = ref<DateValue>();
 const isLoading = ref(false);
 const authorStore = useAuthorStore();
-const getBirthday = () => {
-  if (value.value) {
-    const date = value.value.toDate(getLocalTimeZone());
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    value.value = undefined;
-    return `${year}-${month}-${day}`;
-  }
-};
 </script>
 <template>
-  <Dialog
-    :open="authorStore.updateDialogIsOpen"
-    @update:open="
-      (value : boolean) => {
-        authorStore.updateDialogIsOpen = value;
-      }
-    "
-  >
+  <Dialog :open="authorStore.updateDialogIsOpen" @update:open="
+    (value: boolean) => {
+      authorStore.updateDialogIsOpen = value;
+    }
+  ">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Update Author</DialogTitle>
@@ -62,58 +47,45 @@ const getBirthday = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label for="biography" class="text-center w-1/4">Biography</Label>
-        <Textarea
-          v-model="authorStore.selectedData.biography"
-          placeholder="Biography"
-        />
+        <Textarea v-model="authorStore.selectedData.biography" placeholder="Biography" />
       </div>
       <div class="flex items-center gap-4">
         <Label for="birth_day" class="text-center w-1/4">Birthday</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn('font-normal w-3/4', !value && 'text-muted-foreground')
-              "
-            >
+            <Button variant="outline" :class="cn('font-normal w-3/4', !authorStore.selectedData.birth_day && 'text-muted-foreground')
+              ">
               <CalendarIcon class="mr-2 h-4 w-4" />
               {{
-                value
-                  ? df.format(value.toDate(getLocalTimeZone()))
+                authorStore.selectedData.birth_day
+                  ? df.format(authorStore.selectedData.birth_day.toDate(getLocalTimeZone()))
                   : "Pick a date"
               }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="value" initial-focus />
+            <Calendar v-model="authorStore.selectedData.birth_day" initial-focus />
           </PopoverContent>
         </Popover>
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="authorStore.updateDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="authorStore.updateDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
-              isLoading = true;
-              await authorStore.updateAuthor({
-                id: authorStore.selectedData.id,
-                name: authorStore.selectedData.name,
-                birth_day: getBirthday(),
-                biography: authorStore.selectedData.biography,
-              });
-              isLoading = false;
-              authorStore.updateDialogIsOpen = false;
-              authorStore.getAuthorData();
-            }
-          "
-        >
+        <Button :disabled="isLoading" @click="
+          async () => {
+            isLoading = true;
+            await authorStore.updateAuthor({
+              id: authorStore.selectedData.id,
+              name: authorStore.selectedData.name,
+              birth_day: authorStore.selectedData.birth_day?.toString(),
+              biography: authorStore.selectedData.biography,
+            });
+            isLoading = false;
+            authorStore.updateDialogIsOpen = false;
+            authorStore.getAuthorData();
+          }
+        ">
           <img v-if="isLoading" :src="loadingImg" size="icon" />
           Update
         </Button>

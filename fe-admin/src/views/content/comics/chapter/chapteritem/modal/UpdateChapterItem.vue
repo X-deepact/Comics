@@ -29,14 +29,13 @@ import {
 } from "@/components/ui/popover";
 import {
   DateFormatter,
-  type DateValue,
   getLocalTimeZone,
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
-const value = ref<DateValue>();
+
 const isLoading = ref(false);
 const chapteritemStore = useChapterItemStore();
 const previewUrl = ref<string | null>(null);
@@ -73,74 +72,46 @@ const handleFileChange = (event: Event) => {
     previewUrl.value = URL.createObjectURL(target.files[0]);
   }
 };
-const setActiveFrom = () => {
-  if (value.value) {
-    const date = value.value.toDate(getLocalTimeZone());
-    chapteritem.value.active_from = date.toISOString();
-  }
-};
+
 </script>
 <template>
-  <Dialog
-    :open="chapteritemStore.updateDialogIsOpen"
-    @update:open="
-        (value: boolean) => {
-            chapteritemStore.updateDialogIsOpen = value;
-        }
-    "
-  >
+  <Dialog :open="chapteritemStore.updateDialogIsOpen" @update:open="
+    (value: boolean) => {
+      chapteritemStore.updateDialogIsOpen = value;
+    }
+  ">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Update Chapter Item</DialogTitle>
       </DialogHeader>
-      <img
-        v-if="!previewUrl"
-        :src="chapteritemStore.selectedData.image"
-        class="max-w-[200px] justify-self-center h-auto"
-      />
-      <img
-        v-if="previewUrl"
-        :src="previewUrl"
-        class="max-w-[200px] justify-self-center h-auto"
-      />
-      <Input
-        type="file"
-        placeholder="cover"
-        class="justify-self-center w-[50%]"
-        @change="handleFileChange"
-        accept="image/*"
-      />
+      <img v-if="!previewUrl" :src="chapteritemStore.selectedData.image"
+        class="max-w-[200px] justify-self-center h-auto" />
+      <img v-if="previewUrl" :src="previewUrl" class="max-w-[200px] justify-self-center h-auto" />
+      <Input type="file" placeholder="cover" class="justify-self-center w-[50%]" @change="handleFileChange"
+        accept="image/*" />
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Page</Label>
-        <Input
-          v-model="chapteritem.page"
-          :placeholder="chapteritemStore.selectedData.page"
-          type="number"
-        />
+        <Input v-model="chapteritem.page" :placeholder="chapteritemStore.selectedData.page" type="number" />
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active From</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn(
-                  'w-[280px] justify-start text-left font-normal',
-                  !value && 'text-muted-foreground'
-                )
-              "
-            >
+            <Button variant="outline" :class="cn(
+              'w-[280px] justify-start text-left font-normal',
+              !chapteritemStore.selectedData.active_from && 'text-muted-foreground'
+            )
+              ">
               <CalendarIcon class="mr-2 h-4 w-4" />
               {{
-                value
-                  ? df.format(value.toDate(getLocalTimeZone()))
+                chapteritemStore.selectedData.active_from
+                  ? df.format(chapteritemStore.selectedData.active_from.toDate(getLocalTimeZone()))
                   : "Pick a date"
               }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="value" initial-focus />
+            <Calendar v-model="chapteritemStore.selectedData.active_from" initial-focus />
           </PopoverContent>
         </Popover>
       </div>
@@ -159,28 +130,22 @@ const setActiveFrom = () => {
         </Select>
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="chapteritemStore.updateDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="chapteritemStore.updateDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
-              isLoading = true;
-              chapteritem.image = await chapteritemStore.uploadImage(image);
-              setActiveFrom();
-              chapteritem.id = chapteritemStore.selectedData.id;
-              await chapteritemStore.updateChapterItem(chapteritem);
-              chapteritemStore.getChapterItemsData();
-              isLoading = false;
-              chapteritemStore.updateDialogIsOpen = false;
-              resetChapterItem();
-            }
-          "
-        >
+        <Button :disabled="isLoading" @click="
+          async () => {
+            isLoading = true;
+            chapteritem.image = await chapteritemStore.uploadImage(image);
+            chapteritem.id = chapteritemStore.selectedData.id;
+            chapteritem.active_from = chapteritemStore.selectedData.active_from?.toDate(getLocalTimeZone()).toISOString();
+            await chapteritemStore.updateChapterItem(chapteritem);
+            chapteritemStore.getChapterItemsData();
+            isLoading = false;
+            chapteritemStore.updateDialogIsOpen = false;
+            resetChapterItem();
+          }
+        ">
           <img v-if="isLoading" :src="loadingImg" size="icon" />Update
         </Button>
       </DialogFooter>

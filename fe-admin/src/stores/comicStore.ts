@@ -56,7 +56,7 @@ export const useComicStore = defineStore("comicStore", () => {
     isLoading.value = true;
     await axios
       .get(
-        `${API_URL}/comics?page=${current_page.value}&page_size=${page_size.value}&q=${searchKeyword.value}&sort_by=${sortBy.value}&sort=${sorting.value}&active=true&language=&audience=`,
+        `${API_URL}/comics?page=${current_page.value}&page_size=${page_size.value}&q=${searchKeyword.value}&sort_by=${sortBy.value}&sort=${sorting.value}&language=&audience=`,
         { headers: authHeader() }
       )
       .then((response) => {
