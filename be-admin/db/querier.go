@@ -74,7 +74,7 @@ type Querier interface {
 	GetAuthors(req dto.RequestQueryFilter) ([]*model.AuthorModel, int64, error)
 	UpdateAuthor(author *model.AuthorModel) (*model.AuthorModel, error)
 	DeleteAuthorById(id int64) (*model.AuthorModel, error)
-	GetAuthorsOfAComic(comicId int64) ([]model.AuthorModel, error)
+	GetAuthorsOfAComic(comicId int64) ([]dto.AuthorResponse, error)
 
 	CreateRecomend(r *model.RecommendManagerModel) error
 	GetRecommendById(id int64) (*model.RecommendManagerModel, error)

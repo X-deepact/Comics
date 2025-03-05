@@ -1385,7 +1385,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/dto.ComicModelReturn"
+                                            "$ref": "#/definitions/dto.ComicReturn"
                                         }
                                     }
                                 }
@@ -1694,7 +1694,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Comic found",
                         "schema": {
-                            "$ref": "#/definitions/dto.ComicModelReturn"
+                            "$ref": "#/definitions/dto.ComicReturn"
                         }
                     },
                     "400": {
@@ -3410,35 +3410,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.AuthorModelReturn": {
-            "type": "object",
-            "properties": {
-                "biography": {
-                    "type": "string"
-                },
-                "birthDay": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "createdBy": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "updatedBy": {
-                    "type": "integer"
-                }
-            }
-        },
         "dto.AuthorRequest": {
             "type": "object",
             "required": [
@@ -3667,7 +3638,51 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ComicModelReturn": {
+        "dto.ComicResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "audience": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ComicReturn": {
             "type": "object",
             "properties": {
                 "active": {
@@ -3679,7 +3694,7 @@ const docTemplate = `{
                 "authors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.AuthorModelReturn"
+                        "$ref": "#/definitions/dto.AuthorResponse"
                     }
                 },
                 "code": {
@@ -3726,50 +3741,6 @@ const docTemplate = `{
                 },
                 "updated_by_user": {
                     "$ref": "#/definitions/dto.UserDetailDto"
-                }
-            }
-        },
-        "dto.ComicResponse": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "audience": {
-                    "type": "string"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "lang": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "integer"
                 }
             }
         },

@@ -97,25 +97,6 @@ definitions:
     required:
     - status
     type: object
-  dto.AuthorModelReturn:
-    properties:
-      biography:
-        type: string
-      birthDay:
-        type: string
-      createdAt:
-        type: string
-      createdBy:
-        type: integer
-      id:
-        type: integer
-      name:
-        type: string
-      updatedAt:
-        type: string
-      updatedBy:
-        type: integer
-    type: object
   dto.AuthorRequest:
     properties:
       biography:
@@ -266,7 +247,36 @@ definitions:
     - comic_id
     - id
     type: object
-  dto.ComicModelReturn:
+  dto.ComicResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      lang:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.ComicReturn:
     properties:
       active:
         type: boolean
@@ -274,7 +284,7 @@ definitions:
         type: string
       authors:
         items:
-          $ref: '#/definitions/dto.AuthorModelReturn'
+          $ref: '#/definitions/dto.AuthorResponse'
         type: array
       code:
         type: string
@@ -306,35 +316,6 @@ definitions:
         type: integer
       updated_by_user:
         $ref: '#/definitions/dto.UserDetailDto'
-    type: object
-  dto.ComicResponse:
-    properties:
-      active:
-        type: boolean
-      audience:
-        type: string
-      code:
-        type: string
-      cover:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      description:
-        type: string
-      id:
-        type: integer
-      lang:
-        type: string
-      name:
-        type: string
-      status:
-        type: string
-      updated_at:
-        type: string
-      updated_by:
-        type: integer
     type: object
   dto.GeneralAuthorResponse:
     properties:
@@ -1465,7 +1446,7 @@ paths:
             - $ref: '#/definitions/dto.ListResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/dto.ComicModelReturn'
+                  $ref: '#/definitions/dto.ComicReturn'
               type: object
         "400":
           description: Invalid request
@@ -1664,7 +1645,7 @@ paths:
         "200":
           description: Comic found
           schema:
-            $ref: '#/definitions/dto.ComicModelReturn'
+            $ref: '#/definitions/dto.ComicReturn'
         "400":
           description: Invalid request
           schema:

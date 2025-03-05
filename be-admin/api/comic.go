@@ -98,7 +98,7 @@ func (s *Server) createComic(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ComicModelReturn "Comic found"
+// @Success 200 {object} dto.ComicReturn "Comic found"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics/{id} [get]
@@ -135,10 +135,14 @@ func (s *Server) getComic(ctx *gin.Context) {
 	returnComic := dto.ComicReturn{
 
 		ComicResponse: *comic,
-		CreatedByUser: *userCreate,
-		UpdatedByUser: *userUpdate,
 		Genres:        genres,
 		Authors:       authors,
+	}
+	if userCreate != nil {
+		returnComic.CreatedByUser = *userCreate
+	}
+	if userUpdate != nil {
+		returnComic.UpdatedByUser = *userUpdate
 	}
 
 	ctx.JSON(http.StatusOK, returnComic)
@@ -161,7 +165,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 // @Param author query int false "Author ID"
 // @Param genre query int false "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ListResponse{data=dto.ComicModelReturn} "List of comics"
+// @Success 200 {object} dto.ListResponse{data=dto.ComicReturn} "List of comics"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics [get]

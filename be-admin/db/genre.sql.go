@@ -51,7 +51,7 @@ func (q *Queries) GetGenres(req dto.GenreListRequest) ([]dto.GenreResponse, int6
 		return nil, 0, err
 	}
 
-	if err := query.Order("genres.position").
+	if err := query.Order("genres.updated_at DESC, genres.id DESC").
 		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
 		Find(&genres).Error; err != nil {
 		return nil, 0, err

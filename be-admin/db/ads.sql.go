@@ -47,6 +47,18 @@ func (q *Queries) GetAdsList(req dto.AdsListRequest) ([]dto.AdsResponse, int64, 
 		Joins("LEFT JOIN users uc ON uc.id = ads.created_by").
 		Joins("LEFT JOIN users up ON up.id = ads.updated_by")
 
+	if req.SortBy != "" {
+		order := req.SortBy
+		if req.Sort != "" {
+			order += " " + req.Sort
+		} else {
+			order += " ASC"
+		}
+		query = query.Order(order)
+	} else {
+		query = query.Order("created_at DESC")
+	}
+
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}

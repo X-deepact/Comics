@@ -1,10 +1,5 @@
 package dto
 
-import (
-	"pkg-common/model"
-	"time"
-)
-
 type ComicRequest struct {
 	Name        string  `form:"name" binding:"required"`
 	Code        string  `form:"code"`
@@ -50,32 +45,13 @@ type ComicResponse struct {
 
 type ComicReturn struct {
 	ComicResponse
-	CreatedByUser UserDetailDto       `json:"created_by_user"`
-	UpdatedByUser UserDetailDto       `json:"updated_by_user"`
-	Genres        []GenreResponse     `json:"genres"`
-	Authors       []model.AuthorModel `json:"authors"`
+	CreatedByUser UserDetailDto    `json:"created_by_user"`
+	UpdatedByUser UserDetailDto    `json:"updated_by_user"`
+	Genres        []GenreResponse  `json:"genres"`
+	Authors       []AuthorResponse `json:"authors"`
 }
 
 type ComicUpdateRequest struct {
 	ID int64 `form:"id" binding:"required"`
 	ComicRequest
-}
-
-type AuthorModelReturn struct {
-	Id        int64      `gorm:"primaryKey;column:id"`
-	Biography string     `gorm:"column:biography"`
-	Name      string     `gorm:"column:name"`
-	BirthDay  *time.Time `gorm:"column:birth_day"`
-	CreatedBy int64      `gorm:"column:created_by"`
-	CreatedAt *time.Time `gorm:"column:created_at"`
-	UpdatedBy int64      `gorm:"column:updated_by"`
-	UpdatedAt *time.Time `gorm:"column:updated_at"`
-}
-
-type ComicModelReturn struct {
-	ComicResponse
-	CreatedByUser UserDetailDto       `json:"created_by_user"`
-	UpdatedByUser UserDetailDto       `json:"updated_by_user"`
-	Genres        []GenreResponse     `json:"genres"`
-	Authors       []AuthorModelReturn `json:"authors"`
 }

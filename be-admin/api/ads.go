@@ -76,6 +76,8 @@ func (s *Server) createAds(ctx *gin.Context) {
 // @Param title query string false "Filter by title"
 // @Param type query string false "Filter by type (internal/external)"
 // @Param status query string false "Filter by status (active/inactive)"
+// @Param sort_by query string false "Sort by field (e.g. title, created_at, updated_at)"
+// @Param sort query string false "Sort order (ASC/DESC)"
 // @Security BearerAuth
 // @Success 200 {object} []dto.AdsResponse
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"

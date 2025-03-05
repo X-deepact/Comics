@@ -98,7 +98,7 @@ func (q *Queries) GetUsers(req dto.UserListRequest) ([]*dto.UserResponse, int64,
 		return nil, 0, err
 	}
 
-	if err := query.Order("id DESC").
+	if err := query.Order("u.updated_at DESC, u.id DESC").
 		Limit(req.PageSize).Offset((req.Page - 1) * req.PageSize).
 		Find(&users).Error; err != nil {
 		return nil, 0, err

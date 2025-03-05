@@ -47,6 +47,8 @@ type AdsListRequest struct {
 	Title    string `form:"title"`
 	Type     string `form:"type" binding:"omitempty,oneof=internal external"`
 	Status   string `form:"status" binding:"omitempty,oneof=active inactive"`
+	SortBy   string `form:"sort_by"`
+	Sort     string `form:"sort"`
 }
 
 type AdsUpdateStatusRequest struct {
