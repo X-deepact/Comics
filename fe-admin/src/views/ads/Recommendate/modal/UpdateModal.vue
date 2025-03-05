@@ -73,23 +73,27 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
-const handleSubmit = async () => {
-  // Validate form data
-
+const validateForm = () => {
   if (!formData.value.title?.trim()) {
     toast({
-      description: "Title is required",
+      description: "Enter correctly",
       variant: "destructive",
     });
-    return;
+    return false;
   }
-
+  if (!formData.value.cover) {
+    toast({
+      description: "Enter correctly",
+      variant: "destructive",
+    });
+    return false;
+  }
   if (!formData.value.active_from || !formData.value.active_to) {
     toast({
-      description: "Active dates are required",
+      description: "Enter correctly",
       variant: "destructive",
     });
-    return;
+    return false;
   }
 
   // Validate dates
@@ -98,19 +102,25 @@ const handleSubmit = async () => {
   
   if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
     toast({
-      description: "Invalid date format",
+      description: "Enter correctly",
       variant: "destructive",
     });
-    return;
+    return false;
   }
 
   if (fromDate > toDate) {
     toast({
-      description: "Active from date must be before active to date",
+      description: "Enter correctly",
       variant: "destructive",
     });
-    return;
+    return false;
   }
+
+  return true;
+};
+
+const handleSubmit = async () => {
+  if (!validateForm()) return;
 
   isLoading.value = true;
   try {
@@ -123,18 +133,13 @@ const handleSubmit = async () => {
     };
 
     await recommendStore.updateRecommend(submitData);
-    console.log('Update successful');
+    toast({
+      description: "Update successful",
+    });
     
     recommendStore.updateDialogIsOpen = false;
     await recommendStore.getRecommendData();
   } catch (error: any) {
-    console.error('Update error:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      data: error.config?.data,
-    });
-    
     toast({
       description: error.response?.data?.message || "Failed to update recommendation",
       variant: "destructive",
