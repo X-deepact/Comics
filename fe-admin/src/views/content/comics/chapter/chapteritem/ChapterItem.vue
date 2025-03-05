@@ -1,7 +1,7 @@
 <template>
     <Dialog :open="chapterStore.chapteritemDialogIsOpen"
         @update:open="(value: boolean) => { chapterStore.chapteritemDialogIsOpen = value; }">
-        <DialogContent class="min-w-[80rem] overflow-y-scroll max-h-screen">
+        <DialogContent class="min-w-[100rem] overflow-y-scroll max-h-screen">
             <Component title="ChapterItem" :pageSize="chapteritemStore.page_size" :searchIsEnable="true"
                 @clickAdd="() => (chapteritemStore.createDialogIsOpen = true)" @clickRefresh="
                     () => {

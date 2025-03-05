@@ -21,8 +21,8 @@ import { useComicStore } from "../../../../stores/comicStore";
 import VueMultiselect from "vue-multiselect";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
-import { useAuthorStore } from "../../../../stores/authorStore";
-import { useGenreStore } from "../../../../stores/genreStore";
+import { useAuthorStore, type Author } from "../../../../stores/authorStore";
+import { useGenreStore, type Genre } from "../../../../stores/genreStore";
 import { useToast } from "@/components/ui/toast/use-toast";
 const { toast } = useToast();
 const isLoading = ref(false);
@@ -33,14 +33,14 @@ genreStore.getGeneralGenreData();
 authorStore.getGeneralAuthorData();
 const comic = ref({
   id: 0,
-  title: "",
-  author: [],
-  genre: [],
+  name: "",
+  author: [] as Author[],
+  genre: [] as Genre[],
   code: "",
   cover: null as File | null,
   description: "",
   active: true,
-  language: "all",
+  lang: "all",
   audience: "all",
   status: "ongoing",
 });
@@ -48,14 +48,14 @@ const previewUrl = ref<string | null>(null);
 const resetComic = () => {
   comic.value = {
     id: 0,
-    title: "",
+    name: "",
     author: [],
     genre: [],
     code: "",
     cover: null,
     description: "",
     active: true,
-    language: "",
+    lang: "",
     audience: "",
     status: "ongoing",
   };
@@ -77,7 +77,7 @@ const handleFileChange = (event: Event) => {
   }
 };
 const checkForm = () => {
-  if (comic.value.title == "") {
+  if (comicStore.selectedData.name == "") {
     toast({
       description: "Name is required",
       variant: "destructive",
@@ -89,88 +89,49 @@ const checkForm = () => {
 };
 </script>
 <template>
-  <Dialog
-    :open="comicStore.updateDialogIsOpen"
-    @update:open="
-      (value : boolean) => {
-        comicStore.updateDialogIsOpen = value;
-        resetComic();
-      }
-    "
-  >
+  <Dialog :open="comicStore.updateDialogIsOpen" @update:open="
+    (value: boolean) => {
+      comicStore.updateDialogIsOpen = value;
+      resetComic();
+    }
+  ">
     <DialogContent class="overflow-y-scroll max-h-screen">
       <DialogHeader>
         <DialogTitle>Update Comic</DialogTitle>
       </DialogHeader>
-      <img
-        v-if="!previewUrl"
-        :src="comicStore.selectedData.cover"
-        class="max-w-[200px] justify-self-center h-auto"
-      />
-      <img
-        v-if="previewUrl"
-        :src="previewUrl"
-        class="max-w-[200px] justify-self-center h-auto"
-      />
-      <Input
-        type="file"
-        placeholder="cover"
-        class="justify-self-center w-[50%]"
-        @change="handleFileChange"
-        accept="image/*"
-      />
+      <img v-if="!previewUrl" :src="comicStore.selectedData.cover" class="max-w-[200px] justify-self-center h-auto" />
+      <img v-if="previewUrl" :src="previewUrl" class="max-w-[200px] justify-self-center h-auto" />
+      <Input type="file" placeholder="cover" class="justify-self-center w-[50%]" @change="handleFileChange"
+        accept="image/*" />
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Name</Label>
-        <Input
-          v-model="comic.title"
-          :placeholder="comicStore.selectedData.name"
-        />
+        <Label class="text-center w-1/4">Name</Label>
+        <Input v-model="comicStore.selectedData.name" placeholder="Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="name" class="text-center w-1/4">Description</Label>
-        <Input
-          v-model="comic.description"
-          :placeholder="comicStore.selectedData.description"
-        />
+        <Label class="text-center w-1/4">Description</Label>
+        <Input v-model="comicStore.selectedData.description" placeholder="Description" />
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Author</Label>
-        <VueMultiselect
-          v-model="comic.author"
-          :options="authorStore.generalauthorData"
-          :multiple="true"
-          :close-on-select="false"
-          placeholder="Select authors"
-          label="name"
-          track-by="name"
-        >
+        <VueMultiselect v-model="comicStore.selectedData.authors" :options="authorStore.generalauthorData"
+          :multiple="true" :close-on-select="false" placeholder="Select authors" label="name" track-by="name">
         </VueMultiselect>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Genre</Label>
-        <VueMultiselect
-          v-model="comic.genre"
-          :options="genreStore.generalGenreData"
-          :multiple="true"
-          :close-on-select="false"
-          placeholder="Select authors"
-          label="name"
-          track-by="name"
-        >
+        <VueMultiselect v-model="comicStore.selectedData.genres" :options="genreStore.generalGenreData" :multiple="true"
+          :close-on-select="false" placeholder="Select genres" label="name" track-by="name">
         </VueMultiselect>
       </div>
       <div class="flex items-center gap-4">
         <Label for="name" class="text-center w-1/4">Code</Label>
-        <Input
-          v-model="comic.code"
-          :placeholder="comicStore.selectedData.code"
-        />
+        <Input v-model="comicStore.selectedData.code" placeholder="Code" />
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
-        <Select v-model="comic.active">
+        <Select v-model="comicStore.selectedData.active">
           <SelectTrigger>
-            <SelectValue :value="comic.active.toString()" />
+            <SelectValue :value="comicStore.selectedData.active" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -182,7 +143,7 @@ const checkForm = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Language</Label>
-        <Select v-model="comic.language">
+        <Select v-model="comicStore.selectedData.lang">
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -198,7 +159,7 @@ const checkForm = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Audience</Label>
-        <Select v-model="comic.audience">
+        <Select v-model="comicStore.selectedData.audience">
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -214,7 +175,7 @@ const checkForm = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Status</Label>
-        <Select v-model="comic.status">
+        <Select v-model="comicStore.selectedData.status">
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -227,28 +188,31 @@ const checkForm = () => {
         </Select>
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="comicStore.updateDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="comicStore.updateDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
-              if (checkForm()) {
-                isLoading = true;
-                comic.id = comicStore.selectedData.id;
-                await comicStore.updateComic(comic);
-                isLoading = false;
-                comicStore.updateDialogIsOpen = false;
-                comicStore.getComicData();
-                resetComic();
-              }
+        <Button :disabled="isLoading" @click="
+          async () => {
+            if (checkForm()) {
+              isLoading = true;
+              comic.id = comicStore.selectedData.id;
+              comic.name = comicStore.selectedData.name;
+              comic.description = comicStore.selectedData.description;
+              comic.code = comicStore.selectedData.code;
+              comic.active = comicStore.selectedData.active;
+              comic.lang = comicStore.selectedData.lang;
+              comic.audience = comicStore.selectedData.audience;
+              comic.status = comicStore.selectedData.status;
+              comic.genre = comicStore.selectedData.genres;
+              comic.author = comicStore.selectedData.authors;
+              await comicStore.updateComic(comic);
+              isLoading = false;
+              comicStore.updateDialogIsOpen = false;
+              comicStore.getComicData();
+              resetComic();
             }
-          "
-        >
+          }
+        ">
           <img v-if="isLoading" :src="loadingImg" size="icon" />
           Update
         </Button>

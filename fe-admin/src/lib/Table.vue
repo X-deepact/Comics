@@ -34,6 +34,10 @@
           (data: any) => {
             $emit('clickAction', data);
           }"
+        @clickUpdateUserStatus="
+        (data: any) => {
+          $emit('clickUpdateUserStatus', data);
+        }"
       />
     </TableBody>
   </Table>

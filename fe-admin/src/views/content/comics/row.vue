@@ -12,7 +12,7 @@
     <TableCell>
       <div class="flex flex-col gap-1">
         <div v-for="author in data.authors">
-          <Badge variant="outline" class="text-xs">{{ author.Name }}</Badge>
+          <Badge variant="outline" class="text-xs">{{ author.name }}</Badge>
         </div>
       </div>
     </TableCell>
@@ -75,47 +75,37 @@
     </TableCell>
     <TableCell>
       <div class="flex gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          @click="
-            () => {
-              $emit('clickAction', data.id);
-            }
-          "
-          ><FilePenLine
-        /></Button>
-        <Button
-          variant="outline"
-          size="icon"
-          @click="
-            () => {
-              $emit('clickUpdate', {
-                id: data.id,
-                name: data.name,
-                code: data.code,
-                cover: data.cover,
-                description: data.description,
-                active: data.active,
-                language: data.language,
-                audience: data.audience,
-                authors: data.authors,
-                genres: data.genres,
-                status: data.status,
-              });
-            }
-          "
-          ><Pencil
-        /></Button>
-        <Button
-          variant="destructive"
-          size="icon"
-          @click="
-            () => {
-              $emit('clickDelete', data);
-            }
-          "
-        >
+        <Button variant="outline" size="icon" @click="
+          () => {
+            $emit('clickAction', data.id);
+          }
+        ">
+          <FilePenLine />
+        </Button>
+        <Button variant="outline" size="icon" @click="
+          () => {
+            $emit('clickUpdate', {
+              id: data.id,
+              name: data.name,
+              code: data.code,
+              cover: data.cover,
+              description: data.description,
+              active: data.active,
+              lang: data.lang,
+              audience: data.audience,
+              authors: data.authors,
+              genres: data.genres,
+              status: data.status,
+            });
+          }
+        ">
+          <Pencil />
+        </Button>
+        <Button variant="destructive" size="icon" @click="
+          () => {
+            $emit('clickDelete', data);
+          }
+        ">
           <Trash2 />
         </Button>
       </div>

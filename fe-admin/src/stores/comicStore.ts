@@ -3,6 +3,8 @@ import axios from "axios";
 import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
+import type { Author } from "./authorStore";
+import type { Genre } from "./genreStore";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
 export interface Comic {
@@ -28,7 +30,7 @@ export const useComicStore = defineStore("comicStore", () => {
   const deleteDialogIsOpen = ref(false);
   const chapterDialogIsOpen = ref(false);
   const isLoading = ref(true);
-  const selectedData = ref<Comic>({
+  const selectedData = ref({
     id: 0,
     cover: "",
     name: "",
@@ -37,12 +39,9 @@ export const useComicStore = defineStore("comicStore", () => {
     code: "",
     lang: "",
     audience: "",
-    created_by: 0,
-    created_at: "",
-    updated_by: 0,
-    updated_at: "",
-    created_by_user: {},
-    updated_by_user: {},
+    status: "",
+    authors: [] as Author[],
+    genres: [] as Genre[],
   });
   const selectedAuthorForCreate = ref({});
   const current_page = ref(1);
@@ -112,11 +111,11 @@ export const useComicStore = defineStore("comicStore", () => {
     const formData = new FormData();
     formData.append("id", data.id);
     formData.append("cover", data.cover);
-    formData.append("name", data.title);
+    formData.append("name", data.name);
     formData.append("description", data.description);
     formData.append("active", data.active);
     formData.append("code", data.code);
-    formData.append("lang", data.language);
+    formData.append("lang", data.lang);
     formData.append("audience", data.audience);
     formData.append("status", data.status);
     data.author.forEach((author: any) => formData.append("authors", author.id));
@@ -135,7 +134,7 @@ export const useComicStore = defineStore("comicStore", () => {
         variant: "destructive",
       });
     }
-    selectedData.value = <Comic>{
+    selectedData.value = {
       id: 0,
       cover: "",
       name: "",
@@ -144,12 +143,9 @@ export const useComicStore = defineStore("comicStore", () => {
       code: "",
       lang: "",
       audience: "",
-      created_by: 0,
-      created_at: "",
-      updated_by: 0,
-      updated_at: "",
-      created_by_user: {},
-      updated_by_user: {},
+      status: "",
+      authors: [],
+      genres: [],
     };
   }
   async function deleteComic(id: any) {
@@ -168,7 +164,7 @@ export const useComicStore = defineStore("comicStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Comic>{
+    selectedData.value = {
       id: 0,
       cover: "",
       name: "",
@@ -177,12 +173,9 @@ export const useComicStore = defineStore("comicStore", () => {
       code: "",
       lang: "",
       audience: "",
-      created_by: 0,
-      created_at: "",
-      updated_by: 0,
-      updated_at: "",
-      created_by_user: {},
-      updated_by_user: {},
+      status: "",
+      authors: [],
+      genres: [],
     };
   }
   return {
