@@ -73,27 +73,23 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
-const validateForm = () => {
+const handleSubmit = async () => {
+  // Validate form data
+
   if (!formData.value.title?.trim()) {
     toast({
-      description: "Enter correctly",
+      description: "Title is required",
       variant: "destructive",
     });
-    return false;
+    return;
   }
-  if (!formData.value.cover) {
-    toast({
-      description: "Enter correctly",
-      variant: "destructive",
-    });
-    return false;
-  }
+
   if (!formData.value.active_from || !formData.value.active_to) {
     toast({
-      description: "Enter correctly",
+      description: "Active dates are required",
       variant: "destructive",
     });
-    return false;
+    return;
   }
 
   // Validate dates
@@ -102,25 +98,19 @@ const validateForm = () => {
   
   if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
     toast({
-      description: "Enter correctly",
+      description: "Invalid date format",
       variant: "destructive",
     });
-    return false;
+    return;
   }
 
   if (fromDate > toDate) {
     toast({
-      description: "Enter correctly",
+      description: "Active from date must be before active to date",
       variant: "destructive",
     });
-    return false;
+    return;
   }
-
-  return true;
-};
-
-const handleSubmit = async () => {
-  if (!validateForm()) return;
 
   isLoading.value = true;
   try {
@@ -134,7 +124,7 @@ const handleSubmit = async () => {
 
     await recommendStore.updateRecommend(submitData);
     toast({
-      description: "Update successful",
+      description: "Update successful"
     });
     
     recommendStore.updateDialogIsOpen = false;
@@ -269,4 +259,4 @@ const handleSubmit = async () => {
       </DialogFooter>
     </DialogContent>
   </Dialog>
-</template> 
+</template>

@@ -126,7 +126,6 @@ export const useAdStore = defineStore("adStore", () => {
         totalItems.value = 0;
       }
     } catch (error: any) {
-      console.error('Error fetching ads:', error);
       toast({
         description: error.response?.data?.message || error.message,
         variant: "destructive",

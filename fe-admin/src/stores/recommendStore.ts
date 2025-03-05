@@ -57,8 +57,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
         sort: sortDirection.value,
       });
 
-      console.log('Request URL:', `${API_URL}/recommend?${params.toString()}`);
-
       const response = await axios.get(
         `${API_URL}/recommend?${params.toString()}`,
         {
@@ -79,7 +77,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       totalItems.value = response.data.pagination.total;
       page_size.value = response.data.pagination.page_size;
     } catch (error: any) {
-      console.error('API Error:', error.response || error);
       toast({
         description: error.response?.data?.message || error.message,
         variant: "destructive",
@@ -104,7 +101,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   }
 
   async function createRecommend(data: any) {
-    console.log('Creating recommend with data:', data);
     const formattedData = {
       title: data.title,
       cover: data.cover,
@@ -112,7 +108,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       active_from: Math.floor(new Date(data.active_from).getTime() / 1000),
       active_to: Math.floor(new Date(data.active_to).getTime() / 1000),
     };
-    console.log('Formatted data:', formattedData);
 
     try {
       const response = await axios.post(
@@ -120,13 +115,11 @@ export const useRecommendStore = defineStore("recommendStore", () => {
         formattedData, 
         { headers: authHeader() }
       );
-      console.log('Create response:', response);
       toast({
         description: "Created Successfully",
       });
       return response.data;
     } catch (error: any) {
-      console.error('Create error:', error.response?.data || error);
       toast({
         description: error.response?.data?.message || "Failed to create recommendation",
         variant: "destructive",
@@ -137,7 +130,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
 
   async function updateRecommend(data: any) {
     try {
-      console.log('Raw update data received:', data);
 
       if (!data.id) {
         throw new Error('Missing ID for update');
@@ -154,8 +146,6 @@ export const useRecommendStore = defineStore("recommendStore", () => {
         active_to: data.active_to
       };
 
-      console.log('Formatted request data:', requestData);
-      console.log('Request URL:', `${API_URL}/recommend`);
 
       const response = await axios.put(
         `${API_URL}/recommend`,
@@ -168,26 +158,13 @@ export const useRecommendStore = defineStore("recommendStore", () => {
         }
       );
 
-      console.log('Update response:', response);
       toast({
         description: "Updated Successfully",
       });
       return response.data;
     } catch (error: any) {
-      console.error('Update error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        requestData: error.config?.data,
-      });
-
-      // More specific error message
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error 
-        || "Failed to update recommendation";
-      
       toast({
-        description: errorMessage,
+        description: error.response?.data?.message || error.response?.data?.error || "Failed to update recommendation",
         variant: "destructive",
       });
       throw error;
