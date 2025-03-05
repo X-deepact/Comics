@@ -44,27 +44,11 @@ func (s *Server) createComic(ctx *gin.Context) {
 	var req dto.ComicRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	file, _ := ctx.FormFile("cover")
-	/*
-		fileLink := ""
-
-		if file != nil {
-			fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
-			if err != nil {
-				config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
-				return
-			}
-
-			fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, fileName)
-		}
-
-		req.Cover = fileLink
-
-	*/
 
 	if file != nil {
 		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
@@ -77,14 +61,14 @@ func (s *Server) createComic(ctx *gin.Context) {
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 	req.CreatedBy = userID
 
 	comic, err := s.store.CreateComic(&req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -109,13 +93,13 @@ func (s *Server) getComic(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	comic, err := s.store.GetComic(uri.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -172,7 +156,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 func (s *Server) getComics(ctx *gin.Context) {
 	var req dto.ComicListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -182,7 +166,7 @@ func (s *Server) getComics(ctx *gin.Context) {
 
 	comics, total, err := s.store.ListComics(req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -200,13 +184,18 @@ func (s *Server) getComics(ctx *gin.Context) {
 			if _, ok := user[comic.CreatedBy]; !ok {
 				user[comic.CreatedBy], _ = s.store.GetUser(comic.CreatedBy)
 			}
-			comicsReturn[i].CreatedByUser = *user[comic.CreatedBy]
+			if user[comic.CreatedBy] != nil {
+
+				comicsReturn[i].CreatedByUser = *user[comic.CreatedBy]
+			}
 		}
 		if comic.UpdatedBy != 0 {
 			if _, ok := user[comic.UpdatedBy]; !ok {
 				user[comic.UpdatedBy], _ = s.store.GetUser(comic.UpdatedBy)
 			}
-			comicsReturn[i].UpdatedByUser = *user[comic.UpdatedBy]
+			if user[comic.UpdatedBy] != nil {
+				comicsReturn[i].UpdatedByUser = *user[comic.UpdatedBy]
+			}
 		}
 		genres, _ := s.store.GetGenresOfAComic(comic.ID)
 		authors, _ := s.store.GetAuthorsOfAComic(comic.ID)
@@ -241,31 +230,20 @@ func (s *Server) updateComic(ctx *gin.Context) {
 	var req dto.ComicUpdateRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
 	req.UpdatedBy = userID
 
 	file, _ := ctx.FormFile("cover")
-	/*
-		if file != nil {
-			fileLink := ""
-			fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
-			if err != nil {
-				config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
-				return
-			}
-			fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, fileName)
-			req.Cover = fileLink
-		}
-	*/
+
 	if file != nil {
 
 		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
@@ -278,7 +256,7 @@ func (s *Server) updateComic(ctx *gin.Context) {
 	comic, err := s.store.UpdateComic(&req)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -303,12 +281,12 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteComic(uri.ID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -332,7 +310,7 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 func (s *Server) saveCover(ctx *gin.Context) {
 	file, err := ctx.FormFile("cover")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -370,18 +348,18 @@ func (s *Server) saveCover(ctx *gin.Context) {
 func (s *Server) activeComic(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
 	if err := s.store.ActiveComic(int64(id), userID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 

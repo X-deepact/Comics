@@ -601,6 +601,14 @@ paths:
         in: query
         name: status
         type: string
+      - description: Sort by field (e.g. title, created_at, updated_at)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (ASC/DESC)
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:

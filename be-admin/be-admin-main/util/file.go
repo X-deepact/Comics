@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -47,6 +48,15 @@ func GetFileExtension(fileHeader *multipart.FileHeader) string {
 func GetFileUrl(fileUrl string, rootPath string, folderPath string, fileName string) string {
 	return fmt.Sprintf("%s%s%s%s", fileUrl, "/api/file",
 		strings.Replace(folderPath, rootPath, "", 1), fileName)
+}
+
+func EnsureDir(dirPath string) error {
+	err := os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		slog.Error("Error create dir", "dirPath", dirPath, "err", err.Error())
+		return err
+	}
+	return nil
 }
 
 func SaveImage(file *multipart.FileHeader, folderPath string) (string, error) {

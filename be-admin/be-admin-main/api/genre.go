@@ -2,7 +2,8 @@ package api
 
 import (
 	"comics-admin/dto"
-	"fmt"
+	config "comics-admin/util"
+	"errors"
 	"net/http"
 	"pkg-common/model"
 	"strconv"
@@ -36,20 +37,19 @@ func (s *Server) createGenre(ctx *gin.Context) {
 	var req dto.GenreCreateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
-	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -62,13 +62,13 @@ func (s *Server) createGenre(ctx *gin.Context) {
 	}
 
 	if err := s.store.CreateGenre(&genre); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
 	genreDTO, err := s.store.GetGenre(genre.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -89,13 +89,13 @@ func (s *Server) createGenre(ctx *gin.Context) {
 func (s *Server) getGenre(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	genre, err := s.store.GetGenre(int64(id))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -121,13 +121,13 @@ func (s *Server) getGenre(ctx *gin.Context) {
 func (s *Server) getGenres(ctx *gin.Context) {
 	var req dto.GenreListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	genres, total, err := s.store.GetGenres(req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -149,20 +149,20 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 	var req dto.GenreUpdateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -175,13 +175,13 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 	}
 
 	if err := s.store.UpdateGenre(&genre); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
 	genreDTO, err := s.store.GetGenre(genre.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -202,12 +202,12 @@ func (s *Server) updateGenre(ctx *gin.Context) {
 func (s *Server) deleteGenre(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteGenre(int64(id)); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 

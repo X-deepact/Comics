@@ -2,6 +2,7 @@ package api
 
 import (
 	"comics-admin/token"
+	config "comics-admin/util"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,8 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provide")
 
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			ctx.Abort()
 			return
 		}
 
@@ -26,8 +28,8 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
-
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			ctx.Abort()
 			return
 		}
 
@@ -35,14 +37,16 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		if authorizationType != s.config.Source.AuthorizationTypeBearer {
 			err := fmt.Errorf("%s authorization type", authorizationType)
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			ctx.Abort()
 			return
 		}
 
 		payload, err := tokenMaker.VerifyToken(authorization)
 
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			ctx.Abort()
 			return
 		}
 

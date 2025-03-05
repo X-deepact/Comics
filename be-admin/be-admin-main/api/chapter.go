@@ -2,6 +2,7 @@ package api
 
 import (
 	"comics-admin/dto"
+	config "comics-admin/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"pkg-common/model"
@@ -34,14 +35,13 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	var req dto.ChapterRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
-	// Extract user ID from context
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	}
 
 	if err := s.store.CreateChapter(&chapter); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -77,13 +77,13 @@ func (s *Server) createChapter(ctx *gin.Context) {
 func (s *Server) getChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	chapter, err := s.store.GetChapter(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -108,13 +108,13 @@ func (s *Server) getChapters(ctx *gin.Context) {
 	var req dto.ChapterListRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	chapters, total, err := s.store.ListChapters(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -136,13 +136,13 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 	var req dto.ChapterUpdateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userId, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
@@ -156,7 +156,7 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 	}
 
 	if err := s.store.UpdateChapter(&chapter); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -176,12 +176,12 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 func (s *Server) deleteChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteChapter(id); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -204,19 +204,18 @@ func (s *Server) deleteChapter(ctx *gin.Context) {
 func (s *Server) activeChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
-	// Extract user ID from context
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
 	if err := s.store.ActiveChapter(id, userID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 

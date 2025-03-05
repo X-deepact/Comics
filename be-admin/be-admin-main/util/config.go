@@ -27,6 +27,7 @@ type FileStorageConfig struct {
 	AvatarFolder      string `mapstructure:"AVATAR_FOLDER"`
 	CoverFolder       string `mapstructure:"COMIC_COVER_FOLDER"`
 	ChapterItemFolder string `mapstructure:"CHAPTER_ITEM_FOLDER"`
+	RecommendFolder   string `mapstructure:"RECOMMEND_FOLDER"`
 }
 
 type WebConfig struct {

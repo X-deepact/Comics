@@ -34,7 +34,7 @@ func (s *Server) recommendRoutes() {
 // @Router /api/recommend [post]
 func (s *Server) CreateRecommend(ctx *gin.Context) {
 	var req dto.RecommendCreateRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := req.Bind(ctx, s.config.FileStorage.RecommendFolder); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -78,6 +78,7 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 		UpdatedAt:  recommendModel.UpdatedAt.Format(time.RFC3339),
 		UpdatedBy:  recommendModel.UpdatedBy,
 	}
+	resp.BindCoverUrl(s.config)
 	ctx.JSON(http.StatusOK, resp)
 }
 
@@ -187,7 +188,7 @@ func (s *Server) GetRecommends(ctx *gin.Context) {
 // @Router /api/recommend [put]
 func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	var req dto.RecommendUpdateRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := req.Bind(ctx, s.config.FileStorage.CoverFolder); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}

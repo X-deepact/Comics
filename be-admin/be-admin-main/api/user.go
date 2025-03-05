@@ -116,31 +116,31 @@ func (s *Server) userRouter() {
 func (s *Server) login(ctx *gin.Context) {
 	var req dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	user, err := s.store.GetUserLogin(req.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "username or password is incorrect"})
+			config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("username or password is incorrect"), nil)
 			return
 		}
 
-		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusNotFound, err, nil)
 		return
 	}
 
 	err = config.CheckPassword(req.Password, user.HashPassword)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "username or password is incorrect"})
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("username or password is incorrect"), nil)
 		return
 	}
 
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(user.Id, req.Username, user.RoleName, s.config.Source.AccessTokenDuration)
 	fmt.Printf("%s", accessToken)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -200,13 +200,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExist(req.Username, req.Phone, req.Email)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -223,7 +223,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": strings.Join(list, ", ") + " already exist"})
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -233,13 +233,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -248,7 +248,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 
@@ -257,7 +257,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	hashPassword, err := config.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -279,7 +279,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	if file != nil {
 		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 	}
@@ -298,7 +298,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	//role
 	roleAdmin, err := s.store.GetRole(config.USER)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -315,13 +315,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	err = s.store.CreateUser(userSave)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(userSave.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -346,13 +346,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 func (s *Server) getUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	user, err := s.store.GetUser(int64(id))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -386,13 +386,13 @@ func (s *Server) getUser(ctx *gin.Context) {
 func (s *Server) getUsers(ctx *gin.Context) {
 	var req dto.UserListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	users, total, err := s.store.GetUsers(req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -439,13 +439,13 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExistNotMe(req.ID, req.Username, req.Phone, req.Email)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -462,7 +462,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": strings.Join(list, ", ") + " already exist"})
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -472,13 +472,13 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -487,7 +487,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 
@@ -496,7 +496,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	user, err := s.store.GetUserData(req.ID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -514,7 +514,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	if file != nil {
 		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 
@@ -528,13 +528,13 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	err = s.store.UpdateUser(user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -559,24 +559,24 @@ func (s *Server) updateUser(ctx *gin.Context) {
 func (s *Server) deleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	if err := s.store.DeleteUser(int64(id), userIDInt64); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -600,24 +600,24 @@ func (s *Server) deleteUser(ctx *gin.Context) {
 func (s *Server) activeUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	if err := s.store.ActiveUser(int64(id), userIDInt64); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -638,19 +638,19 @@ func (s *Server) getProfile(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	user, err := s.store.GetUser(userIDInt64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -686,26 +686,26 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExistNotMe(userIDInt64, req.Username, req.Phone, req.Email)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -722,7 +722,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": strings.Join(list, ", ") + " already exist"})
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -734,7 +734,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 
@@ -743,7 +743,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	user, err := s.store.GetUserData(userIDInt64)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -761,7 +761,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	if file != nil {
 		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 			return
 		}
 
@@ -774,13 +774,13 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	err = s.store.UpdateUser(user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
@@ -804,46 +804,43 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 func (s *Server) changePassword(ctx *gin.Context) {
 	var req dto.UserChangePasswordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("user not authenticated")))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("invalid user ID type")))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	user, err := s.store.GetUserData(userIDInt64)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 
 	err = config.CheckPassword(req.CurrentPassword, user.HashPassword)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, dto.ResponseMessage{
-			Status:  "error",
-			Message: "Current password is incorrect",
-		})
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("current password is incorrect"), nil)
 		return
 	}
 
 	hashPassword, err := config.HashPassword(req.NewPassword)
 
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 
 	if err := s.store.ChangePassword(userIDInt64, hashPassword); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
 		return
 	}
 

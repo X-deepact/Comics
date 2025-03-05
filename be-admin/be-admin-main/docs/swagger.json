@@ -59,6 +59,18 @@
                         "description": "Filter by status (active/inactive)",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field (e.g. title, created_at, updated_at)",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (ASC/DESC)",
+                        "name": "sort",
+                        "in": "query"
                     }
                 ],
                 "responses": {
