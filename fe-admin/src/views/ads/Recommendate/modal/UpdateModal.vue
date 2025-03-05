@@ -75,7 +75,6 @@ const handleFileUpload = (event: Event) => {
 
 const handleSubmit = async () => {
   // Validate form data
-  console.log('Current form data:', formData.value);
 
   if (!formData.value.title?.trim()) {
     toast({
@@ -123,12 +122,6 @@ const handleSubmit = async () => {
       active_to: formData.value.active_to,
     };
 
-    console.log('Preparing to submit update data:', submitData);
-    console.log('Current store state:', {
-      isOpen: recommendStore.updateDialogIsOpen,
-      selectedData: recommendStore.selectedData,
-    });
-
     await recommendStore.updateRecommend(submitData);
     console.log('Update successful');
     
@@ -171,12 +164,12 @@ const handleSubmit = async () => {
         <div class=" gap-4">
           <div class="space-y-4">
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Title</Label>
+              <Label class="text-right">Title *</Label>
               <Input v-model="formData.title" class="col-span-3" placeholder="Enter title" />
             </div>
             <div class="space-y-4">
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Cover Image</Label>
+              <Label class="text-right">Image</Label>
               <div class="col-span-3">
                 <input
                   ref="fileInput"
@@ -204,7 +197,7 @@ const handleSubmit = async () => {
             </div>
           </div>
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Position</Label>
+              <Label class="text-right">Position *</Label>
               <div class="col-span-3">
               <Select v-model="formData.position" >
                 <SelectTrigger>
@@ -230,7 +223,7 @@ const handleSubmit = async () => {
 
             
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Active From</Label>
+              <Label class="text-right">Active From *</Label>
               <Input 
                 type="date"
                 v-model="formData.active_from"
@@ -240,7 +233,7 @@ const handleSubmit = async () => {
             </div>
 
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Active To</Label>
+              <Label class="text-right">Active To *</Label>
               <Input 
                 type="date"
                 v-model="formData.active_to"

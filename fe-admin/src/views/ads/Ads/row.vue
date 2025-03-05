@@ -71,6 +71,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Pencil } from "lucide-vue-next";
+import { toast } from "@/components/ui/toast/use-toast";
 
 const props = defineProps<{
   data: Ad;
@@ -102,8 +103,11 @@ const updateStatus = async (id: number, status: 'active' | 'inactive') => {
   try {
     await adStore.updateAdStatus(id, status);
     adStore.getAdData();
-  } catch (error) {
-    console.error('Failed to update status:', error);
+  } catch (error: any) {
+    toast({
+      description: error.response?.data?.message || error.message,
+      variant: "destructive",
+    });
   }
 };
 </script> 

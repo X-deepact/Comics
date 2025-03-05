@@ -129,8 +129,11 @@ const handleSubmit = async () => {
     recommendStore.createDialogIsOpen = false;
     await recommendStore.getRecommendData();
     resetForm();
-  } catch (error) {
-    console.error('Error creating recommend:', error);
+  } catch (error: any) {
+    toast({
+      description: error.response?.data?.message || error.message,
+      variant: "destructive",
+    });
   } finally {
     isLoading.value = false;
   }
@@ -212,12 +215,12 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
       <div class="grid gap-4">
         <div class="space-y-4">
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Title</Label>
+            <Label class="text-right">Title *</Label>
             <Input v-model="formData.title" class="col-span-3" placeholder="Enter title" />
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Cover Image</Label>
+            <Label class="text-right">Image *</Label>
             <div class="col-span-3">
               <input
                 ref="fileInput"
@@ -245,7 +248,7 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
           </div>
 
           <div class="grid grid-cols-4  items-center gap-4">
-            <Label class="text-right">Position</Label>
+            <Label class="text-right">Position *</Label>
             <div class="col-span-3">
             <Select v-model="formData.position" >
               <SelectTrigger>
@@ -270,7 +273,7 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Active From</Label>
+            <Label class="text-right">Active From *</Label>
             <Input 
               id="active_from"
               type="date" 
@@ -281,7 +284,7 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Active To</Label>
+            <Label class="text-right">Active To *</Label>
             <Input 
               id="active_to"
               type="date"

@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast/use-toast";
 
 const adStore = useAdStore();
 const isLoading = ref(false);
@@ -54,8 +55,27 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
+const validateForm = () => {
+  if (!adStore.selectedData.title || 
+      !adStore.selectedData.image ||
+      !adStore.selectedData.type ||
+      !adStore.selectedData.direct_url ||
+      !adStore.selectedData.status ||
+      !adStore.selectedData.active_from ||
+      !adStore.selectedData.active_to) {
+    toast({
+      description: "Enter correctly",
+      variant: "destructive",
+    });
+    return false;
+  }
+  return true;
+};
+
 const handleSubmit = async () => {
   try {
+    if (!validateForm()) return;
+    
     isLoading.value = true;
     const formattedData = {
       ...adStore.selectedData,
@@ -66,8 +86,11 @@ const handleSubmit = async () => {
     await adStore.updateAd(formattedData);
     adStore.updateDialogIsOpen = false;
     adStore.getAdData();
-  } catch (error) {
-    console.error('Error updating ad:', error);
+  } catch (error: any) {
+    toast({
+      description: error.response?.data?.message || error.message,
+      variant: "destructive",
+    });
   } finally {
     isLoading.value = false;
   }
@@ -90,12 +113,12 @@ const handleSubmit = async () => {
         <div class=" gap-4">
           <div class="space-y-4">
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Title</Label>
+              <Label class="text-right">Title *</Label>
               <Input v-model="adStore.selectedData.title" class="col-span-3" placeholder="Enter title" />
             </div>
             <div class="space-y-4">
               <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Cover Image</Label>
+                <Label class="text-right">Image *</Label>
                 <div class="col-span-3">
                   <input
                     ref="fileInput"
@@ -123,7 +146,7 @@ const handleSubmit = async () => {
               </div>
             </div>
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Type</Label>
+              <Label class="text-right">Type *</Label>
               <div class="col-span-3">
                 <Select v-model="adStore.selectedData.type">
                   <SelectTrigger>
@@ -137,11 +160,11 @@ const handleSubmit = async () => {
               </div>
             </div>
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">URL</Label>
+              <Label class="text-right">URL *</Label>
               <Input v-model="adStore.selectedData.direct_url" class="col-span-3" placeholder="Enter URL" />
             </div>
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Status</Label>
+              <Label class="text-right">Status *</Label>
               <div class="col-span-3">
                 <Select v-model="adStore.selectedData.status">
                   <SelectTrigger>
@@ -156,7 +179,7 @@ const handleSubmit = async () => {
             </div>
             
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Start Date</Label>
+              <Label class="text-right">Start Date *</Label>
               <Input 
                 type="datetime-local" 
                 v-model="adStore.selectedData.active_from"
@@ -164,7 +187,7 @@ const handleSubmit = async () => {
               />
             </div>
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">End Date</Label>
+              <Label class="text-right">End Date *</Label>
               <Input 
                 type="datetime-local" 
                 v-model="adStore.selectedData.active_to"
