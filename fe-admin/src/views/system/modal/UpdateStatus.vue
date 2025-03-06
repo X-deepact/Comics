@@ -32,11 +32,16 @@ const userStore = useUserStore();
           :disabled="isLoading"
           @click="
             async () => {
-              isLoading = true;
-              await userStore.updateUserStatus(userStore.selectedData.id);
-              isLoading = false;
-              userStore.updateStatusDialogIsOpen = false;
-              userStore.getUserData();
+              try {
+                isLoading = true;
+                await userStore.updateUserStatus(userStore.selectedData.id);
+                isLoading = false;
+                userStore.updateStatusDialogIsOpen = false;
+                userStore.getUserData();
+              } catch (error) {
+                userStore.toast.error('Failed to update user status. Please try again.');
+                isLoading = false;
+              }
             }
           "
         >

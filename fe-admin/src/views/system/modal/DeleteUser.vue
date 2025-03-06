@@ -9,6 +9,8 @@ import {
 import { useUserStore } from "../../../stores/userStore";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const isLoading = ref(false);
 const userStore = useUserStore();
 </script>
@@ -32,11 +34,16 @@ const userStore = useUserStore();
           :disabled="isLoading"
           @click="
             async () => {
-              isLoading = true;
-              await userStore.deleteUser(userStore.selectedData.id);
-              isLoading = false;
-              userStore.deleteDialogIsOpen = false;
-              userStore.getUserData();
+              try {
+                isLoading = true;
+                await userStore.deleteUser(userStore.selectedData.id);
+                isLoading = false;
+                userStore.deleteDialogIsOpen = false;
+                userStore.getUserData();
+              } catch (error) {
+                toast.error('Failed to delete user. Please try again later.');
+                isLoading = false;
+              }
             }
           "
         >

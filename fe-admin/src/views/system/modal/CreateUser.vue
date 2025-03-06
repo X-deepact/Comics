@@ -70,16 +70,29 @@ const setBirthday = () => {
     user.value.Birthday = `${year}-${month}-${day}`;
   }
 };
+
+const validateEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 const checkForm = () => {
-  if (user.value.password.length < 8) {
+  if (!user.value.username || !user.value.email || user.value.password.length < 8) {
     toast({
-      description: "Password length is less than 8",
+      description: "Enter correctly",
       variant: "destructive",
     });
     return false;
-  } else {
-    return true;
   }
+
+  if (!validateEmail(user.value.email)) {
+    toast({
+      description: "Email format is incorrect",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  return true;
 };
 </script>
 <template>
@@ -90,7 +103,7 @@ const checkForm = () => {
         <DialogTitle>Create Subject</DialogTitle>
       </DialogHeader>
       <div class="flex items-center gap-4">
-        <Label for="username" class="text-center w-1/4">User Name</Label>
+        <Label for="username" class="text-center w-1/4">User Name *</Label>
         <Input v-model="user.username" placeholder="User Name" />
       </div>
       <div class="flex items-center gap-4">
@@ -110,12 +123,12 @@ const checkForm = () => {
         <Input v-model="user.phone" placeholder="Phone" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="email" class="text-center w-1/4">Email</Label>
+        <Label for="email" class="text-center w-1/4">Email *</Label>
         <Input v-model="user.email" placeholder="Email" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="password" class="text-center w-1/4">Password</Label>
-        <Input v-model="user.password" placeholder="Password" />
+        <Label for="password" class="text-center w-1/4">Password *</Label>
+        <Input type="password" v-model="user.password" placeholder="Password" />
       </div>
       <div class="flex items-center gap-4">
         <Label for="TierId" class="text-center w-1/4">Tier</Label>

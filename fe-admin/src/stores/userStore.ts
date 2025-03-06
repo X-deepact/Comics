@@ -67,7 +67,7 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: error.message,
+          description: `Error fetching user data: ${error.response?.data?.message || error.message}`,
           variant: "destructive",
         });
       });
@@ -82,7 +82,7 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: error.message,
+          description: `Error creating user: ${error.response?.data?.message || error.message}`,
           variant: "destructive",
         });
       });
@@ -97,7 +97,7 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: error.message,
+          description: `Error updating user: ${error.response?.data?.message || error.message}`,
           variant: "destructive",
         });
       });
@@ -128,7 +128,7 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: error.message,
+          description: `Error deleting user: ${error.response?.data?.message || error.message}`,
           variant: "destructive",
         });
       });
@@ -159,7 +159,7 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: error.message,
+          description: `Error updating user status: ${error.response?.data?.message || error.message}`,
           variant: "destructive",
         });
       });

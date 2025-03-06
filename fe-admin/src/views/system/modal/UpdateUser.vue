@@ -46,15 +46,28 @@ const getBirthday = () => {
   }
 };
 const checkForm = () => {
-  if (userStore.selectedData.password.length < 8) {
+  if (!userStore.selectedData.username || 
+      !userStore.selectedData.DisplayName ||
+      !userStore.selectedData.FirstName ||
+      !userStore.selectedData.LastName ||
+      !userStore.selectedData.phone ||
+      !userStore.selectedData.email ||
+      !userStore.selectedData.password ||
+      !userStore.selectedData.TierId) {
     toast({
-      description: "Password length is less than 8",
+      description: "Enter correctly",
       variant: "destructive",
     });
     return false;
-  } else {
-    return true;
   }
+  if (userStore.selectedData.password.length < 8) {
+    toast({
+      description: "Password must be at least 8 characters long",
+      variant: "destructive",
+    });
+    return false;
+  }
+  return true;
 };
 </script>
 <template>
@@ -68,35 +81,35 @@ const checkForm = () => {
         <DialogTitle>Update User</DialogTitle>
       </DialogHeader>
       <div class="flex items-center gap-4">
-        <Label for="username" class="text-center w-1/4">User Name</Label>
+        <Label for="username" class="text-center w-1/4">User Name *</Label>
         <Input v-model="userStore.selectedData.username" placeholder="User Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="DisplayName" class="text-center w-1/4">Display Name</Label>
+        <Label for="DisplayName" class="text-center w-1/4">Display Name *</Label>
         <Input v-model="userStore.selectedData.DisplayName" placeholder="Display Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="FirstName" class="text-center w-1/4">First Name</Label>
+        <Label for="FirstName" class="text-center w-1/4">First Name *</Label>
         <Input v-model="userStore.selectedData.FirstName" placeholder="First Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="LastName" class="text-center w-1/4">Last Name</Label>
+        <Label for="LastName" class="text-center w-1/4">Last Name *</Label>
         <Input v-model="userStore.selectedData.LastName" placeholder="Last Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="phone" class="text-center w-1/4">Phone</Label>
+        <Label for="phone" class="text-center w-1/4">Phone *</Label>
         <Input v-model="userStore.selectedData.phone" placeholder="Phone" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="email" class="text-center w-1/4">Email</Label>
+        <Label for="email" class="text-center w-1/4">Email *</Label>
         <Input v-model="userStore.selectedData.email" placeholder="Email" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="password" class="text-center w-1/4">Password</Label>
-        <Input v-model="userStore.selectedData.password" placeholder="Password" />
+        <Label for="password" class="text-center w-1/4">Password *</Label>
+        <Input type="password" v-model="userStore.selectedData.password" placeholder="Password" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="TierId" class="text-center w-1/4">Tier</Label>
+        <Label for="TierId" class="text-center w-1/4">Tier *</Label>
         <Input v-model="userStore.selectedData.TierId" placeholder="Tier" type="number" />
       </div>
       <div class="flex items-center gap-4">
@@ -124,23 +137,31 @@ const checkForm = () => {
         </Button>
         <Button :disabled="isLoading" @click="
           async () => {
-            if (checkForm()) {
-              isLoading = true;
-              await userStore.updateUser({
-                id: userStore.selectedData.id,
-                username: userStore.selectedData.username,
-                DisplayName: userStore.selectedData.DisplayName,
-                FirstName: userStore.selectedData.FirstName,
-                LastName: userStore.selectedData.LastName,
-                phone: userStore.selectedData.phone,
-                email: userStore.selectedData.email,
-                password: userStore.selectedData.password,
-                TierId: userStore.selectedData.TierId,
-                Birthday: getBirthday(),
+            try {
+              if (checkForm()) {
+                isLoading = true;
+                await userStore.updateUser({
+                  id: userStore.selectedData.id,
+                  username: userStore.selectedData.username,
+                  DisplayName: userStore.selectedData.DisplayName,
+                  FirstName: userStore.selectedData.FirstName,
+                  LastName: userStore.selectedData.LastName,
+                  phone: userStore.selectedData.phone,
+                  email: userStore.selectedData.email,
+                  password: userStore.selectedData.password,
+                  TierId: userStore.selectedData.TierId,
+                  Birthday: getBirthday(),
+                });
+                isLoading = false;
+                userStore.updateDialogIsOpen = false;
+                userStore.getUserData();
+              }
+            } catch (error) {
+              toast({
+                description: error instanceof Error ? error.message : 'An unexpected error occurred while updating user',
+                variant: 'destructive'
               });
               isLoading = false;
-              userStore.updateDialogIsOpen = false;
-              userStore.getUserData();
             }
           }
         ">
