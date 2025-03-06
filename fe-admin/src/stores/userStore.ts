@@ -53,24 +53,33 @@ export const useUserStore = defineStore("userStore", () => {
 
   async function getUserData() {
     isLoading.value = true;
-    await axios
-      .get(
-        `${API_URL}/user?page=${current_page.value}&page_size=${page_size.value}&name=&language=`,
-        { headers: authHeader() }
-      )
-      .then((response) => {
-        userData.value = response.data.data;
-        current_page.value = response.data.pagination.page;
-        totalItems.value = response.data.pagination.total;
-        page_size.value = response.data.pagination.page_size;
-        isLoading.value = false;
-      })
-      .catch((error) => {
-        toast({
-          description: `Error fetching user data: ${error.response?.data?.message || error.message}`,
-          variant: "destructive",
-        });
+    try {
+      const params = {
+        page: current_page.value,
+        page_size: page_size.value,
+        username: searchKeyword.value || undefined
+      };
+      
+      const response = await axios.get(
+        `${API_URL}/user`, 
+        {
+          headers: authHeader(),
+          params
+        }
+      );
+      
+      userData.value = response.data.data;
+      current_page.value = response.data.pagination.page;
+      totalItems.value = response.data.pagination.total;
+      page_size.value = response.data.pagination.page_size;
+    } catch (error: any) {
+      toast({
+        description: `Error fetching user data: ${error.response?.data?.message || error.message}`,
+        variant: "destructive",
       });
+    } finally {
+      isLoading.value = false;
+    }
   }
   async function createUser(data: any) {
     await axios

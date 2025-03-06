@@ -76,7 +76,9 @@ const validateEmail = (email: string) => {
 };
 
 const checkForm = () => {
-  if (!user.value.username || !user.value.email || user.value.password.length < 8) {
+  if (!user.value.username || !user.value.email || !user.value.password || !user.value.phone || 
+      !user.value.FirstName || !user.value.LastName || !user.value.DisplayName || 
+      !user.value.TierId || !user.value.Birthday) {
     toast({
       description: "Enter correctly",
       variant: "destructive",
@@ -87,6 +89,14 @@ const checkForm = () => {
   if (!validateEmail(user.value.email)) {
     toast({
       description: "Email format is incorrect",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  if (user.value.password.length < 8) {
+    toast({
+      description: "Password must be at least 8 characters",
       variant: "destructive",
     });
     return false;
@@ -107,19 +117,19 @@ const checkForm = () => {
         <Input v-model="user.username" placeholder="User Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="DisplayName" class="text-center w-1/4">Display Name</Label>
+        <Label for="DisplayName" class="text-center w-1/4">Display Name *</Label>
         <Input v-model="user.DisplayName" placeholder="Display Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="FirstName" class="text-center w-1/4">First Name</Label>
+        <Label for="FirstName" class="text-center w-1/4">First Name *</Label>
         <Input v-model="user.FirstName" placeholder="First Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="LastName" class="text-center w-1/4">Last Name</Label>
+        <Label for="LastName" class="text-center w-1/4">Last Name *</Label>
         <Input v-model="user.LastName" placeholder="Last Name" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="phone" class="text-center w-1/4">Phone</Label>
+        <Label for="phone" class="text-center w-1/4">Phone *</Label>
         <Input v-model="user.phone" placeholder="Phone" />
       </div>
       <div class="flex items-center gap-4">
@@ -131,11 +141,11 @@ const checkForm = () => {
         <Input type="password" v-model="user.password" placeholder="Password" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="TierId" class="text-center w-1/4">Tier</Label>
+        <Label for="TierId" class="text-center w-1/4">Tier *</Label>
         <Input v-model="user.TierId" placeholder="Tier" type="number" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="birthday" class="text-center w-1/4">Birthday</Label>
+        <Label for="birthday" class="text-center w-1/4">Birthday *</Label>
         <Popover>
           <PopoverTrigger as-child>
             <Button variant="outline" :class="cn(
@@ -156,25 +166,6 @@ const checkForm = () => {
           </PopoverContent>
         </Popover>
       </div>
-      <!-- <div class="flex items-center gap-4">
-        <Label for="lang" class="text-center w-1/4">Language</Label>
-        <Select v-model="genre.language">
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="ch">Chinese</SelectItem>
-              <SelectItem value="vi">Vietnamese</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div> -->
-      <!-- <div class="flex items-center gap-4">
-        <Label for="position" class="text-center w-1/4">Position</Label>
-        <Input v-model="genre.position" placeholder="Position" type="number" />
-      </div> -->
       <DialogFooter class="sm:justify-end">
         <Button variant="secondary" @click="userStore.createDialogIsOpen = false">
           Close

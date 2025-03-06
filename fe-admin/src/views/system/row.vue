@@ -8,7 +8,6 @@
     <TableCell>{{ data.email }}</TableCell>
     <TableCell>{{ data.role_name }}</TableCell>
     <TableCell>{{ data.birthday ? formatDateSafe(data.birthday, false) : data.birthday }}</TableCell>
-    <!-- <TableCell>{{ data.active }}</TableCell> -->
     <TableCell>
       <Switch v-model="data.active" :checked="data.active" @click="
         () => {
@@ -16,50 +15,6 @@
         }
       " />
     </TableCell>
-
-    <!-- <TableCell>
-      <img :src="data.avatar" alt="Avatar" class="w-10 h-10 rounded-full" />
-    </TableCell> -->
-
-    <!-- <TableCell>{{ data.birthday }}</TableCell> -->
-
-    <!-- <TableCell>
-      <p class="font-medium">{{ data.created_by_name }}</p>
-    </TableCell> -->
-
-    <!-- <TableCell>
-      <div>
-        <Label>{{ formatDateSafe(data.created_at, true) }}</Label>
-        <p class="text-xs text-muted-foreground">
-          {{ getTimeAgoSafe(data.created_at) }}
-        </p>
-      </div>
-    </TableCell> -->
-
-    <!-- <TableCell>
-      <p class="font-medium">{{ data.updated_by_name }}</p>
-    </TableCell> -->
-
-    <!-- <TableCell>
-      <div>
-        <Label>{{ formatDateSafe(data.updated_at, true) }}</Label>
-        <p class="text-xs text-muted-foreground">
-          {{ getTimeAgoSafe(data.updated_at) }}
-        </p>
-      </div>
-    </TableCell> -->
-
-    <!-- <TableCell>{{ data.description }}</TableCell> -->
-
-    <!-- <TableCell>{{ data.first_name }}</TableCell> -->
-
-    <!-- <TableCell>{{ data.last_name }}</TableCell> -->
-
-    <!-- <TableCell>{{ data.tier_code }}</TableCell> -->
-
-    <!-- <TableCell>{{ data.tier_id }}</TableCell> -->
-
-    <!-- Actions -->
     <TableCell>
       <div class="flex gap-3">
         <Button variant="outline" size="icon" @click="
@@ -100,6 +55,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-vue-next";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/components/ui/toast/use-toast";
+
+const { toast } = useToast();
 
 defineProps<{
   data: User;
@@ -113,7 +71,10 @@ const formatDateSafe = (
   try {
     return formatDate(date, includeTime);
   } catch (error) {
-    console.error("Date formatting error:", error);
+    toast({
+      description: "Error formatting date",
+      variant: "destructive",
+    });
     return "Invalid date";
   }
 };
@@ -122,7 +83,10 @@ const getTimeAgoSafe = (date: Date | string | number): string => {
   try {
     return getTimeAgo(date);
   } catch (error) {
-    console.error("Time ago formatting error:", error);
+    toast({
+      description: "Error calculating time ago",
+      variant: "destructive",
+    });
     return "Invalid date";
   }
 };

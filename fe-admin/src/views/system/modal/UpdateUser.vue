@@ -26,11 +26,16 @@ import {
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 import { useToast } from "@/components/ui/toast/use-toast";
+
 const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
 const value = ref<DateValue | null>(null);
+
+const validateEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
 const isLoading = ref(false);
 const userStore = useUserStore();
@@ -53,9 +58,17 @@ const checkForm = () => {
       !userStore.selectedData.phone ||
       !userStore.selectedData.email ||
       !userStore.selectedData.password ||
-      !userStore.selectedData.TierId) {
+      !userStore.selectedData.TierId ||
+      !getBirthday()) {
     toast({
       description: "Enter correctly",
+      variant: "destructive",
+    });
+    return false;
+  }
+  if (!validateEmail(userStore.selectedData.email)) {
+    toast({
+      description: "Email format is incorrect",
       variant: "destructive",
     });
     return false;
@@ -113,7 +126,7 @@ const checkForm = () => {
         <Input v-model="userStore.selectedData.TierId" placeholder="Tier" type="number" />
       </div>
       <div class="flex items-center gap-4">
-        <Label for="birth_day" class="text-center w-1/4">Birthday</Label>
+        <Label for="birth_day" class="text-center w-1/4">Birthday *</Label>
         <Popover>
           <PopoverTrigger as-child>
             <Button variant="outline" :class="cn('font-normal w-3/4', !value && 'text-muted-foreground')
