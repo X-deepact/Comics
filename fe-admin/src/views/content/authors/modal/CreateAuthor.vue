@@ -26,6 +26,8 @@ import {
   getLocalTimeZone,
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
@@ -63,11 +65,25 @@ const setBirthday = () => {
     author.value.birth_day = `${year}-${month}-${day}`;
   }
 };
+const checkForm = () => {
+  if (
+    author.value.name === "" ||
+    author.value.biography === "" ||
+    author.value.birth_day === ""
+  ) {
+    toast({
+      description: "Fill all fields.",
+      variant: "destructive",
+    });
+    return false;
+  }
+  return true;
+};
 </script>
 <template>
   <Dialog
     :open="authorStore.createDialogIsOpen"
-    @update:open="(value:boolean)=>{authorStore.createDialogIsOpen = value;}"
+    @update:open="(value: boolean) => { authorStore.createDialogIsOpen = value; }"
   >
     <DialogContent>
       <DialogHeader>
@@ -119,13 +135,15 @@ const setBirthday = () => {
           :disabled="isLoading"
           @click="
             async () => {
-              isLoading = true;
               setBirthday();
-              await authorStore.createAuthor(author);
-              isLoading = false;
-              authorStore.createDialogIsOpen = false;
-              authorStore.getAuthorData();
-              resetAuthor();
+              if (checkForm()) {
+                isLoading = true;
+                await authorStore.createAuthor(author);
+                isLoading = false;
+                authorStore.createDialogIsOpen = false;
+                authorStore.getAuthorData();
+                resetAuthor();
+              }
             }
           "
         >

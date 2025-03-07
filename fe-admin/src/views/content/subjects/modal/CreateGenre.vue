@@ -20,27 +20,34 @@ import { Input } from "@/components/ui/input";
 import { ref } from "vue";
 import { useGenreStore } from "../../../../stores/genreStore";
 import loadingImg from "@/assets/loading.svg";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const genreStore = useGenreStore();
 genreStore.getGenreData();
 const isLoading = ref(false);
 const genre = ref({
   name: "",
-  position: "",
-  language: "",
+  position: 1,
+  language: "en",
 });
 const resetGenre = () => {
   genre.value = {
     name: "",
-    position: "",
-    language: "",
+    position: 1,
+    language: "en",
   };
+};
+const checkForm = () => {
+  if (genre.name) return true;
+  toast({
+    description: "Name cannot be empty!",
+    variant: "destructive",
+  });
 };
 </script>
 <template>
-  <Dialog
-    :open="genreStore.createDialogIsOpen"
-    @update:open="(value:boolean)=>{genreStore.createDialogIsOpen = value;}"
-  >
+  <Dialog :open="genreStore.createDialogIsOpen"
+    @update:open="(value: boolean) => { genreStore.createDialogIsOpen = value; }">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Create Subject</DialogTitle>
@@ -69,16 +76,12 @@ const resetGenre = () => {
         <Input v-model="genre.position" placeholder="Position" type="number" />
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="genreStore.createDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="genreStore.createDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
+        <Button :disabled="isLoading" @click="
+          async () => {
+            if (checkForm()) {
               isLoading = true;
               await genreStore.createGenre(genre);
               isLoading = false;
@@ -86,9 +89,8 @@ const resetGenre = () => {
               genreStore.getGenreData();
               resetGenre();
             }
-          "
-          ><img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button
-        >
+          }
+        "><img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

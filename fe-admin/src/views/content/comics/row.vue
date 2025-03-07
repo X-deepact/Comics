@@ -26,12 +26,6 @@
     <TableCell>
       <div class="flex flex-col gap-1 min-w-[200px]">
         <div>
-          <Label>Active: </Label>
-          <Badge variant="outline" class="text-xs">
-            {{ data.active ? "On" : "Off" }}
-          </Badge>
-        </div>
-        <div>
           <Label>Code: </Label>
           <Badge variant="outline" class="text-xs">
             {{ data.code }}
@@ -56,11 +50,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.created_by_user.username
-        }}</Badge>
+      }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.created_at, true)
-          }}</Label>
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.created_at) }}
         </p>
@@ -69,11 +63,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.updated_by_user.username
-        }}</Badge>
+      }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.updated_at, true)
-          }}</Label>
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.updated_at) }}
         </p>

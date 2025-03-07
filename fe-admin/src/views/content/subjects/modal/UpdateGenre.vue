@@ -20,18 +20,24 @@ import {
 } from "@/components/ui/select";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const isLoading = ref(false);
 const genreStore = useGenreStore();
+const checkForm = () => {
+  if (genreStore.selectedData.name) return true;
+  toast({
+    description: "Name cannot be empty!",
+    variant: "destructive",
+  });
+};
 </script>
 <template>
-  <Dialog
-    :open="genreStore.updateDialogIsOpen"
-    @update:open="
-      (value : boolean) => {
-        genreStore.updateDialogIsOpen = value;
-      }
-    "
-  >
+  <Dialog :open="genreStore.updateDialogIsOpen" @update:open="
+    (value: boolean) => {
+      genreStore.updateDialogIsOpen = value;
+    }
+  ">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Update Genre</DialogTitle>
@@ -57,23 +63,15 @@ const genreStore = useGenreStore();
       </div>
       <div class="flex items-center gap-4">
         <Label for="position" class="text-center w-1/4">Position</Label>
-        <Input
-          v-model="genreStore.selectedData.position"
-          placeholder="Position"
-          type="number"
-        />
+        <Input v-model="genreStore.selectedData.position" placeholder="Position" type="number" />
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="genreStore.updateDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="genreStore.updateDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
+        <Button :disabled="isLoading" @click="
+          async () => {
+            if (checkForm()) {
               isLoading = true;
               await genreStore.updateGenre({
                 id: genreStore.selectedData.id,
@@ -85,8 +83,8 @@ const genreStore = useGenreStore();
               genreStore.updateDialogIsOpen = false;
               genreStore.getGenreData();
             }
-          "
-        >
+          }
+        ">
           <img v-if="isLoading" :src="loadingImg" size="icon" />Update
         </Button>
       </DialogFooter>

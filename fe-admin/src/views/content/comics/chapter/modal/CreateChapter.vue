@@ -21,6 +21,8 @@ import { ref } from "vue";
 import loadingImg from "@/assets/loading.svg";
 import { useChapterStore } from "../../../../../stores/chapterStore";
 import { useComicStore } from "../../../../../stores/comicStore";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const comicStore = useComicStore();
 const chapterStore = useChapterStore();
 const isLoading = ref(false);
@@ -40,6 +42,14 @@ const resetChapter = () => {
     active: true,
   };
 };
+const checkForm = () => {
+  if (chapter.value.name) return true;
+  toast({
+    description: "Name is required",
+    variant: "destructive",
+  });
+  return false;
+};
 </script>
 <template>
   <Dialog
@@ -56,7 +66,12 @@ const resetChapter = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Number</Label>
-        <Input v-model="chapter.number" placeholder="Number" type="number" />
+        <Input
+          v-model="chapter.number"
+          placeholder="Number"
+          type="number"
+          :min="1"
+        />
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
@@ -97,13 +112,15 @@ const resetChapter = () => {
           :disabled="isLoading"
           @click="
             async () => {
-              isLoading = true;
-              chapter.comic_id = comicStore.selectedData.id;
-              await chapterStore.createChapter(chapter);
-              isLoading = false;
-              chapterStore.createDialogIsOpen = false;
-              chapterStore.getChapterData();
-              resetChapter();
+              if (checkForm()) {
+                isLoading = true;
+                chapter.comic_id = comicStore.selectedData.id;
+                await chapterStore.createChapter(chapter);
+                isLoading = false;
+                chapterStore.createDialogIsOpen = false;
+                chapterStore.getChapterData();
+                resetChapter();
+              }
             }
           "
           ><img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button
