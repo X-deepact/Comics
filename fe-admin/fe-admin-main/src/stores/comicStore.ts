@@ -60,6 +60,13 @@ export const useComicStore = defineStore("comicStore", () => {
         { headers: authHeader() }
       )
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         comicData.value = response.data.data;
         current_page.value = response.data.pagination.page;
         totalItems.value = response.data.pagination.total
@@ -94,24 +101,40 @@ export const useComicStore = defineStore("comicStore", () => {
     data.author.forEach((author: any) => formData.append("authors", author.id));
     data.genre.forEach((genre: any) => formData.append("genres", genre.id));
 
-    try {
-      await axios.post(`${API_URL}/comics`, formData, {
+    await axios
+      .post(`${API_URL}/comics`, formData, {
         headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
+      })
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
+        toast({
+          description: "Created successfully",
+        });
+      })
+      .catch((error: any) => {
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
       });
-      toast({
-        description: "Created successfully",
-      });
-    } catch (error: any) {
-      toast({
-        description: error.message,
-        variant: "destructive",
-      });
-    }
   }
   async function setActiveComic(id: number) {
     await axios
       .put(`${API_URL}/comics/${id}/active`, null, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Updated active status successfully",
         });
@@ -136,19 +159,28 @@ export const useComicStore = defineStore("comicStore", () => {
     data.author.forEach((author: any) => formData.append("authors", author.id));
     data.genre.forEach((genre: any) => formData.append("genres", genre.id));
 
-    try {
-      await axios.put(`${API_URL}/comics`, formData, {
+    await axios
+      .put(`${API_URL}/comics`, formData, {
         headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
+      })
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
+        toast({
+          description: "Updated successfully",
+        });
+      })
+      .catch((error: any) => {
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
       });
-      toast({
-        description: "Updated successfully",
-      });
-    } catch (error: any) {
-      toast({
-        description: error.message,
-        variant: "destructive",
-      });
-    }
     selectedData.value = {
       id: 0,
       cover: "",
@@ -168,6 +200,13 @@ export const useComicStore = defineStore("comicStore", () => {
         headers: authHeader(),
       })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Deleted Successfully",
         });

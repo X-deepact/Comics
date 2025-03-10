@@ -47,6 +47,13 @@ export const useAuthorStore = defineStore("authorStore", () => {
         }
       )
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         authorData.value = response.data.data;
         current_page.value = response.data.pagination.page;
         totalItems.value = response.data.pagination.total
@@ -67,6 +74,13 @@ export const useAuthorStore = defineStore("authorStore", () => {
     await axios
       .post(`${API_URL}/author`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Created Successfully",
         });
@@ -83,6 +97,13 @@ export const useAuthorStore = defineStore("authorStore", () => {
     await axios
       .put(`${API_URL}/author`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Updated Successfully",
         });
@@ -106,6 +127,13 @@ export const useAuthorStore = defineStore("authorStore", () => {
         headers: authHeader(),
       })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Deleted Successfully",
         });
@@ -127,6 +155,13 @@ export const useAuthorStore = defineStore("authorStore", () => {
     await axios
       .get(`${API_URL}/general/authors`, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         generalauthorData.value = response.data.data;
       })
       .catch((error) => {

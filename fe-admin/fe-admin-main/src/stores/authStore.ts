@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import router from "../router/router";
+import { useToast } from "@/components/ui/toast/use-toast";
 const API_URL = import.meta.env.VITE_API_URL;
-
+const { toast } = useToast();
 interface User {
   username: string;
   email: string;
@@ -24,6 +25,13 @@ export const useAuthStore = defineStore("auth", {
           username,
           password,
         });
+        if (data.data.code == "ERROR") {
+          toast({
+            description: data.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         this.access_token = data.data.access_token;
         this.user = data.data.user;
         localStorage.setItem("user", data.data.user);

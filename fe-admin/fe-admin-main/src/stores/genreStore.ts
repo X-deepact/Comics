@@ -54,6 +54,13 @@ export const useGenreStore = defineStore("genreStore", () => {
         { headers: authHeader() }
       )
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         genreData.value = response.data.data;
         current_page.value = response.data.pagination.page;
         totalItems.value = response.data.pagination.total
@@ -73,6 +80,13 @@ export const useGenreStore = defineStore("genreStore", () => {
     await axios
       .post(`${API_URL}/genre`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Created successfully",
         });
@@ -88,6 +102,13 @@ export const useGenreStore = defineStore("genreStore", () => {
     await axios
       .put(`${API_URL}/genre`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Updated successfully",
         });
@@ -112,7 +133,14 @@ export const useGenreStore = defineStore("genreStore", () => {
   async function deleteGenre(id: any) {
     await axios
       .delete(`${API_URL}/genre/${id}`, { headers: authHeader() })
-      .then(() => {
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Deleted successfully",
         });
@@ -138,6 +166,13 @@ export const useGenreStore = defineStore("genreStore", () => {
     await axios
       .get(`${API_URL}/general/genres`, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         generalGenreData.value = response.data.data;
       })
       .catch((error) => {

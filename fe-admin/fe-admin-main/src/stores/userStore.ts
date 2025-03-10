@@ -64,7 +64,13 @@ export const useUserStore = defineStore("userStore", () => {
         headers: authHeader(),
         params,
       });
-
+      if (response.data.code == "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
       userData.value = response.data.data;
       current_page.value = response.data.pagination.page;
       totalItems.value = response.data.pagination.total
@@ -86,6 +92,13 @@ export const useUserStore = defineStore("userStore", () => {
     await axios
       .post(`${API_URL}/user`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Created successfully",
         });
@@ -103,6 +116,13 @@ export const useUserStore = defineStore("userStore", () => {
     await axios
       .put(`${API_URL}/user`, data, { headers: authHeader() })
       .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Updated successfully",
         });
@@ -135,7 +155,14 @@ export const useUserStore = defineStore("userStore", () => {
   async function deleteUser(id: any) {
     await axios
       .delete(`${API_URL}/user/${id}`, { headers: authHeader() })
-      .then(() => {
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Deleted successfully",
         });
@@ -168,7 +195,14 @@ export const useUserStore = defineStore("userStore", () => {
   async function updateUserStatus(id: any) {
     await axios
       .put(`${API_URL}/user/${id}/active`, null, { headers: authHeader() })
-      .then(() => {
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
         toast({
           description: "Update Status successfully",
         });
