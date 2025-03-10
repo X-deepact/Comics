@@ -56,7 +56,9 @@ export const useGenreStore = defineStore("genreStore", () => {
       .then((response) => {
         genreData.value = response.data.data;
         current_page.value = response.data.pagination.page;
-        totalItems.value = response.data.pagination.total;
+        totalItems.value = response.data.pagination.total
+          ? response.data.pagination.total
+          : 0;
         page_size.value = response.data.pagination.page_size;
         isLoading.value = false;
       })
@@ -136,7 +138,7 @@ export const useGenreStore = defineStore("genreStore", () => {
     await axios
       .get(`${API_URL}/general/genres`, { headers: authHeader() })
       .then((response) => {
-        generalGenreData.value = response.data;
+        generalGenreData.value = response.data.data;
       })
       .catch((error) => {
         toast({

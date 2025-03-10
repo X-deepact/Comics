@@ -57,7 +57,9 @@ export const useChapterStore = defineStore("chapterStore", () => {
       .then((response) => {
         chaptersData.value = response.data.data;
         current_page.value = response.data.pagination.page;
-        totalItems.value = response.data.pagination.total;
+        totalItems.value = response.data.pagination.total
+          ? response.data.pagination.total
+          : 0;
         page_size.value = response.data.pagination.page_size;
         isLoading.value = false;
       })

@@ -57,24 +57,25 @@ export const useUserStore = defineStore("userStore", () => {
       const params = {
         page: current_page.value,
         page_size: page_size.value,
-        username: searchKeyword.value || undefined
+        username: searchKeyword.value || undefined,
       };
-      
-      const response = await axios.get(
-        `${API_URL}/user`, 
-        {
-          headers: authHeader(),
-          params
-        }
-      );
-      
+
+      const response = await axios.get(`${API_URL}/user`, {
+        headers: authHeader(),
+        params,
+      });
+
       userData.value = response.data.data;
       current_page.value = response.data.pagination.page;
-      totalItems.value = response.data.pagination.total;
+      totalItems.value = response.data.pagination.total
+        ? response.data.pagination.total
+        : 0;
       page_size.value = response.data.pagination.page_size;
     } catch (error: any) {
       toast({
-        description: `Error fetching user data: ${error.response?.data?.message || error.message}`,
+        description: `Error fetching user data: ${
+          error.response?.data?.message || error.message
+        }`,
         variant: "destructive",
       });
     } finally {
@@ -91,7 +92,9 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: `Error creating user: ${error.response?.data?.message || error.message}`,
+          description: `Error creating user: ${
+            error.response?.data?.message || error.message
+          }`,
           variant: "destructive",
         });
       });
@@ -106,7 +109,9 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: `Error updating user: ${error.response?.data?.message || error.message}`,
+          description: `Error updating user: ${
+            error.response?.data?.message || error.message
+          }`,
           variant: "destructive",
         });
       });
@@ -137,7 +142,9 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: `Error deleting user: ${error.response?.data?.message || error.message}`,
+          description: `Error deleting user: ${
+            error.response?.data?.message || error.message
+          }`,
           variant: "destructive",
         });
       });
@@ -168,7 +175,9 @@ export const useUserStore = defineStore("userStore", () => {
       })
       .catch((error) => {
         toast({
-          description: `Error updating user status: ${error.response?.data?.message || error.message}`,
+          description: `Error updating user status: ${
+            error.response?.data?.message || error.message
+          }`,
           variant: "destructive",
         });
       });

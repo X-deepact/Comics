@@ -54,7 +54,9 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
       .then((response) => {
         chapteritemsData.value = response.data.data;
         current_page.value = response.data.pagination.page;
-        totalItems.value = response.data.pagination.total;
+        totalItems.value = response.data.pagination.total
+          ? response.data.pagination.total
+          : 0;
         page_size.value = response.data.pagination.page_size;
         isLoading.value = false;
       })
@@ -76,7 +78,7 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
           headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
         }
       );
-      return response.data.data;
+      return response.data.data.data;
     } catch (error: any) {
       toast({
         description: error.message,

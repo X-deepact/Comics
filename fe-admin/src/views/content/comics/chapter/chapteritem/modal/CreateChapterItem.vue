@@ -34,6 +34,8 @@ import {
   getLocalTimeZone,
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
@@ -81,29 +83,28 @@ const setActiveFrom = () => {
     chapteritem.value.active_from = date.toISOString();
   }
 };
+const checkForm = () => {
+  if (!value.value || !image.value) {
+    toast({
+      description: "Fill in all data.",
+      variant: "destructive",
+    });
+    return false;
+  }
+  return true;
+}
 </script>
 <template>
-  <Dialog
-    :open="chapteritemStore.createDialogIsOpen"
-    @update:open="(value: boolean) => { chapteritemStore.createDialogIsOpen = value; }"
-  >
+  <Dialog :open="chapteritemStore.createDialogIsOpen"
+    @update:open="(value: boolean) => { chapteritemStore.createDialogIsOpen = value; }">
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Create Chapter Item</DialogTitle>
       </DialogHeader>
 
-      <img
-        v-if="previewUrl"
-        :src="previewUrl"
-        class="max-w-[200px] justify-self-center h-auto"
-      />
-      <Input
-        type="file"
-        placeholder="Image"
-        class="justify-self-center w-[50%]"
-        @change="handleFileChange"
-        accept="image/*"
-      />
+      <img v-if="previewUrl" :src="previewUrl" class="max-w-[200px] justify-self-center h-auto" />
+      <Input type="file" placeholder="Image" class="justify-self-center w-[50%]" @change="handleFileChange"
+        accept="image/*" />
 
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Page</Label>
@@ -113,15 +114,11 @@ const setActiveFrom = () => {
         <Label class="text-center w-1/4">Active From</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              :class="
-                cn(
-                  'w-[280px] justify-start text-left font-normal',
-                  !value && 'text-muted-foreground'
-                )
-              "
-            >
+            <Button variant="outline" :class="cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground'
+            )
+              ">
               <CalendarIcon class="mr-2 h-4 w-4" />
               {{
                 value
@@ -150,16 +147,12 @@ const setActiveFrom = () => {
         </Select>
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button
-          variant="secondary"
-          @click="chapteritemStore.createDialogIsOpen = false"
-        >
+        <Button variant="secondary" @click="chapteritemStore.createDialogIsOpen = false">
           Close
         </Button>
-        <Button
-          :disabled="isLoading"
-          @click="
-            async () => {
+        <Button :disabled="isLoading" @click="
+          async () => {
+            if (checkForm()) {
               isLoading = true;
               chapteritem.image = await chapteritemStore.uploadImage(image);
               chapteritem.chapter_id = chapterStore.selectedData.id;
@@ -170,10 +163,9 @@ const setActiveFrom = () => {
               chapteritemStore.createDialogIsOpen = false;
               resetChapterItem();
             }
-          "
-        >
-          <img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button
-        >
+          }
+        ">
+          <img v-if="isLoading" :src="loadingImg" size="icon" />Add</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
