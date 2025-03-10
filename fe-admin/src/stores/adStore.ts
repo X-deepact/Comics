@@ -118,9 +118,9 @@ export const useAdStore = defineStore("adStore", () => {
         { headers: authHeader() }
       );
 
-      if (response.data && response.data.data && response.data.data.items) {
-        adData.value = response.data.data.items;
-        totalItems.value = response.data.data.pagination.total;
+      if (response.data && response.data.pagination && response.data.data) {
+        adData.value = response.data.data;
+        totalItems.value = response.data.pagination.total;
       } else {
         adData.value = [];
         totalItems.value = 0;
