@@ -3,7 +3,8 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"net/http"
+	"errors"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"time"
@@ -18,6 +19,8 @@ func (s *Server) recommendRoutes() {
 	group.GET("", s.GetRecommends)
 	group.PUT("", s.UpdateRecommendById)
 	group.DELETE("/:id", s.DeleteRecommendById)
+	group.POST("/comic", s.CreateRecommendComic)
+	group.DELETE("/comic", s.DeleteRecommendComic)
 }
 
 // @Summary Create recommend
@@ -34,14 +37,25 @@ func (s *Server) recommendRoutes() {
 // @Router /api/recommend [post]
 func (s *Server) CreateRecommend(ctx *gin.Context) {
 	var req dto.RecommendCreateRequest
-	if err := req.Bind(ctx, s.config.FileStorage.RecommendFolder); err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+	if err := req.Bind(ctx); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
 		return
+	}
+
+	file, _ := ctx.FormFile("cover")
+	if file != nil {
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.RecommendFolder)
+		if err != nil {
+			config.BuildErrorResponse(ctx, err, nil)
+			return
+		}
+
+		req.Cover = fileName
 	}
 
 	userId, err := s.GetUserIdFromContext(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -60,9 +74,9 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 		UpdatedBy:  userId,
 	}
 
-	err = s.store.CreateRecomend(&recommendModel)
+	err = s.store.CreateRecommend(&recommendModel)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -74,12 +88,19 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 		ActiveFrom: recommendModel.ActiveFrom.Format(time.RFC3339),
 		ActiveTo:   recommendModel.ActiveTo.Format(time.RFC3339),
 		CreatedAt:  recommendModel.CreatedAt.Format(time.RFC3339),
-		CreatedBy:  recommendModel.CreatedBy,
 		UpdatedAt:  recommendModel.UpdatedAt.Format(time.RFC3339),
-		UpdatedBy:  recommendModel.UpdatedBy,
 	}
-	resp.BindCoverUrl(s.config)
-	ctx.JSON(http.StatusOK, resp)
+	mapUserIdName, err := s.store.GetUserNamesByIds([]int64{recommendModel.CreatedBy, recommendModel.UpdatedBy})
+	if err == nil && len(mapUserIdName) > 0 {
+		resp.CreatedByName = mapUserIdName[recommendModel.CreatedBy]
+		resp.UpdatedByName = mapUserIdName[recommendModel.UpdatedBy]
+	}
+
+	if resp.Cover != "" {
+		resp.Cover = s.minio.GetFileUrl(s.config.FileStorage.RecommendFolder, resp.Cover)
+	}
+
+	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary Get recommend by Id
@@ -97,31 +118,38 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 func (s *Server) GetRecommendById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponseMessage("invalid id"))
+		config.BuildErrorResponse(ctx, errors.New("invalid id"), nil)
 		return
 	}
 
 	recommend, err := s.store.GetRecommendById(id)
 	if err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	resp := dto.RecommendResponse{
 		Id:         recommend.Id,
 		Title:      recommend.Title,
-		Cover:      recommend.Cover,
 		Position:   recommend.Position,
 		ActiveFrom: recommend.ActiveFrom.Format(time.RFC3339),
 		CreatedAt:  recommend.CreatedAt.Format(time.RFC3339),
-		CreatedBy:  recommend.CreatedBy,
 		UpdatedAt:  recommend.UpdatedAt.Format(time.RFC3339),
-		UpdatedBy:  recommend.UpdatedBy,
+	}
+	mapUserIdName, err := s.store.GetUserNamesByIds([]int64{recommend.CreatedBy, recommend.UpdatedBy})
+	if err == nil && len(mapUserIdName) > 0 {
+		resp.CreatedByName = mapUserIdName[recommend.CreatedBy]
+		resp.UpdatedByName = mapUserIdName[recommend.UpdatedBy]
 	}
 	if recommend.ActiveTo != nil {
 		resp.ActiveTo = recommend.ActiveTo.Format(time.RFC3339)
 	}
-	ctx.JSON(http.StatusOK, resp)
+
+	if recommend.Cover != "" {
+		resp.Cover = s.minio.GetFileUrl(s.config.FileStorage.RecommendFolder, recommend.Cover)
+	}
+
+	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary List recommends
@@ -141,37 +169,47 @@ func (s *Server) GetRecommendById(ctx *gin.Context) {
 // @Router /api/recommend [get]
 func (s *Server) GetRecommends(ctx *gin.Context) {
 	var req dto.RequestQueryFilter
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	if err := ctx.Bind(&req); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	req.SortBy = config.GetSortBy(req.SortBy)
 	req.Sort = config.GetSortOrder(req.Sort)
 
-	recommend, total, err := s.store.GetRecommends(req)
+	recommends, total, err := s.store.GetRecommends(req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
-	resp := make([]dto.RecommendResponse, len(recommend))
-	for i, r := range recommend {
+	userIds := []int64{}
+	for _, r := range recommends {
+		userIds = append(userIds, r.CreatedBy, r.UpdatedBy)
+	}
+
+	mapUserIdName, _ := s.store.GetUserNamesByIds(userIds)
+
+	resp := make([]dto.RecommendResponse, len(recommends))
+	for i, r := range recommends {
 		resp[i] = dto.RecommendResponse{
-			Id:         r.Id,
-			Title:      r.Title,
-			Cover:      r.Cover,
-			Position:   r.Position,
-			ActiveFrom: r.ActiveFrom.Format(time.RFC3339),
-			CreatedAt:  r.CreatedAt.Format(time.RFC3339),
-			CreatedBy:  r.CreatedBy,
-			UpdatedAt:  r.UpdatedAt.Format(time.RFC3339),
-			UpdatedBy:  r.UpdatedBy,
+			Id:            r.Id,
+			Title:         r.Title,
+			Position:      r.Position,
+			ActiveFrom:    r.ActiveFrom.Format(time.RFC3339),
+			CreatedAt:     r.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:     r.UpdatedAt.Format(time.RFC3339),
+			CreatedByName: mapUserIdName[r.CreatedBy],
+			UpdatedByName: mapUserIdName[r.UpdatedBy],
 		}
 		if r.ActiveTo != nil {
 			resp[i].ActiveTo = r.ActiveTo.Format(time.RFC3339)
 		}
+
+		if r.Cover != "" {
+			resp[i].Cover = s.minio.GetFileUrl(s.config.FileStorage.RecommendFolder, r.Cover)
+		}
 	}
-	ListResponse(ctx, req.Page, req.PageSize, int(total), resp)
+	config.BuildListResponse(ctx, &common.Pagination{Page: req.Page, PageSize: req.PageSize, Total: int(total)}, resp)
 }
 
 // @Summary Update recommend by Id
@@ -188,14 +226,25 @@ func (s *Server) GetRecommends(ctx *gin.Context) {
 // @Router /api/recommend [put]
 func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	var req dto.RecommendUpdateRequest
-	if err := req.Bind(ctx, s.config.FileStorage.CoverFolder); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	if err := req.Bind(ctx); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
 		return
+	}
+
+	file, _ := ctx.FormFile("cover")
+	if file != nil {
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.RecommendFolder)
+		if err != nil {
+			config.BuildErrorResponse(ctx, err, nil)
+			return
+		}
+
+		req.Cover = fileName
 	}
 
 	recommend, err := s.store.GetRecommendById(req.Id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -214,24 +263,14 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 		isUpdate = true
 		recommend.Position = req.Position
 	}
-	if len(req.ActiveFrom) > 0 {
+	if req.ActiveFrom > 0 {
 		isUpdate = true
-		activeFrom, err := config.ConvertStringToDate(req.ActiveFrom)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
-			return
-		}
-		recommend.ActiveFrom = &activeFrom
+		recommend.ActiveFrom = config.FromLongValueToTime(req.ActiveFrom)
 	}
 
-	if len(req.ActiveTo) > 0 {
+	if req.ActiveTo > 0 {
 		isUpdate = true
-		activeTo, err := config.ConvertStringToDate(req.ActiveTo)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, err)
-			return
-		}
-		recommend.ActiveTo = &activeTo
+		recommend.ActiveTo = config.FromLongValueToTime(req.ActiveTo)
 	}
 
 	now := time.Now()
@@ -239,15 +278,15 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	if isUpdate {
 		userId, err := s.GetUserIdFromContext(ctx)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 		recommend.UpdatedAt = &now
 		recommend.UpdatedBy = userId
 
-		err = s.store.UpdateRecomend(recommend)
+		err = s.store.UpdateRecommend(recommend)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 		resp = &dto.RecommendResponse{
@@ -258,17 +297,24 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 			ActiveFrom: recommend.ActiveFrom.Format(time.RFC3339),
 			ActiveTo:   recommend.ActiveTo.Format(time.RFC3339),
 			CreatedAt:  recommend.CreatedAt.Format(time.RFC3339),
-			CreatedBy:  recommend.CreatedBy,
 			UpdatedAt:  recommend.UpdatedAt.Format(time.RFC3339),
-			UpdatedBy:  recommend.UpdatedBy,
+		}
+		mapUserIdName, err := s.store.GetUserNamesByIds([]int64{recommend.CreatedBy, recommend.UpdatedBy})
+		if err == nil && len(mapUserIdName) > 0 {
+			resp.CreatedByName = mapUserIdName[recommend.CreatedBy]
+			resp.UpdatedByName = mapUserIdName[recommend.UpdatedBy]
 		}
 	}
 
 	if resp != nil {
-		ctx.JSON(http.StatusOK, resp)
+		if resp.Cover != "" {
+			resp.Cover = s.minio.GetFileUrl(s.config.FileStorage.RecommendFolder, resp.Cover)
+		}
+
+		config.BuildSuccessResponse(ctx, resp)
 		return
 	}
-	ctx.JSON(http.StatusBadRequest, errorResponseMessage("error update recommend"))
+	config.BuildErrorResponse(ctx, errors.New("error update recommend"), nil)
 }
 
 // @Summary Delete recommend by Id
@@ -286,13 +332,13 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 func (s *Server) DeleteRecommendById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponseMessage("invalid id"))
+		config.BuildErrorResponse(ctx, errors.New("invalid id"), nil)
 		return
 	}
 
-	recommend, err := s.store.DeleteRecomendById(id)
+	recommend, err := s.store.DeleteRecommendById(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponseMessage(err.Error()))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -304,9 +350,85 @@ func (s *Server) DeleteRecommendById(ctx *gin.Context) {
 		ActiveFrom: recommend.ActiveFrom.Format(time.RFC3339),
 		ActiveTo:   recommend.ActiveTo.Format(time.RFC3339),
 		CreatedAt:  recommend.CreatedAt.Format(time.RFC3339),
-		CreatedBy:  recommend.CreatedBy,
 		UpdatedAt:  recommend.UpdatedAt.Format(time.RFC3339),
-		UpdatedBy:  recommend.UpdatedBy,
 	}
-	ctx.JSON(http.StatusOK, resp)
+
+	mapUserIdName, err := s.store.GetUserNamesByIds([]int64{recommend.CreatedBy, recommend.UpdatedBy})
+	if err == nil && len(mapUserIdName) > 0 {
+		resp.CreatedByName = mapUserIdName[recommend.CreatedBy]
+		resp.UpdatedByName = mapUserIdName[recommend.UpdatedBy]
+	}
+	config.BuildSuccessResponse(ctx, resp)
+}
+
+// @Summary Create recommend comic
+// @Description Create a new recommend comic
+// @Tags recommends
+// @Accept json
+// @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
+// @Param recommend body dto.RecommendComicRequest true "Recommend comic create Request"
+// @Security     BearerAuth
+// @Success 200 {object} dto.RecommendComicResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/recommend/comic [post]
+func (s *Server) CreateRecommendComic(ctx *gin.Context) {
+	var req dto.RecommendComicRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	recommendComicModel := model.RecommendComicModel{
+		RecommendId: req.RecommendId,
+		ComicId:     req.ComicId,
+	}
+
+	err := s.store.CreateRecommendComic(&recommendComicModel)
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	resp := dto.RecommendComicResponse{
+		Id:          recommendComicModel.Id,
+		RecommendId: recommendComicModel.RecommendId,
+		ComicId:     recommendComicModel.ComicId,
+	}
+
+	config.BuildSuccessResponse(ctx, resp)
+}
+
+// @Summary Delete recommend comic
+// @Description Delete a recommend comic
+// @Tags recommends
+// @Accept json
+// @Produce json
+// @Param     Authorization header string true "Bearer authorization token"
+// @Param recommend body dto.RecommendComicRequest true "Recommend comic create Request"
+// @Security     BearerAuth
+// @Success 200 {object} dto.RecommendComicResponse
+// @Failure 400 {object} dto.ResponseMessage "Invalid request"
+// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Router /api/recommend/comic [delete]
+func (s *Server) DeleteRecommendComic(ctx *gin.Context) {
+	var req dto.RecommendComicRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	recommendComic, err := s.store.DeleteRecommendComicById(req.ComicId, req.RecommendId)
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	resp := dto.RecommendComicResponse{
+		Id:          recommendComic.Id,
+		RecommendId: recommendComic.RecommendId,
+		ComicId:     recommendComic.ComicId,
+	}
+	config.BuildSuccessResponse(ctx, resp)
 }

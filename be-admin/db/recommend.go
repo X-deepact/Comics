@@ -7,7 +7,7 @@ import (
 	"pkg-common/model"
 )
 
-func (r *Queries) CreateRecomend(input *model.RecommendManagerModel) error {
+func (r *Queries) CreateRecommend(input *model.RecommendManagerModel) error {
 	return r.db.WithContext(context.Background()).Create(input).Error
 }
 
@@ -35,7 +35,7 @@ func (r *Queries) GetRecommendById(id int64) (*model.RecommendManagerModel, erro
 	return &recommend, nil
 }
 
-func (r *Queries) DeleteRecomendById(id int64) (*model.RecommendManagerModel, error) {
+func (r *Queries) DeleteRecommendById(id int64) (*model.RecommendManagerModel, error) {
 	resp := &model.RecommendManagerModel{}
 	if err := r.db.WithContext(context.Background()).First(resp, id).Error; err != nil {
 		return nil, err
@@ -48,6 +48,6 @@ func (r *Queries) DeleteRecomendById(id int64) (*model.RecommendManagerModel, er
 	return resp, nil
 }
 
-func (r *Queries) UpdateRecomend(input *model.RecommendManagerModel) error {
+func (r *Queries) UpdateRecommend(input *model.RecommendManagerModel) error {
 	return r.db.WithContext(context.Background()).Save(input).Error
 }

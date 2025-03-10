@@ -4,7 +4,6 @@ import (
 	"comics-admin/dto"
 	config "comics-admin/util"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func (s *Server) generalRouter() {
@@ -28,11 +27,11 @@ func (s *Server) generalRouter() {
 func (s *Server) getGeneralTiers(ctx *gin.Context) {
 	tiers, err := s.store.GetGeneralTiers()
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, tiers)
+	config.BuildSuccessResponse(ctx, tiers)
 }
 
 // @Summary Get general genres
@@ -50,17 +49,17 @@ func (s *Server) getGeneralTiers(ctx *gin.Context) {
 func (s *Server) getGeneralGenres(ctx *gin.Context) {
 	var req dto.GeneralGenreRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	genres, err := s.store.GetGeneralGenres(req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genres)
+	config.BuildSuccessResponse(ctx, genres)
 }
 
 // @Summary Get general authors
@@ -77,15 +76,15 @@ func (s *Server) getGeneralGenres(ctx *gin.Context) {
 func (s *Server) getGeneralAuthors(ctx *gin.Context) {
 	var req dto.GeneralAuthorRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	authors, err := s.store.GetGeneralAuthors(req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, authors)
+	config.BuildSuccessResponse(ctx, authors)
 }

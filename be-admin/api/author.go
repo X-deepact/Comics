@@ -3,7 +3,8 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"net/http"
+	"errors"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"time"
@@ -36,24 +37,24 @@ func (s *Server) authorRoutes() {
 func (s *Server) CreateAuthor(c *gin.Context) {
 	var req dto.AuthorRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 	birthDay, err := config.ConvertStringToDate(req.BirthDay)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
 	userId, err := s.GetUserIdFromContext(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
 	userName, err := s.GetUsernameFromContext(c)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -70,7 +71,7 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 
 	err = s.store.CreateAuthor(&authorMode)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -84,7 +85,7 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 		CreatedByName: userName,
 		UpdatedByName: userName,
 	}
-	c.JSON(http.StatusOK, resp)
+	config.BuildSuccessResponse(c, resp)
 }
 
 // @Summary Get GetAuthorById
@@ -102,24 +103,24 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 func (s *Server) GetAuthorById(c *gin.Context) {
 	id := c.Param("id")
 	if len(id) <= 0 {
-		c.JSON(http.StatusBadRequest, errorResponseMessage("id request author invalid"))
+		config.BuildErrorResponse(c, errors.New("id request author invalid"), nil)
 		return
 	}
 
 	idInt64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
 	author, err := s.store.GetAuthorById(idInt64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 	mapUserIdUserName, err := s.store.GetUserNamesByIds([]int64{author.CreatedBy, author.UpdatedBy})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -137,7 +138,7 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 	if updatedByName, ok := mapUserIdUserName[author.UpdatedBy]; ok {
 		resp.UpdatedByName = updatedByName
 	}
-	c.JSON(http.StatusOK, resp)
+	config.BuildSuccessResponse(c, resp)
 }
 
 // @Summary List GetAuthors
@@ -159,7 +160,7 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 func (s *Server) GetAuthors(c *gin.Context) {
 	var req dto.RequestQueryFilter
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -168,7 +169,7 @@ func (s *Server) GetAuthors(c *gin.Context) {
 
 	authors, total, err := s.store.GetAuthors(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -179,7 +180,7 @@ func (s *Server) GetAuthors(c *gin.Context) {
 
 	mapUserIdUserName, err := s.store.GetUserNamesByIds(userIds)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -200,7 +201,7 @@ func (s *Server) GetAuthors(c *gin.Context) {
 			resp[i].UpdatedByName = updatedByName
 		}
 	}
-	ListResponse(c, req.Page, req.PageSize, int(total), resp)
+	config.BuildListResponse(c, &common.Pagination{Page: req.Page, PageSize: req.PageSize, Total: int(total)}, resp)
 }
 
 // @Summary Update author by Id
@@ -218,14 +219,14 @@ func (s *Server) GetAuthors(c *gin.Context) {
 func (s *Server) UpdateAuthorById(c *gin.Context) {
 	var req dto.AuthorUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 
 	}
 
 	author, err := s.store.GetAuthorById(req.Id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 
@@ -243,7 +244,7 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 	if len(req.BirthDay) > 0 {
 		bConvert, err := config.ConvertStringToDate(req.BirthDay)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			config.BuildErrorResponse(c, err, nil)
 			return
 		}
 		isUpdate = true
@@ -255,7 +256,7 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 		now := time.Now()
 		userId, err := s.GetUserIdFromContext(c)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, errorResponse(err))
+			config.BuildErrorResponse(c, err, nil)
 			return
 		}
 		author.UpdatedAt = &now
@@ -263,7 +264,7 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 
 		modelResponse, err := s.store.UpdateAuthor(author)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			config.BuildErrorResponse(c, err, nil)
 			return
 		}
 
@@ -278,10 +279,10 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 	}
 
 	if resp != nil {
-		c.JSON(http.StatusOK, resp)
+		config.BuildSuccessResponse(c, resp)
 		return
 	}
-	c.JSON(http.StatusInternalServerError, errorResponseMessage("error update author"))
+	config.BuildErrorResponse(c, errors.New("error update author"), nil)
 }
 
 // @Summary Delete author by Id
@@ -299,18 +300,18 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 func (a *Server) DeleteAuthorById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponseMessage("invalid id"))
+		config.BuildErrorResponse(c, errors.New("invalid id"), nil)
 		return
 	}
 
 	author, err := a.store.DeleteAuthorById(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponseMessage(err.Error()))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 	mapUserIdUserName, err := a.store.GetUserNamesByIds([]int64{author.CreatedBy, author.UpdatedBy})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(c, err, nil)
 		return
 	}
 	resp := dto.AuthorResponse{
@@ -327,5 +328,5 @@ func (a *Server) DeleteAuthorById(c *gin.Context) {
 	if updatedByName, ok := mapUserIdUserName[author.UpdatedBy]; ok {
 		resp.UpdatedByName = updatedByName
 	}
-	c.JSON(http.StatusOK, resp)
+	config.BuildSuccessResponse(c, resp)
 }

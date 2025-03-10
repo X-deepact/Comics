@@ -2448,6 +2448,120 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/recommend/comic": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new recommend comic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recommends"
+                ],
+                "summary": "Create recommend comic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Recommend comic create Request",
+                        "name": "recommend",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendComicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a recommend comic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recommends"
+                ],
+                "summary": "Delete recommend comic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Recommend comic create Request",
+                        "name": "recommend",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendComicRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseMessage"
+                        }
+                    }
+                }
+            }
+        },
         "/api/recommend/{id}": {
             "get": {
                 "security": [
@@ -3650,6 +3764,17 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ComicRecommendResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ComicResponse": {
             "type": "object",
             "properties": {
@@ -3902,6 +4027,31 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RecommendComicRequest": {
+            "type": "object",
+            "properties": {
+                "comic_id": {
+                    "type": "integer"
+                },
+                "recommend_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RecommendComicResponse": {
+            "type": "object",
+            "properties": {
+                "comic_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "recommend_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.RecommendCreateRequest": {
             "type": "object",
             "properties": {
@@ -3931,14 +4081,20 @@ const docTemplate = `{
                 "active_to": {
                     "type": "string"
                 },
+                "comics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ComicRecommendResponse"
+                    }
+                },
                 "cover": {
                     "type": "string"
                 },
                 "created_at": {
                     "type": "string"
                 },
-                "created_by": {
-                    "type": "integer"
+                "created_by_name": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -3952,8 +4108,8 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "updated_by": {
-                    "type": "integer"
+                "updated_by_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3961,10 +4117,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "active_from": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "active_to": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "cover": {
                     "type": "string"

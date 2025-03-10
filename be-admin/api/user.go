@@ -5,7 +5,7 @@ import (
 	config "comics-admin/util"
 	"errors"
 	"fmt"
-	"net/http"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"strings"
@@ -116,36 +116,36 @@ func (s *Server) userRouter() {
 func (s *Server) login(ctx *gin.Context) {
 	var req dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	user, err := s.store.GetUserLogin(req.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("username or password is incorrect"), nil)
+			config.BuildErrorResponse(ctx, errors.New("username or password is incorrect"), nil)
 			return
 		}
 
-		config.BuildErrorResponse(ctx, http.StatusNotFound, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	err = config.CheckPassword(req.Password, user.HashPassword)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("username or password is incorrect"), nil)
+		config.BuildErrorResponse(ctx, errors.New("username or password is incorrect"), nil)
 		return
 	}
 
 	accessToken, accessPayload, err := s.tokenMaker.CreateToken(user.Id, req.Username, user.RoleName, s.config.Source.AccessTokenDuration)
 	fmt.Printf("%s", accessToken)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if user.Avatar != "" {
-		user.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, user.Avatar)
+		user.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, user.Avatar)
 	}
 
 	res := dto.LoginResponse{
@@ -169,7 +169,7 @@ func (s *Server) login(ctx *gin.Context) {
 			TierCode:    user.TierCode,
 		},
 	}
-	ctx.JSON(http.StatusOK, res)
+	config.BuildSuccessResponse(ctx, res)
 }
 
 // @Summary Create a new user
@@ -200,13 +200,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExist(req.Username, req.Phone, req.Email)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -223,7 +223,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
+		config.BuildErrorResponse(ctx, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -233,13 +233,13 @@ func (s *Server) createUser(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -248,7 +248,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
@@ -257,7 +257,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	hashPassword, err := config.HashPassword(req.Password)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -277,9 +277,9 @@ func (s *Server) createUser(ctx *gin.Context) {
 	//profile
 	fileName := ""
 	if file != nil {
-		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
+		fileName, err = s.minio.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 	}
@@ -298,7 +298,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 	//role
 	roleAdmin, err := s.store.GetRole(config.USER)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -315,21 +315,21 @@ func (s *Server) createUser(ctx *gin.Context) {
 
 	err = s.store.CreateUser(userSave)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(userSave.Id)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if userRes.Avatar != "" {
-		userRes.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, userRes.Avatar)
+		userRes.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, userRes.Avatar)
 	}
 
-	ctx.JSON(http.StatusOK, userRes)
+	config.BuildSuccessResponse(ctx, userRes)
 }
 
 // @Summary Get a user
@@ -346,21 +346,21 @@ func (s *Server) createUser(ctx *gin.Context) {
 func (s *Server) getUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	user, err := s.store.GetUser(int64(id))
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if user.Avatar != "" {
-		user.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, user.Avatar)
+		user.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, user.Avatar)
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	config.BuildSuccessResponse(ctx, user)
 }
 
 // @Summary List users
@@ -386,30 +386,29 @@ func (s *Server) getUser(ctx *gin.Context) {
 func (s *Server) getUsers(ctx *gin.Context) {
 	var req dto.UserListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	users, total, err := s.store.GetUsers(req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	for _, user := range users {
 		if user.Avatar != "" {
-			user.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, user.Avatar)
+			user.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, user.Avatar)
 		}
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"pagination": gin.H{
-			"page":      req.Page,
-			"page_size": req.PageSize,
-			"total":     total,
+	config.BuildListResponse(ctx,
+		&common.Pagination{
+			Page:     req.Page,
+			PageSize: req.PageSize,
+			Total:    int(total),
 		},
-		"data": users,
-	})
+		users)
 }
 
 // @Summary Update a new user
@@ -439,13 +438,13 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExistNotMe(req.ID, req.Username, req.Phone, req.Email)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -462,7 +461,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
+		config.BuildErrorResponse(ctx, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -472,13 +471,13 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
@@ -487,7 +486,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
@@ -496,7 +495,7 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	user, err := s.store.GetUserData(req.ID)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -512,9 +511,9 @@ func (s *Server) updateUser(ctx *gin.Context) {
 	//profile
 	fileName := ""
 	if file != nil {
-		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
+		fileName, err = s.minio.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
@@ -528,21 +527,21 @@ func (s *Server) updateUser(ctx *gin.Context) {
 
 	err = s.store.UpdateUser(user)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if userRes.Avatar != "" {
-		userRes.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, userRes.Avatar)
+		userRes.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, userRes.Avatar)
 	}
 
-	ctx.JSON(http.StatusOK, userRes)
+	config.BuildSuccessResponse(ctx, userRes)
 }
 
 // @Summary Delete a user
@@ -559,31 +558,28 @@ func (s *Server) updateUser(ctx *gin.Context) {
 func (s *Server) deleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	if err := s.store.DeleteUser(int64(id), userIDInt64); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "User successfully deleted",
-	})
+	config.BuildSuccessResponse(ctx, nil)
 }
 
 // @Summary Activate/Deactivate a user
@@ -600,28 +596,28 @@ func (s *Server) deleteUser(ctx *gin.Context) {
 func (s *Server) activeUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	if err := s.store.ActiveUser(int64(id), userIDInt64); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{Status: "success", Message: "User successfully activated/deactivated"})
+	config.BuildSuccessResponse(ctx, nil)
 }
 
 // @Summary Get profile
@@ -638,27 +634,27 @@ func (s *Server) getProfile(ctx *gin.Context) {
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	user, err := s.store.GetUser(userIDInt64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if user.Avatar != "" {
-		user.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, user.Avatar)
+		user.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, user.Avatar)
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	config.BuildSuccessResponse(ctx, user)
 }
 
 // @Summary Update profile
@@ -686,26 +682,26 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	// Bind form-data request
 	if err := ctx.ShouldBind(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	// Extract user ID from context
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	userExist, err := s.store.CheckUserExistNotMe(userIDInt64, req.Username, req.Phone, req.Email)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -722,7 +718,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 			list = append(list, "email")
 		}
 
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, errors.New(strings.Join(list, ", ")+" already exist"), nil)
+		config.BuildErrorResponse(ctx, errors.New(strings.Join(list, ", ")+" already exist"), nil)
 		return
 	}
 
@@ -734,7 +730,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	if req.Birthday != "" {
 		bConvert, err := config.ConvertStringToDate(req.Birthday)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
@@ -743,7 +739,7 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	user, err := s.store.GetUserData(userIDInt64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -759,9 +755,9 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 	//profile
 	fileName := ""
 	if file != nil {
-		fileName, err = config.SaveImage(file, s.config.FileStorage.AvatarFolder)
+		fileName, err = s.minio.SaveImage(file, s.config.FileStorage.AvatarFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
@@ -774,21 +770,21 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 
 	err = s.store.UpdateUser(user)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userRes, err := s.store.GetUser(user.Id)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if userRes.Avatar != "" {
-		userRes.Avatar = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.AvatarFolder, userRes.Avatar)
+		userRes.Avatar = s.minio.GetFileUrl(s.config.FileStorage.AvatarFolder, userRes.Avatar)
 	}
 
-	ctx.JSON(http.StatusOK, userRes)
+	config.BuildSuccessResponse(ctx, userRes)
 }
 
 // @Summary Change password
@@ -804,48 +800,45 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 func (s *Server) changePassword(ctx *gin.Context) {
 	var req dto.UserChangePasswordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, exists := ctx.Get("user_id")
 	if !exists {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("user not authenticated"), nil)
+		config.BuildErrorResponse(ctx, errors.New("user not authenticated"), nil)
 		return
 	}
 
 	userIDInt64, ok := userID.(int64)
 	if !ok {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, errors.New("invalid user ID type"), nil)
+		config.BuildErrorResponse(ctx, errors.New("invalid user ID type"), nil)
 		return
 	}
 
 	user, err := s.store.GetUserData(userIDInt64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	err = config.CheckPassword(req.CurrentPassword, user.HashPassword)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, errors.New("current password is incorrect"), nil)
+		config.BuildErrorResponse(ctx, errors.New("current password is incorrect"), nil)
 		return
 	}
 
 	hashPassword, err := config.HashPassword(req.NewPassword)
 
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.ChangePassword(userIDInt64, hashPassword); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Password changed successfully",
-	})
+	config.BuildSuccessResponse(ctx, nil)
 }

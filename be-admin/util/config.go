@@ -23,7 +23,11 @@ type ApiFileConfig struct {
 }
 
 type FileStorageConfig struct {
-	RootFolder        string `mapstructure:"ROOT_FOLDER"`
+	Endpoint          string `mapstructure:"ENDPOINT"`
+	AccessKey         string `mapstructure:"ACCESS_KEY"`
+	SecretKey         string `mapstructure:"SECRET_KEY"`
+	BucketName        string `mapstructure:"BUCKET_NAME"`
+	UseSSL            bool   `mapstructure:"USE_SSL"`
 	AvatarFolder      string `mapstructure:"AVATAR_FOLDER"`
 	CoverFolder       string `mapstructure:"COMIC_COVER_FOLDER"`
 	ChapterItemFolder string `mapstructure:"CHAPTER_ITEM_FOLDER"`

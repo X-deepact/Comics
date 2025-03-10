@@ -4,7 +4,7 @@ import (
 	"comics-admin/dto"
 	config "comics-admin/util"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 )
@@ -35,13 +35,13 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	var req dto.ChapterRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -55,12 +55,11 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	}
 
 	if err := s.store.CreateChapter(&chapter); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, chapter)
-
+	config.BuildSuccessResponse(ctx, chapter)
 }
 
 // @Summary Get a chapter
@@ -77,17 +76,17 @@ func (s *Server) createChapter(ctx *gin.Context) {
 func (s *Server) getChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	chapter, err := s.store.GetChapter(id)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, chapter)
+	config.BuildSuccessResponse(ctx, chapter)
 }
 
 // @Summary Get chapters
@@ -108,17 +107,23 @@ func (s *Server) getChapters(ctx *gin.Context) {
 	var req dto.ChapterListRequest
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	chapters, total, err := s.store.ListChapters(req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ListResponse(ctx, req.Page, req.PageSize, int(total), chapters)
+	pagination := common.Pagination{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Total:    int(total),
+	}
+
+	config.BuildListResponse(ctx, &pagination, chapters)
 }
 
 // @Summary Update a chapter
@@ -136,13 +141,13 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 	var req dto.ChapterUpdateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userId, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -156,11 +161,11 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 	}
 
 	if err := s.store.UpdateChapter(&chapter); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, chapter)
+	config.BuildSuccessResponse(ctx, chapter)
 }
 
 // @Summary Delete a chapter
@@ -176,19 +181,16 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 func (s *Server) deleteChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteChapter(id); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Record deleted successfully",
-	})
+	config.BuildSuccessResponse(ctx, "Record deleted successfully")
 }
 
 // @Summary Active a chapter
@@ -204,23 +206,20 @@ func (s *Server) deleteChapter(ctx *gin.Context) {
 func (s *Server) activeChapter(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.ActiveChapter(id, userID); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Record updated successfully",
-	})
+	config.BuildSuccessResponse(ctx, "Record updated successfully")
 }

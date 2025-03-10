@@ -2,8 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"pkg-common/common"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ListResponse(ctx *gin.Context, page, pageSize, total int, data interface{}) {
@@ -15,6 +17,15 @@ func ListResponse(ctx *gin.Context, page, pageSize, total int, data interface{})
 		},
 		"data": data,
 	})
+}
+
+func ListResponseApi(ctx *gin.Context, page, pageSize, total int, data interface{}) {
+	pagination := common.Pagination{
+		Page:     page,
+		PageSize: pageSize,
+		Total:    total,
+	}
+	ctx.JSON(http.StatusOK, common.ApiResponse(data, &pagination, nil))
 }
 
 func ExtractUserID(ctx *gin.Context) (int64, error) {

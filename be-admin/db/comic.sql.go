@@ -4,9 +4,10 @@ import (
 	"comics-admin/dto"
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"pkg-common/common"
 	"pkg-common/model"
+
+	"gorm.io/gorm"
 )
 
 func (q *Queries) CreateComic(req *dto.ComicRequest) (*model.ComicModel, error) {

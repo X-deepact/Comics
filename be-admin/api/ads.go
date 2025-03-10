@@ -2,7 +2,8 @@ package api
 
 import (
 	"comics-admin/dto"
-	"net/http"
+	config "comics-admin/util"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"time"
@@ -27,13 +28,13 @@ func (s *Server) createAds(ctx *gin.Context) {
 	var req dto.AdsCreateRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -53,17 +54,20 @@ func (s *Server) createAds(ctx *gin.Context) {
 	}
 
 	if err := s.store.CreateAds(ads); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	response, err := s.store.GetAds(ads.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Advertisement created successfully",
+		"data":    response,
+	})
 }
 
 // @Summary Get advertisement list
@@ -86,28 +90,21 @@ func (s *Server) createAds(ctx *gin.Context) {
 func (s *Server) getAdsList(ctx *gin.Context) {
 	var req dto.AdsListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	ads, total, err := s.store.GetAdsList(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": "Get advertisements list successfully",
-		"data": gin.H{
-			"pagination": gin.H{
-				"page":      req.Page,
-				"page_size": req.PageSize,
-				"total":     total,
-			},
-			"items": ads,
-		},
-	})
+	config.BuildListResponse(ctx, &common.Pagination{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Total:    int(total),
+	}, ads)
 }
 
 // @Summary Update advertisement
@@ -125,13 +122,13 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 func (s *Server) updateAds(ctx *gin.Context) {
 	var req dto.AdsUpdateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -152,17 +149,20 @@ func (s *Server) updateAds(ctx *gin.Context) {
 	}
 
 	if err := s.store.UpdateAds(ads); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	response, err := s.store.GetAds(ads.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Advertisement updated successfully",
+		"data":    response,
+	})
 }
 
 // @Summary Delete advertisement
@@ -179,16 +179,18 @@ func (s *Server) updateAds(ctx *gin.Context) {
 func (s *Server) deleteAds(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteAds(id); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{Status: "success", Message: "Advertisement successfully deleted"})
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Advertisement successfully deleted",
+	})
 }
 
 // @Summary Update advertisement status
@@ -206,30 +208,29 @@ func (s *Server) deleteAds(ctx *gin.Context) {
 func (s *Server) updateAdsStatus(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	var req dto.AdsUpdateStatusRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.UpdateAdsStatus(id, req.Status); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	// Get updated ads information
 	response, err := s.store.GetAds(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+	config.BuildSuccessResponse(ctx, gin.H{
 		"message": "Advertisement status updated successfully",
 		"data":    response,
 	})
@@ -250,22 +251,21 @@ func (s *Server) updateAdsStatus(ctx *gin.Context) {
 func (s *Server) getAdsById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	response, err := s.store.GetAds(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			ctx.JSON(http.StatusNotFound, dto.ResponseMessage{Status: "error", Message: "Advertisement not found"})
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
+	config.BuildSuccessResponse(ctx, gin.H{
 		"message": "Get advertisement successfully",
 		"data":    response,
 	})

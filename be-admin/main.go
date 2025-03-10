@@ -43,11 +43,6 @@ func main() {
 
 	store := db.NewStore(database)
 
-	if err := config.InitFolder(conf); err != nil {
-		log.Printf("Failed to initialize directory: %v", err)
-		return
-	}
-
 	go runHttpServer(store, conf)
 
 	listenForShutdown()

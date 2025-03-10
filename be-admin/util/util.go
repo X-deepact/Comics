@@ -1,6 +1,8 @@
 package config
 
 import (
+	"net/http"
+	"pkg-common/common"
 	"strings"
 	"time"
 
@@ -27,22 +29,27 @@ var (
 	}
 )
 
-type Response struct {
-	Data    interface{} `json:"data,omitempty"`
-	Message interface{} `json:"message,omitempty"`
-	Code    interface{} `json:"code,omitempty"`
+/*
+	type Response struct {
+		Data    interface{} `json:"data,omitempty"`
+		Message interface{} `json:"message,omitempty"`
+		Code    interface{} `json:"code,omitempty"`
+	}
+*/
+func BuildListResponse(ctx *gin.Context, pagination *common.Pagination, data interface{}) {
+	BuildStandardResponse(ctx, common.ApiResponse(data, pagination, nil))
 }
 
-func BuildErrorResponse(ctx *gin.Context, status int, err error, body interface{}) {
-	BuildStandardResponse(ctx, status, Response{Message: err.Error(), Code: status, Data: body})
+func BuildErrorResponse(ctx *gin.Context, err error, body interface{}) {
+	BuildStandardResponse(ctx, common.ApiResponse(nil, nil, err))
 }
 
-func BuildSuccessResponse(ctx *gin.Context, status int, body interface{}) {
-	BuildStandardResponse(ctx, status, Response{Message: "Successful", Code: status, Data: body})
+func BuildSuccessResponse(ctx *gin.Context, body interface{}) {
+	BuildStandardResponse(ctx, common.ApiResponse(body, nil, nil))
 }
 
-func BuildStandardResponse(ctx *gin.Context, status int, resp Response) {
-	ctx.JSON(status, Response{Data: resp.Data, Code: resp.Code, Message: resp.Message})
+func BuildStandardResponse(ctx *gin.Context, resp common.Response) {
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func GetQuery(ctx *gin.Context, key string) string {
@@ -51,6 +58,11 @@ func GetQuery(ctx *gin.Context, key string) string {
 
 func ConvertStringToDate(dateString string) (time.Time, error) {
 	return time.Parse("2006-01-02", dateString)
+}
+
+func FromLongValueToTime(value int64) *time.Time {
+	t := time.UnixMilli(value)
+	return &t
 }
 
 func GetSortOrder(sortOrder string) string {

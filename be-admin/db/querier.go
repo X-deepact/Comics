@@ -76,11 +76,13 @@ type Querier interface {
 	DeleteAuthorById(id int64) (*model.AuthorModel, error)
 	GetAuthorsOfAComic(comicId int64) ([]dto.AuthorResponse, error)
 
-	CreateRecomend(r *model.RecommendManagerModel) error
+	CreateRecommend(r *model.RecommendManagerModel) error
 	GetRecommendById(id int64) (*model.RecommendManagerModel, error)
 	GetRecommends(req dto.RequestQueryFilter) ([]*model.RecommendManagerModel, int64, error)
-	DeleteRecomendById(id int64) (*model.RecommendManagerModel, error)
-	UpdateRecomend(r *model.RecommendManagerModel) error
+	DeleteRecommendById(id int64) (*model.RecommendManagerModel, error)
+	UpdateRecommend(r *model.RecommendManagerModel) error
+	CreateRecommendComic(r *model.RecommendComicModel) error
+	DeleteRecommendComicById(comicId, recommendId int64) (*model.RecommendComicModel, error)
 }
 
 var _ Querier = (*Queries)(nil)

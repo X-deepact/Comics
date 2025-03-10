@@ -216,6 +216,9 @@ func (q *Queries) GetUserNamesByIds(ids []int64) (map[int64]string, error) {
 	if err := q.db.WithContext(context.Background()).Where("id in (?)", ids).Find(&users).Error; err != nil {
 		return nil, err
 	}
+	if len(users) == 0 {
+		return map[int64]string{}, nil
+	}
 	names := make(map[int64]string)
 	for _, user := range users {
 		names[user.Id] = user.Username

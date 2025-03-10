@@ -247,6 +247,13 @@ definitions:
     - comic_id
     - id
     type: object
+  dto.ComicRecommendResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   dto.ComicResponse:
     properties:
       active:
@@ -414,6 +421,22 @@ definitions:
       total:
         type: integer
     type: object
+  dto.RecommendComicRequest:
+    properties:
+      comic_id:
+        type: integer
+      recommend_id:
+        type: integer
+    type: object
+  dto.RecommendComicResponse:
+    properties:
+      comic_id:
+        type: integer
+      id:
+        type: integer
+      recommend_id:
+        type: integer
+    type: object
   dto.RecommendCreateRequest:
     properties:
       active_from:
@@ -433,12 +456,16 @@ definitions:
         type: string
       active_to:
         type: string
+      comics:
+        items:
+          $ref: '#/definitions/dto.ComicRecommendResponse'
+        type: array
       cover:
         type: string
       created_at:
         type: string
-      created_by:
-        type: integer
+      created_by_name:
+        type: string
       id:
         type: integer
       position:
@@ -447,15 +474,15 @@ definitions:
         type: string
       updated_at:
         type: string
-      updated_by:
-        type: integer
+      updated_by_name:
+        type: string
     type: object
   dto.RecommendUpdateRequest:
     properties:
       active_from:
-        type: string
+        type: integer
       active_to:
-        type: string
+        type: integer
       cover:
         type: string
       id:
@@ -2199,6 +2226,79 @@ paths:
       security:
       - BearerAuth: []
       summary: Get recommend by Id
+      tags:
+      - recommends
+  /api/recommend/comic:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a recommend comic
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Recommend comic create Request
+        in: body
+        name: recommend
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecommendComicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Delete recommend comic
+      tags:
+      - recommends
+    post:
+      consumes:
+      - application/json
+      description: Create a new recommend comic
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Recommend comic create Request
+        in: body
+        name: recommend
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecommendComicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RecommendComicResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ResponseMessage'
+      security:
+      - BearerAuth: []
+      summary: Create recommend comic
       tags:
       - recommends
   /api/user:

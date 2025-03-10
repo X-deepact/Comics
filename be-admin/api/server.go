@@ -5,7 +5,9 @@ import (
 	"comics-admin/token"
 	config "comics-admin/util"
 	"comics-admin/val"
+	"context"
 	"fmt"
+	"github.com/minio/minio-go/v7"
 	"net/http"
 	"os"
 
@@ -25,6 +27,7 @@ type Server struct {
 	store      db.Store
 	config     config.Config
 	tokenMaker token.Maker
+	minio      *config.MinioConfig
 }
 
 func NewServer(store db.Store, config config.Config) (*Server, error) {
@@ -43,6 +46,8 @@ func NewServer(store db.Store, config config.Config) (*Server, error) {
 	}
 
 	server.setUpRouter()
+
+	server.setUpMinio()
 
 	return server, nil
 
@@ -69,9 +74,6 @@ func (s *Server) setUpRouter() {
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
 		AllowHeaders: []string{"*"}, // Allow all headers
 	}))
-
-	fileH := router.Group("/api/file")
-	fileH.Static("/", s.config.FileStorage.RootFolder)
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
@@ -160,4 +162,52 @@ func (r *Server) GetUsernameFromContext(ctx *gin.Context) (string, error) {
 		return "", fmt.Errorf("claims not found")
 	}
 	return issuer.(string), nil
+}
+
+func (s *Server) setUpMinio() {
+	minioConfig := config.NewMinioClient(
+		s.config.FileStorage.Endpoint,
+		s.config.FileStorage.AccessKey,
+		s.config.FileStorage.SecretKey,
+		s.config.FileStorage.BucketName,
+		s.config.FileStorage.UseSSL,
+		s.config.ApiFile.Url,
+	)
+
+	// Set bucket public
+	err := setBucketPublic(minioConfig)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to set bucket policy")
+	}
+
+	s.minio = minioConfig
+}
+
+func setBucketPublic(minioConfig *config.MinioConfig) error {
+	// Check bucket exists
+	ctx := context.Background()
+	exists, err := minioConfig.Client.BucketExists(ctx, minioConfig.BucketName)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		if err = minioConfig.Client.MakeBucket(ctx, minioConfig.BucketName, minio.MakeBucketOptions{}); err != nil {
+			return err
+		}
+	}
+
+	policy := fmt.Sprintf(`{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::%s/*"
+            }
+        ]
+    }`, minioConfig.BucketName)
+
+	return minioConfig.Client.SetBucketPolicy(ctx, minioConfig.BucketName, policy)
 }

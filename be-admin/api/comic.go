@@ -3,7 +3,7 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"net/http"
+	"pkg-common/common"
 	"strconv"
 	"strings"
 
@@ -44,16 +44,16 @@ func (s *Server) createComic(ctx *gin.Context) {
 	var req dto.ComicRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	file, _ := ctx.FormFile("cover")
 
 	if file != nil {
-		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.CoverFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 		req.Cover = fileName
@@ -61,18 +61,18 @@ func (s *Server) createComic(ctx *gin.Context) {
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 	req.CreatedBy = userID
 
 	comic, err := s.store.CreateComic(&req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, comic)
+	config.BuildSuccessResponse(ctx, comic)
 }
 
 // @Summary Get a comic
@@ -93,13 +93,13 @@ func (s *Server) getComic(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	comic, err := s.store.GetComic(uri.ID)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -111,7 +111,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 		userUpdate, _ = s.store.GetUser(comic.UpdatedBy)
 	}
 	if !strings.HasPrefix(comic.Cover, "http") {
-		comic.Cover = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, comic.Cover)
+		comic.Cover = s.minio.GetFileUrl(s.config.FileStorage.CoverFolder, comic.Cover)
 	}
 
 	genres, _ := s.store.GetGenresOfAComic(comic.ID)
@@ -129,8 +129,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 		returnComic.UpdatedByUser = *userUpdate
 	}
 
-	ctx.JSON(http.StatusOK, returnComic)
-
+	config.BuildSuccessResponse(ctx, returnComic)
 }
 
 // @Summary List comics
@@ -156,7 +155,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 func (s *Server) getComics(ctx *gin.Context) {
 	var req dto.ComicListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -166,7 +165,7 @@ func (s *Server) getComics(ctx *gin.Context) {
 
 	comics, total, err := s.store.ListComics(req)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -175,7 +174,7 @@ func (s *Server) getComics(ctx *gin.Context) {
 
 	for i, comic := range comics {
 		if !strings.HasPrefix(comic.Cover, "http") {
-			comic.Cover = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, comic.Cover)
+			comic.Cover = s.minio.GetFileUrl(s.config.FileStorage.CoverFolder, comic.Cover)
 		}
 		comicsReturn[i] = dto.ComicReturn{
 			ComicResponse: comic,
@@ -203,7 +202,13 @@ func (s *Server) getComics(ctx *gin.Context) {
 		comicsReturn[i].Authors = authors
 	}
 
-	ListResponse(ctx, req.Page, req.PageSize, int(total), comicsReturn)
+	pagination := common.Pagination{
+		Total:    int(total),
+		PageSize: req.PageSize,
+		Page:     req.Page,
+	}
+
+	config.BuildListResponse(ctx, &pagination, comicsReturn)
 }
 
 // @Summary Update comic
@@ -230,13 +235,13 @@ func (s *Server) updateComic(ctx *gin.Context) {
 	var req dto.ComicUpdateRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -246,9 +251,9 @@ func (s *Server) updateComic(ctx *gin.Context) {
 
 	if file != nil {
 
-		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.CoverFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 		req.Cover = fileName
@@ -256,12 +261,11 @@ func (s *Server) updateComic(ctx *gin.Context) {
 	comic, err := s.store.UpdateComic(&req)
 
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &comic)
-
+	config.BuildSuccessResponse(ctx, comic)
 }
 
 // @Summary Delete a comic
@@ -281,19 +285,16 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteComic(uri.ID); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Comic successfully deleted",
-	})
+	config.BuildSuccessResponse(ctx, "Comic successfully deleted")
 }
 
 // @Summary Upload a comic cover
@@ -310,27 +311,23 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 func (s *Server) saveCover(ctx *gin.Context) {
 	file, err := ctx.FormFile("cover")
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	fileLink := ""
 
 	if file != nil {
-		fileName, err := config.SaveImage(file, s.config.FileStorage.CoverFolder)
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.CoverFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
-		fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.CoverFolder, fileName)
+		fileLink = s.minio.GetFileUrl(s.config.FileStorage.CoverFolder, fileName)
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Comic cover uploaded successfully",
-		Data:    fileLink,
-	})
+	config.BuildSuccessResponse(ctx, fileLink)
 }
 
 // @Summary Activate/Deactivate a comic
@@ -348,21 +345,20 @@ func (s *Server) saveCover(ctx *gin.Context) {
 func (s *Server) activeComic(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	userID, err := ExtractUserID(ctx)
 	if err != nil {
-		config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.ActiveComic(int64(id), userID); err != nil {
-		config.BuildErrorResponse(ctx, http.StatusInternalServerError, err, nil)
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{Status: "success", Message: "User successfully activated/deactivated"})
-
+	config.BuildSuccessResponse(ctx, "Comic activated/deactivated successfully")
 }

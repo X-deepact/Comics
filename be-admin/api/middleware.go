@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strings"
 )
 
@@ -19,7 +18,7 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		if len(authorizationHeader) == 0 {
 			err := errors.New("authorization header is not provide")
 
-			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			ctx.Abort()
 			return
 		}
@@ -28,7 +27,7 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		if len(fields) < 2 {
 			err := errors.New("invalid authorization header format")
-			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			ctx.Abort()
 			return
 		}
@@ -37,7 +36,7 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 
 		if authorizationType != s.config.Source.AuthorizationTypeBearer {
 			err := fmt.Errorf("%s authorization type", authorizationType)
-			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			ctx.Abort()
 			return
 		}
@@ -45,7 +44,7 @@ func (s *Server) authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		payload, err := tokenMaker.VerifyToken(authorization)
 
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusUnauthorized, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			ctx.Abort()
 			return
 		}

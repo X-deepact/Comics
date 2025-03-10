@@ -3,6 +3,7 @@ package api
 import (
 	"comics-admin/dto"
 	"net/http"
+	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"time"
@@ -28,7 +29,7 @@ import (
 func (s *Server) createChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemCreateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -46,17 +47,20 @@ func (s *Server) createChapterItem(ctx *gin.Context) {
 	}
 
 	if err := s.store.CreateChapterItem(item); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	response, err := s.store.GetChapterItem(item.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Chapter item created successfully",
+		"data":    response,
+	})
 }
 
 // @Summary Get chapter item
@@ -73,17 +77,20 @@ func (s *Server) createChapterItem(ctx *gin.Context) {
 func (s *Server) getChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	item, err := s.store.GetChapterItem(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, item)
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Get chapter item successfully",
+		"data":    item,
+	})
 }
 
 // @Summary List chapter items
@@ -104,24 +111,21 @@ func (s *Server) getChapterItem(ctx *gin.Context) {
 func (s *Server) listChapterItems(ctx *gin.Context) {
 	var req dto.ChapterItemListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	items, total, err := s.store.ListChapterItems(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"pagination": gin.H{
-			"page":      req.Page,
-			"page_size": req.PageSize,
-			"total":     total,
-		},
-		"data": items,
-	})
+	config.BuildListResponse(ctx, &common.Pagination{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Total:    int(total),
+	}, items)
 }
 
 // @Summary Update chapter item
@@ -138,7 +142,7 @@ func (s *Server) listChapterItems(ctx *gin.Context) {
 func (s *Server) updateChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemUpdateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
@@ -155,17 +159,20 @@ func (s *Server) updateChapterItem(ctx *gin.Context) {
 	}
 
 	if err := s.store.UpdateChapterItem(item); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	response, err := s.store.GetChapterItem(item.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Chapter item updated successfully",
+		"data":    response,
+	})
 }
 
 // @Summary Delete chapter item
@@ -182,16 +189,18 @@ func (s *Server) updateChapterItem(ctx *gin.Context) {
 func (s *Server) deleteChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	if err := s.store.DeleteChapterItem(id); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Chapter item deleted successfully"})
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Chapter item deleted successfully",
+	})
 }
 
 // @Summary Upload chapter image
@@ -208,26 +217,25 @@ func (s *Server) deleteChapterItem(ctx *gin.Context) {
 func (s *Server) uploadChapterImage(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
 
 	fileLink := ""
 
 	if file != nil {
-		fileName, err := config.SaveImage(file, s.config.FileStorage.ChapterItemFolder)
+		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.ChapterItemFolder)
 		if err != nil {
-			config.BuildErrorResponse(ctx, http.StatusBadRequest, err, nil)
+			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
 
-		fileLink = config.GetFileUrl(s.config.ApiFile.Url, s.config.FileStorage.RootFolder, s.config.FileStorage.ChapterItemFolder, fileName)
+		fileLink = s.minio.GetFileUrl(s.config.FileStorage.ChapterItemFolder, fileName)
 	}
 
-	ctx.JSON(http.StatusOK, dto.ResponseMessage{
-		Status:  "success",
-		Message: "Chapter item image uploaded successfully",
-		Data:    fileLink,
+	config.BuildSuccessResponse(ctx, gin.H{
+		"message": "Chapter item image uploaded successfully",
+		"data":    fileLink,
 	})
 }
 
