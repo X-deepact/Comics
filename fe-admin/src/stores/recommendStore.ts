@@ -96,39 +96,36 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       const params: Record<string, any> = {
         page: current_page.value,
         page_size: page_size.value,
+        sort: sortDirection.value,
+        sort_by: sortBy.value
       };
 
       if (searchKeyword.value.trim()) {
         params.title = searchKeyword.value.trim();
       }
 
-      if (sortBy.value) {
-        params.sort_by = sortBy.value;
-        params.sort = sortDirection.value;
-      }
-
-      const response = await axios({
-        method: 'GET',
-        url: `${API_URL}/recommend`,
+      const response = await axios.get(`${API_URL}/recommend`, {
         params: params,
-        headers: {
-          ...authHeader(),
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+        headers: authHeader(),
       });
 
-      if (response.data && response.data.data) {
-        recommendData.value = response.data.data;
-        if (response.data.pagination) {
-          totalItems.value = response.data.pagination.total;
-          current_page.value = response.data.pagination.page;
-          page_size.value = response.data.pagination.page_size;
-        }
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      recommendData.value = response.data.data;
+      if (response.data.pagination) {
+        totalItems.value = response.data.pagination.total || 0;
+        current_page.value = response.data.pagination.page;
+        page_size.value = response.data.pagination.page_size;
       }
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || error.message,
+        description: error.message,
         variant: "destructive",
       });
       recommendData.value = [];
@@ -170,36 +167,36 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       
       formData.append('title', data.title);
       formData.append('position', data.position.toString());
-      formData.append('active_from', (data.active_from * 1000).toString()); // Convert to milliseconds
-      formData.append('active_to', (data.active_to * 1000).toString());     // Convert to milliseconds
+      formData.append('active_from', (data.active_from * 1000).toString());
+      formData.append('active_to', (data.active_to * 1000).toString());
 
-      // Handle file upload
       if (data.cover instanceof File) {
         formData.append('cover', data.cover);
       } else {
         formData.append('cover', data.cover.toString());
       }
 
-      
-      const response = await axios.post<ApiResponse<Recommend>>(
+      const response = await axios.post(
         `${API_URL}/recommend`,
         formData,
-        { 
-          headers: {
-            ...authHeader(),
-            'accept': 'application/json',
-            // Let axios set the correct Content-Type with boundary
-          }
-        }
+        { headers: authHeader() }
       );
-      
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({
-        description: response.data.message || "Created Successfully",
+        description: "Created Successfully",
       });
       return response.data.data;
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || "Failed to create recommendation",
+        description: error.message,
         variant: "destructive",
       });
       throw error;

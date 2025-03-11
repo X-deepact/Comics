@@ -77,28 +77,29 @@ export const useChapterItemStore = defineStore("chapteritemStore", () => {
   async function uploadImage(data: any): Promise<string | null> {
     const formData = new FormData();
     formData.append("file", data);
-
-    await axios
-      .post(`${API_URL}/chapter-items/upload-image`, formData, {
-        headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
-      })
-      .then((response) => {
-        if (response.data.code == "ERROR") {
-          toast({
-            description: response.data.msg,
-            variant: "destructive",
-          });
-          return false;
+    try {
+      const response = await axios.post(
+        `${API_URL}/chapter-items/upload-image`,
+        formData,
+        {
+          headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
         }
-        return response.data.data.data;
-      })
-      .catch((error: any) => {
+      );
+      if (response.data.code == "ERROR") {
         toast({
-          description: error.message,
+          description: response.data.msg,
           variant: "destructive",
         });
         return null;
+      }
+      return response.data.data.data;
+    } catch (error: any) {
+      toast({
+        description: error.message,
+        variant: "destructive",
       });
+      return null;
+    }
   }
 
   async function createChapterItem(data: any) {

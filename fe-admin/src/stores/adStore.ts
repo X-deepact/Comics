@@ -107,7 +107,6 @@ export const useAdStore = defineStore("adStore", () => {
       if (filters.value.type) params.append('type', filters.value.type);
       if (filters.value.status) params.append('status', filters.value.status);
       
-      // Add sorting parameters
       if (sort.value.sort_by === 'updated_at') {
         params.append('sort_by', 'updated_at');
         params.append('sort_order', sort.value.sort_order.toUpperCase());
@@ -118,16 +117,22 @@ export const useAdStore = defineStore("adStore", () => {
         { headers: authHeader() }
       );
 
-      if (response.data && response.data.pagination && response.data.data) {
-        adData.value = response.data.data;
-        totalItems.value = response.data.pagination.total;
-      } else {
-        adData.value = [];
-        totalItems.value = 0;
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
       }
+
+      adData.value = response.data.data;
+      current_page.value = response.data.pagination.page;
+      totalItems.value = response.data.pagination.total || 0;
+      page_size.value = response.data.pagination.page_size;
+
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || error.message,
+        description: error.message,
         variant: "destructive",
       });
       adData.value = [];
@@ -147,11 +152,20 @@ export const useAdStore = defineStore("adStore", () => {
         },
         { headers: authHeader() }
       );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({ description: "Created Successfully" });
       return response.data;
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || error.message,
+        description: error.message,
         variant: "destructive",
       });
       throw error;
@@ -168,11 +182,20 @@ export const useAdStore = defineStore("adStore", () => {
         },
         { headers: authHeader() }
       );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({ description: "Updated Successfully" });
       return response.data;
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || error.message,
+        description: error.message,
         variant: "destructive",
       });
       throw error;
@@ -181,7 +204,19 @@ export const useAdStore = defineStore("adStore", () => {
 
   async function deleteAd(id: number) {
     try {
-      await axios.delete(`${API_URL}/ads/${id}`, { headers: authHeader() });
+      const response = await axios.delete(
+        `${API_URL}/ads/${id}`, 
+        { headers: authHeader() }
+      );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({ description: "Deleted Successfully" });
       selectedData.value = {
         id: 0,
@@ -213,11 +248,20 @@ export const useAdStore = defineStore("adStore", () => {
         { status },
         { headers: authHeader() }
       );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return false;
+      }
+
       toast({ description: "Status Updated Successfully" });
       return response.data;
     } catch (error: any) {
       toast({
-        description: error.response?.data?.message || error.message,
+        description: error.message,
         variant: "destructive",
       });
       throw error;
