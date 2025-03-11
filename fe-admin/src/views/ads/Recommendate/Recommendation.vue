@@ -3,34 +3,47 @@
         <Component 
             title="Recommendation"
             :pageSize="recommendStore.page_size"
-            :isLoading="recommendStore.isLoading"
+            :search-enabled="true"
+            :search-value="recommendStore.searchKeyword"
             @clickAdd="() => (recommendStore.createDialogIsOpen = true)"
-            @clickRefresh="() => { recommendStore.getRecommendData() }"
-            @update:search="(keyword: string) => recommendStore.handleSearch(keyword)"
+            @clickRefresh="() => { recommendStore.getRecommendData(); }"
+            @update:search="handleSearch"
             @update:pageSize="(pageSize: number) => {
                 recommendStore.page_size = pageSize;
-                recommendStore.current_page = 1;
                 recommendStore.getRecommendData();
             }"
-        />
+        >
+            <template #search>
+                <div class="flex items-center space-x-2">
+                    <Input
+                        type="search"
+                        :value="recommendStore.searchKeyword"
+                        @input="(e) => handleSearch((e.target as HTMLInputElement).value)"
+                        placeholder="Search by title..."
+                        class="h-9 w-[150px] lg:w-[250px]"
+                    />
+                </div>
+            </template>
+        </Component>
         
         <Table 
             :subjects="recommendStore.recommendData" 
             :columns="columns"
             :isLoading="recommendStore.isLoading"
             :row="RecommendRow"
-            @clickDelete="(data: any) => {
+            @clickDelete="(data: Recommend) => {
                 recommendStore.selectedData = data;
                 recommendStore.deleteDialogIsOpen = true;
             }"
-            @clickUpdate="(data: any) => {
+            @clickUpdate="(data: Recommend) => {
                 recommendStore.selectedData = data;
                 recommendStore.updateDialogIsOpen = true;
             }"
-            @clickSorting="(sortKey: string) => recommendStore.handleSort(sortKey)"
+            @clickSorting="handleSort"
         />
 
         <Pagination 
+            v-if="recommendStore.totalItems > 0"
             :currentPage="recommendStore.current_page"
             :totalItems="recommendStore.totalItems"
             :totalPages="Math.ceil(recommendStore.totalItems / recommendStore.page_size)"
@@ -53,12 +66,39 @@ import Pagination from '@/lib/Pagination.vue'
 import CreateModal from './modal/CreateModal.vue'
 import UpdateModal from './modal/UpdateModal.vue'
 import DeleteModal from './modal/DeleteModal.vue'
-import { useRecommendStore } from '@/stores/recommendStore'
+import { useRecommendStore, type Recommend } from '@/stores/recommendStore'
 import { columns } from './columnHeader'
 import RecommendRow from './row.vue'
+import { onMounted } from 'vue'
+import { Input } from "@/components/ui/input"
 
 const recommendStore = useRecommendStore()
 
-// Initial data load
-recommendStore.getRecommendData()
+// Add debounce utility
+const debounce = (fn: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+};
+
+// Handle search with debounce
+const handleSearch = debounce((value: string) => {
+    recommendStore.searchKeyword = value;
+    recommendStore.current_page = 1; // Reset to first page when searching
+    recommendStore.getRecommendData();
+}, 300);
+
+const handleSort = async (key: string) => {
+    if (key === 'updated_at') {
+        recommendStore.sortBy = key;
+        recommendStore.sortDirection = recommendStore.sortDirection === 'asc' ? 'desc' : 'asc';
+        await recommendStore.getRecommendData();
+    }
+};
+
+onMounted(() => {
+    recommendStore.getRecommendData();
+})
 </script>

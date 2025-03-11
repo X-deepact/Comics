@@ -22,7 +22,7 @@ import (
 // @Produce json
 // @Param item body dto.ChapterItemCreateRequest true "Chapter Item Request"
 // @Security BearerAuth
-// @Success 200 {object} dto.ChapterItemResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [post]
@@ -70,7 +70,7 @@ func (s *Server) createChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter Item ID"
 // @Security BearerAuth
-// @Success 200 {object} dto.ChapterItemResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items/{id} [get]
@@ -104,7 +104,7 @@ func (s *Server) getChapterItem(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by field (e.g. page, created_at, updated_at)"
 // @Param sort query string false "Sort order (ASC/DESC)"
 // @Security BearerAuth
-// @Success 200 {object} []dto.ChapterItemResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.ChapterItemResponse} "List chapter items"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [get]
@@ -135,7 +135,7 @@ func (s *Server) listChapterItems(ctx *gin.Context) {
 // @Produce json
 // @Param item body dto.ChapterItemUpdateRequest true "Chapter Item Update Request"
 // @Security BearerAuth
-// @Success 200 {object} dto.ChapterItemResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items [put]
@@ -210,7 +210,7 @@ func (s *Server) deleteChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param file formData file true "Image file"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage
+// @Success 200 {object} dto.ResponseMessage "Chapter item image uploaded successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapter-items/upload-image [post]

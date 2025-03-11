@@ -30,7 +30,7 @@ func (s *Server) authorRoutes() {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param author body dto.AuthorRequest true "Author Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.AuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AuthorResponse} "Author created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author [post]
@@ -96,7 +96,7 @@ func (s *Server) CreateAuthor(c *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Author ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.AuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AuthorResponse} "Author found"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author/{id} [get]
@@ -153,7 +153,7 @@ func (s *Server) GetAuthorById(c *gin.Context) {
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.AuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.AuthorResponse} "List authors"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author [get]
@@ -212,7 +212,7 @@ func (s *Server) GetAuthors(c *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param author body dto.AuthorUpdateRequest true "Author Update Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.AuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AuthorResponse} "Author updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author [put]
@@ -293,7 +293,7 @@ func (s *Server) UpdateAuthorById(c *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Author ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.AuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AuthorResponse} "Author deleted successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/author/{id} [delete]

@@ -110,7 +110,7 @@ func (s *Server) userRouter() {
 // @Accept json
 // @Produce json
 // @Param login body dto.LoginRequest true "User Login Data"
-// @Success 200 {object} dto.LoginResponse "Login successful"
+// @Success 200 {object} dto.ResponseMessage{data=dto.LoginResponse}
 // @Failure 400  "Invalid request"
 // @Router /api/user/login [post]
 func (s *Server) login(ctx *gin.Context) {
@@ -190,7 +190,7 @@ func (s *Server) login(ctx *gin.Context) {
 // @Param avatar formData file false "Avatar File"
 // @Param tier_id formData int64 true "Tier ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.UserDetailDto
+// @Success 200 {object} dto.ResponseMessage{data=dto.UserDetailDto}
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Failure 401 {object} dto.ResponseMessage "User not authenticated"
@@ -339,7 +339,7 @@ func (s *Server) createUser(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.UserDetailDto
+// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse} "User retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/user/{id} [get]
@@ -379,7 +379,7 @@ func (s *Server) getUser(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by"
 // @Param sort query string false "Sort order (asc, desc)"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.UserResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.UserResponse} "List users"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/user [get]
@@ -428,7 +428,7 @@ func (s *Server) getUsers(ctx *gin.Context) {
 // @Param avatar formData file false "Avatar File"
 // @Param tier_id formData int64 true "Tier ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.UserDetailDto
+// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse}
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Failure 401 {object} dto.ResponseMessage "User not authenticated"
@@ -626,7 +626,7 @@ func (s *Server) activeUser(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security     BearerAuth
-// @Success 200 {object} dto.UserDetailDto
+// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse} "Profile retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/user/profile [get]
@@ -672,7 +672,7 @@ func (s *Server) getProfile(ctx *gin.Context) {
 // @Param description formData string false "Description"
 // @Param avatar formData file false "Avatar File"
 // @Security     BearerAuth
-// @Success 200 {object} dto.UserResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse}
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Failure 401 {object} dto.ResponseMessage "User not authenticated"

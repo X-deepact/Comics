@@ -81,12 +81,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Get advertisement list successfully",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.AdsResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.AdsResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -139,9 +151,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Advertisement updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AdsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdsResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -194,9 +218,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Advertisement created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AdsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdsResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -243,9 +279,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Get advertisement successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AdsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdsResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -354,9 +402,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Advertisement status updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AdsResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdsResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -433,12 +493,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List authors",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.AuthorResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.AuthorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -492,9 +564,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Author updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AuthorResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -548,9 +632,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Author created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AuthorResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -604,9 +700,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Author found",
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AuthorResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -658,9 +766,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Author deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.AuthorResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AuthorResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -733,12 +853,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List chapter items",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ChapterItemResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ChapterItemResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -785,9 +917,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter item updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -834,9 +978,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter item created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -883,7 +1039,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter item image uploaded successfully",
                         "schema": {
                             "$ref": "#/definitions/dto.ResponseMessage"
                         }
@@ -932,9 +1088,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter item retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterItemResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1045,12 +1213,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List chapters",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ChapterResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ChapterResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1097,9 +1277,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1146,9 +1338,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1241,9 +1445,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Chapter retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ChapterResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ChapterResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1391,7 +1607,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/dto.ListResponse"
+                                    "$ref": "#/definitions/dto.ResponseMessage"
                                 },
                                 {
                                     "type": "object",
@@ -1505,7 +1721,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Comic updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ComicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ComicResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1602,7 +1830,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Comic created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ComicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ComicResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1704,9 +1944,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Comic found",
+                        "description": "Comic retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.ComicReturn"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ComicReturn"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1854,12 +2106,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Authors",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.GeneralAuthorResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GeneralAuthorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1911,12 +2175,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Genres",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.GeneralGenreResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GeneralGenreResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -1954,12 +2230,24 @@ const docTemplate = `{
                 "summary": "Get tiers",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Tiers",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.TierModel"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.TierModel"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2037,12 +2325,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List genres",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.GenreResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.GenreResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2089,9 +2389,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Genre updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.GenreResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GenreResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2138,9 +2450,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Genre created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.GenreResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GenreResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2193,9 +2517,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Genre retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.GenreResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.GenreResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2309,16 +2645,34 @@ const docTemplate = `{
                         "description": "Page size",
                         "name": "page_size",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List recommends",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.RecommendResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.RecommendResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2343,7 +2697,7 @@ const docTemplate = `{
                 ],
                 "description": "Update an existing recommend",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -2361,20 +2715,54 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Recommend Update Request",
-                        "name": "recommend",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RecommendUpdateRequest"
-                        }
+                        "type": "string",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Position",
+                        "name": "position",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Active From",
+                        "name": "active_from",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Active To",
+                        "name": "active_to",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Cover ",
+                        "name": "cover",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.RecommendResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2417,20 +2805,54 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Recommend Create Request",
-                        "name": "recommend",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RecommendCreateRequest"
-                        }
+                        "type": "string",
+                        "description": "Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Position",
+                        "name": "position",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Active From",
+                        "name": "active_from",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Active To",
+                        "name": "active_to",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Cover ",
+                        "name": "cover",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.RecommendResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2486,9 +2908,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend comic created successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2542,9 +2976,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend comic deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.RecommendComicResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2598,9 +3044,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Recommend found",
                         "schema": {
-                            "$ref": "#/definitions/dto.RecommendResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.RecommendResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2756,12 +3214,24 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "List users",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserResponse"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.UserResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2871,7 +3341,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserDetailDto"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -2994,7 +3476,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserDetailDto"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserDetailDto"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3092,9 +3586,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Login successful",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.LoginResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.LoginResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3123,9 +3629,21 @@ const docTemplate = `{
                 "summary": "Get profile",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Profile retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserDetailDto"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3221,7 +3739,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3274,9 +3804,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "User retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserDetailDto"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.ResponseMessage"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -3974,15 +4516,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "pagination": {
-                    "$ref": "#/definitions/dto.Pagination"
-                }
-            }
-        },
         "dto.LoginRequest": {
             "type": "object",
             "required": [
@@ -4052,26 +4585,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RecommendCreateRequest": {
-            "type": "object",
-            "properties": {
-                "active_from": {
-                    "type": "integer"
-                },
-                "active_to": {
-                    "type": "integer"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "position": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.RecommendResponse": {
             "type": "object",
             "properties": {
@@ -4113,38 +4626,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RecommendUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "active_from": {
-                    "type": "integer"
-                },
-                "active_to": {
-                    "type": "integer"
-                },
-                "cover": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "position": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.ResponseMessage": {
             "type": "object",
             "properties": {
-                "data": {},
-                "message": {
+                "code": {
                     "type": "string"
                 },
-                "status": {
+                "data": {},
+                "msg": {
                     "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/dto.Pagination"
                 }
             }
         },

@@ -27,7 +27,7 @@ func (s *Server) chapterRouter() {
 // @Produce json
 // @Param chapter body dto.ChapterRequest true "Chapter Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ChapterResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterResponse} "Chapter created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [post]
@@ -69,7 +69,7 @@ func (s *Server) createChapter(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ChapterResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterResponse} "Chapter retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters/{id} [get]
@@ -99,7 +99,7 @@ func (s *Server) getChapter(ctx *gin.Context) {
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.ChapterResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.ChapterResponse} "List chapters"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [get]
@@ -133,7 +133,7 @@ func (s *Server) getChapters(ctx *gin.Context) {
 // @Produce json
 // @Param chapter body dto.ChapterUpdateRequest true "Chapter Update Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ChapterResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterResponse} "Chapter updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/chapters [put]

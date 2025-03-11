@@ -6,26 +6,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ref, watch } from "vue";
-import { useRecommendStore } from "@/stores/recommendStore";
+import { ref } from "vue";
+import { useRecommendStore, RecommendPosition, positionLabels } from "@/stores/recommendStore";
 import loadingImg from "@/assets/loading.svg";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  DateFormatter,
-  type DateValue,
-  getLocalTimeZone,
-} from "@internationalized/date";
-import { CalendarIcon } from "lucide-vue-next";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast/use-toast";
 import {
   Select,
@@ -34,108 +20,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RecommendPosition, positionLabels } from "@/stores/recommendStore";
-
-const df = new DateFormatter("en-US", { dateStyle: "long" });
-const activeFromValue = ref<DateValue>();
-const activeToValue = ref<DateValue>();
-
-const recommendStore = useRecommendStore();
-const isLoading = ref(false);
 
 const { toast } = useToast();
+const isLoading = ref(false);
+const recommendStore = useRecommendStore();
+const previewImage = ref<string>("");
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const formData = ref({
-  title: "",  
+  title: "",
   cover: "",
   position: RecommendPosition.COMPLETE_MASTERPIECE,
   active_from: "",
   active_to: "",
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
-const previewImage = ref<string>("");
-
-const handleFileUpload = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0]) {
-    const file = input.files[0];
-    
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        description: "Please upload an image file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check file size (e.g., max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        description: "File size should be less than 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        previewImage.value = e.target.result as string;
-        formData.value.cover = e.target.result as string; // Store the base64 image data
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-const triggerFileInput = () => {
-  fileInput.value?.click();
-};
-
-const validateForm = () => {
-  if (!formData.value.title?.trim()) {
-    toast({
-      description: "Title is required",
-      variant: "destructive",
-    });
-    return false;
-  }
-  if (!formData.value.cover) {
-    toast({
-      description: "Cover image is required",
-      variant: "destructive",
-    });
-    return false;
-  }
-  if (!formData.value.active_from || !formData.value.active_to) {
-    toast({
-      description: "Active dates are required",
-      variant: "destructive",
-    });
-    return false;
-  }
-  return true;
-};
-
-const handleSubmit = async () => {
-  if (!validateForm()) return;
-  
-  isLoading.value = true;
-  try {
-    await recommendStore.createRecommend(formData.value);
-    recommendStore.createDialogIsOpen = false;
-    await recommendStore.getRecommendData();
-    resetForm();
-  } catch (error: any) {
-    toast({
-      description: error.response?.data?.message || error.message,
-      variant: "destructive",
-    });
-  } finally {
-    isLoading.value = false;
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    formData.value.cover = file;
+    previewImage.value = URL.createObjectURL(file);
   }
 };
 
@@ -151,49 +56,74 @@ const resetForm = () => {
   if (fileInput.value) {
     fileInput.value.value = "";
   }
-  activeFromValue.value = undefined;
-  activeToValue.value = undefined;
 };
 
-const setActiveFrom = () => {
-  if (activeFromValue.value) {
-    const date = activeFromValue.value.toDate(getLocalTimeZone());
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    activeFromValue.value = undefined;
-    formData.value.active_from = `${year}-${month}-${day}`;
+const handleSubmit = async () => {
+  if (!validateForm()) return;
+  
+  isLoading.value = true;
+  try {
+    // Convert date strings to Unix timestamps (start of day)
+    const activeFromDate = new Date(formData.value.active_from);
+    const activeToDate = new Date(formData.value.active_to);
+
+    // Set time to start of day (00:00:00)
+    activeFromDate.setHours(0, 0, 0, 0);
+    activeToDate.setHours(0, 0, 0, 0);
+
+    const submitData = {
+      title: formData.value.title,
+      cover: formData.value.cover,
+      position: Number(formData.value.position),
+      active_from: Math.floor(activeFromDate.getTime() / 1000),
+      active_to: Math.floor(activeToDate.getTime() / 1000),
+    };
+
+    await recommendStore.createRecommend(submitData);
+    recommendStore.createDialogIsOpen = false;
+    await recommendStore.getRecommendData();
+    resetForm();
+  } catch (error: any) {
+    toast({
+      description: error.response?.data?.message || error.message,
+      variant: "destructive",
+    });
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const setActiveTo = () => {
-  if (activeToValue.value) {
-    const date = activeToValue.value.toDate(getLocalTimeZone());
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    activeToValue.value = undefined;
-    formData.value.active_to = `${year}-${month}-${day}`;
+const validateForm = () => {
+  if (!formData.value.title || !formData.value.cover || 
+      !formData.value.active_from || !formData.value.active_to) {
+    toast({
+      description: "Please fill in all required fields",
+      variant: "destructive",
+    });
+    return false;
   }
-};
 
-const formatDate = (value: DateValue | undefined): string => {
-  if (!value) return "";
-  const date = value.toDate(getLocalTimeZone());
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+  const fromDate = new Date(formData.value.active_from);
+  const toDate = new Date(formData.value.active_to);
 
-watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
-  if (newFromValue) {
-    formData.value.active_from = formatDate(newFromValue);
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+    toast({
+      description: "Invalid date format",
+      variant: "destructive",
+    });
+    return false;
   }
-  if (newToValue) {
-    formData.value.active_to = formatDate(newToValue);
+
+  if (toDate <= fromDate) {
+    toast({
+      description: "Active To date must be after Active From date",
+      variant: "destructive",
+    });
+    return false;
   }
-});
+
+  return true;
+};
 </script>
 
 <template>
@@ -204,93 +134,88 @@ watch([activeFromValue, activeToValue], ([newFromValue, newToValue]) => {
       if (!value) resetForm();
     }"
   >
-    <DialogContent>
+    <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
         <DialogTitle>Create Recommendation</DialogTitle>
-        <DialogDescription>
-          Add a new recommendation below.
-        </DialogDescription>
       </DialogHeader>
-      
-      <div class="grid gap-4">
-        <div class="space-y-4">
+      <div class="grid gap-4 py-4">
+        <div class="grid gap-4">
           <div class="grid grid-cols-4 items-center gap-4">
             <Label class="text-right">Title *</Label>
-            <Input v-model="formData.title" class="col-span-3" placeholder="Enter title" />
-          </div>
-
-          <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Image *</Label>
-            <div class="col-span-3">
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleFileUpload"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                class="w-full"
-                @click="fileInput?.click()"
-              >
-                Choose Image
-              </Button>
-              <div v-if="previewImage" class="mt-2">
-                <img
-                  :src="previewImage"
-                  alt="Preview"
-                  class="max-w-full max-h-[200px] object-contain rounded-md border"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-4  items-center gap-4">
-            <Label class="text-right">Position *</Label>
-            <div class="col-span-3">
-            <Select v-model="formData.position" >
-              <SelectTrigger>
-                <SelectValue :placeholder="positionLabels[formData.position]" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem :value="RecommendPosition.COMPLETE_MASTERPIECE">
-                  {{ positionLabels[RecommendPosition.COMPLETE_MASTERPIECE] }}
-                </SelectItem>
-                <SelectItem :value="RecommendPosition.FASTEST_RISING">
-                  {{ positionLabels[RecommendPosition.FASTEST_RISING] }}
-                </SelectItem>
-                <SelectItem :value="RecommendPosition.NEW_PUBLISHING">
-                  {{ positionLabels[RecommendPosition.NEW_PUBLISHING] }}
-                </SelectItem>
-                <SelectItem :value="RecommendPosition.RECENTLY_UPDATE">
-                  {{ positionLabels[RecommendPosition.RECENTLY_UPDATE] }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          </div>
-
-          <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Active From *</Label>
-            <Input 
-              id="active_from"
-              type="date" 
-              v-model="formData.active_from"
+            <Input
+              id="title"
+              v-model="formData.title"
               class="col-span-3"
               required
             />
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right">Active To *</Label>
-            <Input 
+            <Label class="text-right">Cover *</Label>
+            <div class="col-span-3">
+              <Input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                @change="handleFileChange"
+                class="mb-2"
+                required
+              />
+              <img
+                v-if="previewImage"
+                :src="previewImage"
+                alt="Preview"
+                class="max-w-[200px] max-h-[200px] object-contain"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+              <Label class="text-right">Position *</Label>
+              <div class="col-span-3">
+              <Select v-model="formData.position" >
+                <SelectTrigger>
+                  <SelectValue :placeholder="positionLabels[formData.position]" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem :value="RecommendPosition.COMPLETE_MASTERPIECE">
+                    {{ positionLabels[RecommendPosition.COMPLETE_MASTERPIECE] }}
+                  </SelectItem>
+                  <SelectItem :value="RecommendPosition.FASTEST_RISING">
+                    {{ positionLabels[RecommendPosition.FASTEST_RISING] }}
+                  </SelectItem>
+                  <SelectItem :value="RecommendPosition.NEW_PUBLISHING">
+                    {{ positionLabels[RecommendPosition.NEW_PUBLISHING] }}
+                  </SelectItem>
+                  <SelectItem :value="RecommendPosition.RECENTLY_UPDATE">
+                    {{ positionLabels[RecommendPosition.RECENTLY_UPDATE] }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              </div>
+            </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right" for="active_from">
+              Active From *
+            </Label>
+            <Input
+              id="active_from"
+              type="date"
+              v-model="formData.active_from"
+              class="col-span-3"
+            />
+          </div>
+
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right" for="active_to">
+              Active To *
+            </Label>
+            <Input
               id="active_to"
               type="date"
               v-model="formData.active_to"
-              class="col-span-3" 
-              required
+              class="col-span-3"
             />
           </div>
         </div>

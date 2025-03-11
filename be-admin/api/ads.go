@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // @Summary Create a new advertisement
@@ -20,7 +19,7 @@ import (
 // @Param ad body dto.AdsCreateRequest true "Advertisement Request"
 // @Param status query string false "Filter by status (active/inactive)"
 // @Security BearerAuth
-// @Success 200 {object} dto.AdsResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AdsResponse} "Advertisement created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [post]
@@ -83,7 +82,7 @@ func (s *Server) createAds(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by field (e.g. title, created_at, updated_at)"
 // @Param sort query string false "Sort order (ASC/DESC)"
 // @Security BearerAuth
-// @Success 200 {object} []dto.AdsResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.AdsResponse} "Get advertisement list successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [get]
@@ -115,7 +114,7 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 // @Param ad body dto.AdsUpdateRequest true "Advertisement Update Request"
 // @Param status query string false "Filter by status (active/inactive)"
 // @Security BearerAuth
-// @Success 200 {object} dto.AdsResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AdsResponse} "Advertisement updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads [put]
@@ -201,7 +200,7 @@ func (s *Server) deleteAds(ctx *gin.Context) {
 // @Param id path int true "Advertisement ID"
 // @Param status body dto.AdsUpdateStatusRequest true "Status Request"
 // @Security BearerAuth
-// @Success 200 {object} dto.AdsResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AdsResponse} "Advertisement status updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/ads/{id}/status [patch]
@@ -243,7 +242,7 @@ func (s *Server) updateAdsStatus(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Advertisement ID"
 // @Security BearerAuth
-// @Success 200 {object} dto.AdsResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.AdsResponse} "Get advertisement successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 404 {object} dto.ResponseMessage "Advertisement not found"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
@@ -257,10 +256,6 @@ func (s *Server) getAdsById(ctx *gin.Context) {
 
 	response, err := s.store.GetAds(id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			config.BuildErrorResponse(ctx, err, nil)
-			return
-		}
 		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}

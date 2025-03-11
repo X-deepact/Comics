@@ -29,10 +29,20 @@ const recommendStore = useRecommendStore();
 const previewImage = ref<string>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const formatDateForInput = (dateString: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+const formatDateForInput = (dateValue: string | number) => {
+  if (!dateValue) return '';
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return '';
+    
+    return date.toISOString().split('T')[0];
+  } catch (error) {
+    toast({
+      description: `Date formatting error: ${error}`,
+      variant: "destructive"
+    });
+    return '';
+  }
 };
 
 const formData = ref({
@@ -47,49 +57,91 @@ const formData = ref({
 // Initialize form data when selectedData changes
 watch(() => recommendStore.selectedData, (newData) => {
   if (newData) {
+    const activeFrom = typeof newData.active_from === 'number' 
+      ? formatDateForInput(newData.active_from * 1000)
+      : formatDateForInput(newData.active_from);
+    
+    const activeTo = typeof newData.active_to === 'number'
+      ? formatDateForInput(newData.active_to * 1000)
+      : formatDateForInput(newData.active_to);
+
     formData.value = {
       id: newData.id,
       title: newData.title || "",
-      cover: newData.cover || "",
+      cover: "", // Reset cover since we'll use previewImage for the existing image
       position: newData.position || RecommendPosition.COMPLETE_MASTERPIECE,
-      active_from: formatDateForInput(newData.active_from),
-      active_to: formatDateForInput(newData.active_to),
+      active_from: activeFrom,
+      active_to: activeTo,
     };
+    // Store the existing image URL in previewImage
+    previewImage.value = newData.cover || "";
   }
 }, { immediate: true });
 
-const handleFileUpload = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0]) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        previewImage.value = e.target.result as string;
-        formData.value.cover = e.target.result as string;
-      }
-    };
-    reader.readAsDataURL(file);
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    formData.value.cover = file;
+    previewImage.value = URL.createObjectURL(file);
   }
 };
 
 const handleSubmit = async () => {
-  // Validate form data
+  if (!validateForm()) return;
 
+  isLoading.value = true;
+  try {
+    const activeFromDate = new Date(formData.value.active_from);
+    const activeToDate = new Date(formData.value.active_to);
+
+    activeFromDate.setHours(0, 0, 0, 0);
+    activeToDate.setHours(0, 0, 0, 0);
+
+    const submitData = {
+      id: formData.value.id,
+      title: formData.value.title,
+      // Only include cover if it's a new file, otherwise don't send it at all
+      ...(formData.value.cover instanceof File ? { cover: formData.value.cover } : {}),
+      position: Number(formData.value.position),
+      active_from: Math.floor(activeFromDate.getTime() / 1000),
+      active_to: Math.floor(activeToDate.getTime() / 1000),
+    };
+
+    await recommendStore.updateRecommend(submitData);
+    recommendStore.updateDialogIsOpen = false;
+    await recommendStore.getRecommendData();
+  } catch (error: any) {
+    toast({
+      description: `Update error: ${error.response?.data?.message || error.message}`,
+      variant: "destructive",
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const validateForm = () => {
   if (!formData.value.title?.trim()) {
     toast({
       description: "Title is required",
       variant: "destructive",
     });
-    return;
+    return false;
   }
-
+  if (!formData.value.position) {
+    toast({
+      description: "Position is required",
+      variant: "destructive",
+    });
+    return false;
+  }
   if (!formData.value.active_from || !formData.value.active_to) {
     toast({
       description: "Active dates are required",
       variant: "destructive",
     });
-    return;
+    return false;
   }
 
   // Validate dates
@@ -101,7 +153,7 @@ const handleSubmit = async () => {
       description: "Invalid date format",
       variant: "destructive",
     });
-    return;
+    return false;
   }
 
   if (fromDate > toDate) {
@@ -109,34 +161,10 @@ const handleSubmit = async () => {
       description: "Active from date must be before active to date",
       variant: "destructive",
     });
-    return;
+    return false;
   }
 
-  isLoading.value = true;
-  try {
-    const submitData = {
-      ...formData.value,
-      id: Number(formData.value.id),
-      position: Number(formData.value.position),
-      active_from: formData.value.active_from,
-      active_to: formData.value.active_to,
-    };
-
-    await recommendStore.updateRecommend(submitData);
-    toast({
-      description: "Update successful"
-    });
-    
-    recommendStore.updateDialogIsOpen = false;
-    await recommendStore.getRecommendData();
-  } catch (error: any) {
-    toast({
-      description: error.response?.data?.message || "Failed to update recommendation",
-      variant: "destructive",
-    });
-  } finally {
-    isLoading.value = false;
-  }
+  return true;
 };
 </script>
 
@@ -171,7 +199,7 @@ const handleSubmit = async () => {
                   type="file"
                   accept="image/*"
                   class="hidden"
-                  @change="handleFileUpload"
+                  @change="handleFileChange"
                 />
                 <Button
                   type="button"
@@ -218,22 +246,26 @@ const handleSubmit = async () => {
 
             
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Active From *</Label>
-              <Input 
+              <Label class="text-right" for="active_from">
+                Active From *
+              </Label>
+              <Input
+                id="active_from"
                 type="date"
                 v-model="formData.active_from"
                 class="col-span-3"
-                required
               />
             </div>
 
             <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Active To *</Label>
-              <Input 
+              <Label class="text-right" for="active_to">
+                Active To *
+              </Label>
+              <Input
+                id="active_to"
                 type="date"
                 v-model="formData.active_to"
-                class="col-span-3" 
-                required
+                class="col-span-3"
               />
             </div>
           </div>

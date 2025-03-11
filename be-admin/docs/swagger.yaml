@@ -386,12 +386,6 @@ definitions:
     - name
     - position
     type: object
-  dto.ListResponse:
-    properties:
-      data: {}
-      pagination:
-        $ref: '#/definitions/dto.Pagination'
-    type: object
   dto.LoginRequest:
     properties:
       password:
@@ -437,19 +431,6 @@ definitions:
       recommend_id:
         type: integer
     type: object
-  dto.RecommendCreateRequest:
-    properties:
-      active_from:
-        type: integer
-      active_to:
-        type: integer
-      cover:
-        type: string
-      position:
-        type: integer
-      title:
-        type: string
-    type: object
   dto.RecommendResponse:
     properties:
       active_from:
@@ -477,28 +458,15 @@ definitions:
       updated_by_name:
         type: string
     type: object
-  dto.RecommendUpdateRequest:
-    properties:
-      active_from:
-        type: integer
-      active_to:
-        type: integer
-      cover:
-        type: string
-      id:
-        type: integer
-      position:
-        type: integer
-      title:
-        type: string
-    type: object
   dto.ResponseMessage:
     properties:
+      code:
+        type: string
       data: {}
-      message:
+      msg:
         type: string
-      status:
-        type: string
+      pagination:
+        $ref: '#/definitions/dto.Pagination'
     type: object
   dto.TierModel:
     properties:
@@ -640,11 +608,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Get advertisement list successfully
           schema:
-            items:
-              $ref: '#/definitions/dto.AdsResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.AdsResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -677,9 +650,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Advertisement created successfully
           schema:
-            $ref: '#/definitions/dto.AdsResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdsResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -712,9 +690,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Advertisement updated successfully
           schema:
-            $ref: '#/definitions/dto.AdsResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdsResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -773,9 +756,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Get advertisement successfully
           schema:
-            $ref: '#/definitions/dto.AdsResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdsResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -814,9 +802,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Advertisement status updated successfully
           schema:
-            $ref: '#/definitions/dto.AdsResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdsResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -865,11 +858,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List authors
           schema:
-            items:
-              $ref: '#/definitions/dto.AuthorResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.AuthorResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -903,9 +901,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Author created successfully
           schema:
-            $ref: '#/definitions/dto.AuthorResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthorResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -939,9 +942,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Author updated successfully
           schema:
-            $ref: '#/definitions/dto.AuthorResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthorResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -975,9 +983,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Author deleted successfully
           schema:
-            $ref: '#/definitions/dto.AuthorResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthorResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1010,9 +1023,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Author found
           schema:
-            $ref: '#/definitions/dto.AuthorResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AuthorResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1059,11 +1077,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List chapter items
           schema:
-            items:
-              $ref: '#/definitions/dto.ChapterItemResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ChapterItemResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1092,9 +1115,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter item created successfully
           schema:
-            $ref: '#/definitions/dto.ChapterItemResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterItemResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1123,9 +1151,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter item updated successfully
           schema:
-            $ref: '#/definitions/dto.ChapterItemResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterItemResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1184,9 +1217,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter item retrieved successfully
           schema:
-            $ref: '#/definitions/dto.ChapterItemResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterItemResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1215,7 +1253,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter item image uploaded successfully
           schema:
             $ref: '#/definitions/dto.ResponseMessage'
         "400":
@@ -1257,11 +1295,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List chapters
           schema:
-            items:
-              $ref: '#/definitions/dto.ChapterResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ChapterResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1290,9 +1333,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter created successfully
           schema:
-            $ref: '#/definitions/dto.ChapterResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1321,9 +1369,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter updated successfully
           schema:
-            $ref: '#/definitions/dto.ChapterResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1380,9 +1433,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Chapter retrieved successfully
           schema:
-            $ref: '#/definitions/dto.ChapterResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ChapterResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1478,7 +1536,7 @@ paths:
           description: List of comics
           schema:
             allOf:
-            - $ref: '#/definitions/dto.ListResponse'
+            - $ref: '#/definitions/dto.ResponseMessage'
             - properties:
                 data:
                   $ref: '#/definitions/dto.ComicReturn'
@@ -1542,7 +1600,12 @@ paths:
         "200":
           description: Comic created successfully
           schema:
-            $ref: '#/definitions/dto.ComicResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ComicResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1615,7 +1678,12 @@ paths:
         "200":
           description: Comic updated successfully
           schema:
-            $ref: '#/definitions/dto.ComicResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ComicResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1678,9 +1746,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: Comic found
+          description: Comic retrieved successfully
           schema:
-            $ref: '#/definitions/dto.ComicReturn'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ComicReturn'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1774,11 +1847,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Authors
           schema:
-            items:
-              $ref: '#/definitions/dto.GeneralAuthorResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GeneralAuthorResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1810,11 +1888,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Genres
           schema:
-            items:
-              $ref: '#/definitions/dto.GeneralGenreResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GeneralGenreResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1837,11 +1920,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Tiers
           schema:
-            items:
-              $ref: '#/definitions/dto.TierModel'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TierModel'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1891,11 +1979,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List genres
           schema:
-            items:
-              $ref: '#/definitions/dto.GenreResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GenreResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1924,9 +2017,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Genre created successfully
           schema:
-            $ref: '#/definitions/dto.GenreResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -1959,9 +2057,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Genre updated successfully
           schema:
-            $ref: '#/definitions/dto.GenreResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2020,9 +2123,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Genre retrieved successfully
           schema:
-            $ref: '#/definitions/dto.GenreResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2063,15 +2171,24 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: Title
+        in: query
+        name: title
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List recommends
           schema:
-            items:
-              $ref: '#/definitions/dto.RecommendResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.RecommendResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2095,19 +2212,39 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Recommend Create Request
-        in: body
-        name: recommend
+      - description: Title
+        in: formData
+        name: title
         required: true
-        schema:
-          $ref: '#/definitions/dto.RecommendCreateRequest'
+        type: string
+      - description: Position
+        in: formData
+        name: position
+        type: integer
+      - description: Active From
+        in: formData
+        name: active_from
+        type: integer
+      - description: Active To
+        in: formData
+        name: active_to
+        type: integer
+      - description: 'Cover '
+        in: formData
+        name: cover
+        type: file
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Recommend created successfully
           schema:
-            $ref: '#/definitions/dto.RecommendResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RecommendResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2123,7 +2260,7 @@ paths:
       - recommends
     put:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update an existing recommend
       parameters:
       - description: Bearer authorization token
@@ -2131,19 +2268,39 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Recommend Update Request
-        in: body
-        name: recommend
+      - description: Title
+        in: formData
+        name: title
         required: true
-        schema:
-          $ref: '#/definitions/dto.RecommendUpdateRequest'
+        type: string
+      - description: Position
+        in: formData
+        name: position
+        type: integer
+      - description: Active From
+        in: formData
+        name: active_from
+        type: integer
+      - description: Active To
+        in: formData
+        name: active_to
+        type: integer
+      - description: 'Cover '
+        in: formData
+        name: cover
+        type: file
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Recommend updated successfully
           schema:
-            $ref: '#/definitions/dto.RecommendResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RecommendResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2212,9 +2369,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Recommend found
           schema:
-            $ref: '#/definitions/dto.RecommendResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RecommendResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2249,9 +2411,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Recommend comic deleted successfully
           schema:
-            $ref: '#/definitions/dto.RecommendComicResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RecommendComicResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2285,9 +2452,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Recommend comic created successfully
           schema:
-            $ref: '#/definitions/dto.RecommendComicResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RecommendComicResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2353,11 +2525,16 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: List users
           schema:
-            items:
-              $ref: '#/definitions/dto.UserResponse'
-            type: array
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserResponse'
+                  type: array
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2435,7 +2612,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UserDetailDto'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserDetailDto'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2512,7 +2694,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UserDetailDto'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2575,9 +2762,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User retrieved successfully
           schema:
-            $ref: '#/definitions/dto.UserDetailDto'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2668,9 +2860,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: Login successful
+          description: OK
           schema:
-            $ref: '#/definitions/dto.LoginResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
         "400":
           description: Invalid request
       summary: Login
@@ -2685,9 +2882,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Profile retrieved successfully
           schema:
-            $ref: '#/definitions/dto.UserDetailDto'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
@@ -2750,7 +2952,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.UserResponse'
+            allOf:
+            - $ref: '#/definitions/dto.ResponseMessage'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
         "400":
           description: Invalid request
           schema:

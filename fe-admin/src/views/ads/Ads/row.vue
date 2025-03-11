@@ -6,16 +6,16 @@
       <img 
         v-if="data.image" 
         :src="data.image" 
-        alt="Ad Image" 
-        class="w-20 h-20 object-cover" 
+        alt="Ad Image"
+        class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-cover rounded-md transition-all duration-300" 
       />
-      <span v-else>No image</span>
+      <span v-else class="text-xs xs:text-sm sm:text-base text-gray-500">No image</span>
     </TableCell>
     <TableCell>{{ formatDateSafe(data.active_from) }}</TableCell>
     <TableCell>{{ formatDateSafe(data.active_to) }}</TableCell>
     <TableCell>{{ data.type || 'N/A' }}</TableCell>
     <TableCell>{{ data.direct_url || 'N/A' }}</TableCell>
-    <TableCell>
+    <TableCell> 
       <Badge :variant="data.status === 'active' ? 'success' : 'secondary'">
         {{ data.status || 'N/A' }}
       </Badge>

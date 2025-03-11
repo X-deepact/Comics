@@ -28,7 +28,7 @@ func (s *Server) genreRouter() {
 // @Produce json
 // @Param genre body dto.GenreCreateRequest true "Genre Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.GenreResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.GenreResponse} "Genre created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Failure 401 {object} dto.ResponseMessage "User not authenticated"
@@ -82,7 +82,7 @@ func (s *Server) createGenre(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.GenreResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.GenreResponse} "Genre retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre/{id} [get]
@@ -114,7 +114,7 @@ func (s *Server) getGenre(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by"
 // @Param sort query string false "Sort order (asc, desc)"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.GenreResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.GenreResponse} "List genres"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre [get]
@@ -147,7 +147,7 @@ func (s *Server) getGenres(ctx *gin.Context) {
 // @Produce json
 // @Param genre body dto.GenreUpdateRequest true "Genre Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.GenreResponse
+// @Success 200 {object} dto.ResponseMessage{data=dto.GenreResponse} "Genre updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/genre [put]

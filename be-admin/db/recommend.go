@@ -15,7 +15,12 @@ func (r *Queries) GetRecommends(req dto.RequestQueryFilter) ([]*model.RecommendM
 	var recommends []*model.RecommendManagerModel
 	var total int64
 
-	if err := r.db.WithContext(context.Background()).
+	query := r.db.WithContext(context.Background())
+	if len(req.Title) > 0 {
+		query = query.Where("title like ?", "%"+req.Title+"%")
+	}
+
+	if err := query.
 		Order(fmt.Sprintf("%s %s", req.SortBy, req.Sort)).
 		Limit(req.PageSize).
 		Offset((req.Page - 1) * req.PageSize).

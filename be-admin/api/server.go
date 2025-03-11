@@ -102,14 +102,6 @@ func (s *Server) setUpRouter() {
 
 	//authRoutes := router.Group("/").Use(s.authMiddleware(s.tokenMaker))
 
-	/*
-		authRoutes.GET("/comics", s.getAllSiteItems)
-		authRoutes.GET("/comic/:id", s.getSiteItem)
-		authRoutes.DELETE("/comic/:id", s.deleteSiteItem)
-		authRoutes.DELETE("/comics", s.deleteAllSiteItems)
-	*/
-	//s.router = router
-
 	// Ads routes
 	adsGroup := s.router.Group("/api/ads")
 	adsGroup.Use(s.authMiddleware(s.tokenMaker))
@@ -210,4 +202,18 @@ func setBucketPublic(minioConfig *config.MinioConfig) error {
     }`, minioConfig.BucketName)
 
 	return minioConfig.Client.SetBucketPolicy(ctx, minioConfig.BucketName, policy)
+}
+
+func ExtractUserID(ctx *gin.Context) (int64, error) {
+	userID, exists := ctx.Get("user_id")
+	if !exists {
+		return 0, fmt.Errorf("user not authenticated")
+	}
+
+	userIDInt64, ok := userID.(int64)
+	if !ok {
+		return 0, fmt.Errorf("invalid user ID type")
+	}
+
+	return userIDInt64, nil
 }

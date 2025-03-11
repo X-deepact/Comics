@@ -20,7 +20,7 @@ func (s *Server) generalRouter() {
 // @Accept json
 // @Produce json
 // @Security     BearerAuth
-// @Success 200 {object} []dto.TierModel
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.TierModel} "Tiers"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/general/tiers [get]
@@ -42,7 +42,7 @@ func (s *Server) getGeneralTiers(ctx *gin.Context) {
 // @Param name query string false "Name"
 // @Param language query string false "Language"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.GeneralGenreResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.GeneralGenreResponse} "Genres"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/general/genres [get]
@@ -69,7 +69,7 @@ func (s *Server) getGeneralGenres(ctx *gin.Context) {
 // @Produce json
 // @Param name query string false "Name"
 // @Security     BearerAuth
-// @Success 200 {object} []dto.GeneralAuthorResponse
+// @Success 200 {object} dto.ResponseMessage{data=[]dto.GeneralAuthorResponse} "Authors"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/general/authors [get]

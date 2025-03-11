@@ -8,6 +8,7 @@ type RequestQueryFilter struct {
 	SortBy   string `form:"sort_by,omitempty" json:"sort_by,omitempty"`
 	Sort     string `form:"sort,omitempty" json:"sort,omitempty"`
 	Name     string `form:"name,omitempty" json:"name,omitempty"`
+	Title    string `form:"title,omitempty" json:"title,omitempty"`
 }
 
 func (r *RequestQueryFilter) Bind(ctx *gin.Context) error {

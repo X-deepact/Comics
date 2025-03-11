@@ -35,7 +35,7 @@ func (s *Server) comicRouter() {
 // @Param authors formData []int false "Author ID"
 // @Param cover formData file false "Comic cover image"
 // @Security BearerAuth
-// @Success 200 {object} dto.ComicResponse "Comic created successfully"
+// @Success 200 {object} dto.ResponseMessage{data=dto.ComicResponse} "Comic created successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 401 {object} dto.ResponseMessage "Unauthorized"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
@@ -82,7 +82,7 @@ func (s *Server) createComic(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ComicReturn "Comic found"
+// @Success 200 {object} dto.ResponseMessage{data=dto.ComicReturn} "Comic retrieved successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics/{id} [get]
@@ -148,7 +148,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 // @Param author query int false "Author ID"
 // @Param genre query int false "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ListResponse{data=dto.ComicReturn} "List of comics"
+// @Success 200 {object} dto.ResponseMessage{data=dto.ComicReturn} "List of comics"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
 // @Router /api/comics [get]
@@ -226,7 +226,7 @@ func (s *Server) getComics(ctx *gin.Context) {
 // @Param authors formData []int false "Author ID"
 // @Param cover formData file false "Comic cover image"
 // @Security BearerAuth
-// @Success 200 {object} dto.ComicResponse "Comic updated successfully"
+// @Success 200 {object} dto.ResponseMessage{data=dto.ComicResponse} "Comic updated successfully"
 // @Failure 400 {object} dto.ResponseMessage "Invalid request"
 // @Failure 401 {object} dto.ResponseMessage "Unauthorized"
 // @Failure 500 {object} dto.ResponseMessage "Internal server error"
