@@ -32,7 +32,7 @@
       </div>
     </TableCell>
     <TableCell>
-      <p class="font-medium">{{ data.updated_by_name || 'N/A' }}</p>
+      <p v-if="data.updated_by_name" class="font-medium">{{ data.updated_by_name }}</p>
     </TableCell>
     <TableCell>
       <div>
