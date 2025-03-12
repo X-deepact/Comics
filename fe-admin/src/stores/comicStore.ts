@@ -198,6 +198,26 @@ export const useComicStore = defineStore("comicStore", () => {
       genres: [],
     };
   }
+  async function getComicById(id: any) {
+    await axios
+      .get(`${API_URL}/comics/${id}`, { headers: authHeader() })
+      .then((response) => {
+        if (response.data.code == "ERROR") {
+          toast({
+            description: response.data.msg,
+            variant: "destructive",
+          });
+          return false;
+        }
+        return response.data.data;
+      })
+      .catch((error) => {
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
+      });
+  }
   async function deleteComic(id: any) {
     await axios
       .delete(`${API_URL}/comics/${id}`, {
@@ -256,5 +276,6 @@ export const useComicStore = defineStore("comicStore", () => {
     updateComic,
     deleteComic,
     setActiveComic,
+    getComicById,
   };
 });

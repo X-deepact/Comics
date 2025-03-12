@@ -9,8 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRecommendStore, RecommendPosition, positionLabels } from "@/stores/recommendStore";
+import { useComicStore } from "@/stores/comicStore";
 import loadingImg from "@/assets/loading.svg";
 import { useToast } from "@/components/ui/toast/use-toast";
 import {
@@ -24,16 +25,45 @@ import {
 const { toast } = useToast();
 const isLoading = ref(false);
 const recommendStore = useRecommendStore();
+const comicStore = useComicStore();
 const previewImage = ref<string>("");
 const fileInput = ref<HTMLInputElement | null>(null);
+const selectedComic = ref<{ id: number, name: string } | null>(null);
 
 const formData = ref({
   title: "",
   cover: "",
-  position: RecommendPosition.COMPLETE_MASTERPIECE,
+  position: RecommendPosition.TOPING,
   active_from: "",
   active_to: "",
 });
+
+// Add comic search functionality
+const comicSearchKeyword = ref("");
+const searchResults = ref<any[]>([]);
+
+// Function to search comics
+const searchComics = async () => {
+  if (comicSearchKeyword.value.trim()) {
+    comicStore.searchKeyword = comicSearchKeyword.value;
+    await comicStore.getComicData();
+    searchResults.value = comicStore.comicData;
+  } else {
+    searchResults.value = [];
+  }
+};
+
+// Function to select comic
+const selectComic = (comic: any) => {
+  selectedComic.value = { id: comic.id, name: comic.name };
+  comicSearchKeyword.value = "";
+  searchResults.value = [];
+};
+
+// Function to remove selected comic
+const removeComic = () => {
+  selectedComic.value = null;
+};
 
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -48,11 +78,12 @@ const resetForm = () => {
   formData.value = {
     title: "",
     cover: "",
-    position: RecommendPosition.COMPLETE_MASTERPIECE,
+    position: RecommendPosition.TOPING,
     active_from: "",
     active_to: "",
   };
   previewImage.value = "";
+  selectedComic.value = null;
   if (fileInput.value) {
     fileInput.value.value = "";
   }
@@ -66,8 +97,6 @@ const handleSubmit = async () => {
     // Convert date strings to Unix timestamps (start of day)
     const activeFromDate = new Date(formData.value.active_from);
     const activeToDate = new Date(formData.value.active_to);
-
-    // Set time to start of day (00:00:00)
     activeFromDate.setHours(0, 0, 0, 0);
     activeToDate.setHours(0, 0, 0, 0);
 
@@ -79,7 +108,14 @@ const handleSubmit = async () => {
       active_to: Math.floor(activeToDate.getTime() / 1000),
     };
 
-    await recommendStore.createRecommend(submitData);
+    // Create the recommendation first
+    const createdRecommend = await recommendStore.createRecommend(submitData);
+    
+    // Add the selected comic
+    if (createdRecommend && createdRecommend.id && selectedComic.value) {
+      await recommendStore.createRecommendComic(createdRecommend.id, selectedComic.value.id);
+    }
+
     recommendStore.createDialogIsOpen = false;
     await recommendStore.getRecommendData();
     resetForm();
@@ -95,9 +131,9 @@ const handleSubmit = async () => {
 
 const validateForm = () => {
   if (!formData.value.title || !formData.value.cover || 
-      !formData.value.active_from || !formData.value.active_to) {
+      !formData.value.active_from || !formData.value.active_to || !selectedComic.value) {
     toast({
-      description: "Please fill in all required fields",
+      description: "Please fill in all required fields and select a comic",
       variant: "destructive",
     });
     return false;
@@ -134,7 +170,7 @@ const validateForm = () => {
       if (!value) resetForm();
     }"
   >
-    <DialogContent class="sm:max-w-[425px]">
+    <DialogContent>
       <DialogHeader>
         <DialogTitle>Create Recommendation</DialogTitle>
       </DialogHeader>
@@ -153,27 +189,35 @@ const validateForm = () => {
           <div class="grid grid-cols-4 items-center gap-4">
             <Label class="text-right">Cover *</Label>
             <div class="col-span-3">
-              <Input
+              <input
                 ref="fileInput"
                 type="file"
                 accept="image/*"
                 @change="handleFileChange"
-                class="mb-2"
-                required
+                class="hidden"
               />
-              <img
-                v-if="previewImage"
-                :src="previewImage"
-                alt="Preview"
-                class="max-w-[200px] max-h-[200px] object-contain"
-              />
+              <Button
+                type="button"
+                variant="outline"
+                class="w-full"
+                @click="fileInput?.click()"
+              >
+                Choose Image
+              </Button>
+              <div v-if="previewImage" class="mt-2">
+                <img
+                  :src="previewImage"
+                  alt="Preview"
+                  class="max-w-full max-h-[200px] object-contain rounded-md border"
+                />
+              </div>
             </div>
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Position *</Label>
-              <div class="col-span-3">
-              <Select v-model="formData.position" >
+            <Label class="text-right">Position *</Label>
+            <div class="col-span-3">
+              <Select v-model="formData.position">
                 <SelectTrigger>
                   <SelectValue :placeholder="positionLabels[formData.position]" />
                 </SelectTrigger>
@@ -195,15 +239,12 @@ const validateForm = () => {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              </div>
             </div>
+          </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right" for="active_from">
-              Active From *
-            </Label>
+            <Label class="text-right">Active From *</Label>
             <Input
-              id="active_from"
               type="date"
               v-model="formData.active_from"
               class="col-span-3"
@@ -211,15 +252,57 @@ const validateForm = () => {
           </div>
 
           <div class="grid grid-cols-4 items-center gap-4">
-            <Label class="text-right" for="active_to">
-              Active To *
-            </Label>
+            <Label class="text-right">Active To *</Label>
             <Input
-              id="active_to"
               type="date"
               v-model="formData.active_to"
               class="col-span-3"
             />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 items-center gap-4">
+          <Label class="text-right">Comic *</Label>
+          <div class="col-span-3">
+            <div class="flex gap-2">
+              <Input
+                v-model="comicSearchKeyword"
+                placeholder="Search comics..."
+                @input="searchComics"
+                class="flex-1"
+              />
+            </div>
+
+            <!-- Search Results -->
+            <div v-if="searchResults.length > 0" class="border rounded-lg shadow-sm">
+              <div class="max-h-48 overflow-y-auto">
+                <div
+                  v-for="comic in searchResults"
+                  :key="comic.id"
+                  class="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                  @click="selectComic(comic)"
+                >
+                  <span class="font-medium">{{ comic.name }}</span>
+                  <Button size="sm" variant="ghost">
+                    Select
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected Comic -->
+            <div v-if="selectedComic" class="mt-2 border rounded-lg shadow-sm">
+              <div class="flex items-center justify-between p-3">
+                <span class="font-medium">{{ selectedComic.name }}</span>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  @click="removeComic"
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
