@@ -7,17 +7,19 @@ const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
 
 export enum RecommendPosition {
-  COMPLETE_MASTERPIECE = 10,
-  FASTEST_RISING = 20,
-  NEW_PUBLISHING = 30,
-  RECENTLY_UPDATE = 40
+  TOPING = 1,
+  RECOMMEND_PRODUCTS = 2,
+  RECOMMEND_MASTERPIECES = 3,
+  FASTEST_GROWING = 4,
+  TESTING_NEW_PRODUCTS = 5
 }
 
 export const positionLabels: { [key: number]: string } = {
-  [RecommendPosition.COMPLETE_MASTERPIECE]: "Complete Masterpiece",
-  [RecommendPosition.FASTEST_RISING]: "Fastest Rising",
-  [RecommendPosition.NEW_PUBLISHING]: "New Publishing",
-  [RecommendPosition.RECENTLY_UPDATE]: "Recently Update"
+  [RecommendPosition.TOPING]: "Toping",
+  [RecommendPosition.RECOMMEND_PRODUCTS]: "Recommend Products",
+  [RecommendPosition.RECOMMEND_MASTERPIECES]: "Recommend Masterpieces",
+  [RecommendPosition.FASTEST_GROWING]: "Fastest Growing",
+  [RecommendPosition.TESTING_NEW_PRODUCTS]: "Testing New Products"
 };
 
 export interface Comic {

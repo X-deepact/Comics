@@ -178,17 +178,20 @@ const validateForm = () => {
                   <SelectValue :placeholder="positionLabels[formData.position]" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem :value="RecommendPosition.COMPLETE_MASTERPIECE">
-                    {{ positionLabels[RecommendPosition.COMPLETE_MASTERPIECE] }}
+                  <SelectItem :value="RecommendPosition.TOPING">
+                    {{ positionLabels[RecommendPosition.TOPING] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.FASTEST_RISING">
-                    {{ positionLabels[RecommendPosition.FASTEST_RISING] }}
+                  <SelectItem :value="RecommendPosition.RECOMMEND_PRODUCTS">
+                    {{ positionLabels[RecommendPosition.RECOMMEND_PRODUCTS] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.NEW_PUBLISHING">
-                    {{ positionLabels[RecommendPosition.NEW_PUBLISHING] }}
+                  <SelectItem :value="RecommendPosition.RECOMMEND_MASTERPIECES">
+                    {{ positionLabels[RecommendPosition.RECOMMEND_MASTERPIECES] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.RECENTLY_UPDATE">
-                    {{ positionLabels[RecommendPosition.RECENTLY_UPDATE] }}
+                  <SelectItem :value="RecommendPosition.FASTEST_GROWING">
+                    {{ positionLabels[RecommendPosition.FASTEST_GROWING] }}
+                  </SelectItem>
+                  <SelectItem :value="RecommendPosition.TESTING_NEW_PRODUCTS">
+                    {{ positionLabels[RecommendPosition.TESTING_NEW_PRODUCTS] }}
                   </SelectItem>
                 </SelectContent>
               </Select>
