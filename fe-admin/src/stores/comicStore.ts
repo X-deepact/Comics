@@ -38,6 +38,7 @@ export const useComicStore = defineStore("comicStore", () => {
     description: "",
     code: "",
     lang: "",
+    original_language: "",
     audience: "",
     status: "",
     authors: [] as Author[],
@@ -96,6 +97,7 @@ export const useComicStore = defineStore("comicStore", () => {
     formData.append("description", data.description);
     formData.append("code", data.code);
     formData.append("lang", data.language);
+    formData.append("original_language", data.original_language);
     formData.append("audience", data.audience);
     formData.append("status", data.status);
     data.author.forEach((author: any) => formData.append("authors", author.id));
@@ -154,6 +156,7 @@ export const useComicStore = defineStore("comicStore", () => {
     formData.append("description", data.description);
     formData.append("code", data.code);
     formData.append("lang", data.lang);
+    formData.append("original_language", data.original_language);
     formData.append("audience", data.audience);
     formData.append("status", data.status);
     data.author.forEach((author: any) => formData.append("authors", author.id));
@@ -188,6 +191,7 @@ export const useComicStore = defineStore("comicStore", () => {
       description: "",
       code: "",
       lang: "",
+      original_language: "",
       audience: "",
       status: "",
       authors: [],
@@ -224,6 +228,7 @@ export const useComicStore = defineStore("comicStore", () => {
       description: "",
       code: "",
       lang: "",
+      original_language: "",
       audience: "",
       status: "",
       authors: [],

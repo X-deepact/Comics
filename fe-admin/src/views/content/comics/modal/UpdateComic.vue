@@ -40,6 +40,7 @@ const comic = ref({
   cover: null as File | null,
   description: "",
   lang: "all",
+  original_language: "en",
   audience: "all",
   status: "ongoing",
 });
@@ -54,6 +55,7 @@ const resetComic = () => {
     cover: null,
     description: "",
     lang: "",
+    original_language: "en",
     audience: "",
     status: "ongoing",
   };
@@ -126,6 +128,21 @@ const checkForm = () => {
         <Input v-model="comicStore.selectedData.code" placeholder="Code" />
       </div>
       <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Original Language</Label>
+        <Select v-model="comicStore.selectedData.original_language">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="cn">Chinese</SelectItem>
+              <SelectItem value="vi">Vietnamese</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Language</Label>
         <Select v-model="comicStore.selectedData.lang">
           <SelectTrigger>
@@ -135,7 +152,7 @@ const checkForm = () => {
             <SelectGroup>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="en">English</SelectItem>
-              <SelectItem value="ch">Chinese</SelectItem>
+              <SelectItem value="cn">Chinese</SelectItem>
               <SelectItem value="vi">Vietnamese</SelectItem>
             </SelectGroup>
           </SelectContent>
@@ -184,6 +201,7 @@ const checkForm = () => {
               comic.description = comicStore.selectedData.description;
               comic.code = comicStore.selectedData.code;
               comic.lang = comicStore.selectedData.lang;
+              comic.original_language = comicStore.selectedData.original_language;
               comic.audience = comicStore.selectedData.audience;
               comic.status = comicStore.selectedData.status;
               comic.genre = comicStore.selectedData.genres;

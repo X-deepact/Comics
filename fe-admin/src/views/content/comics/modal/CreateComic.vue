@@ -40,6 +40,7 @@ const comic = ref({
   cover: null as File | null,
   description: "",
   language: "all",
+  original_language: "en",
   audience: "all",
   status: "ongoing",
 });
@@ -54,6 +55,7 @@ const resetComic = () => {
     cover: null,
     description: "",
     language: "",
+    original_language: "en",
     audience: "",
     status: "ongoing",
   };
@@ -130,7 +132,22 @@ const checkForm = () => {
             <SelectGroup>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="en">English</SelectItem>
-              <SelectItem value="ch">Chinese</SelectItem>
+              <SelectItem value="cn">Chinese</SelectItem>
+              <SelectItem value="vi">Vietnamese</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Original Language</Label>
+        <Select v-model="comic.original_language">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="en">English</SelectItem>
+              <SelectItem value="cn">Chinese</SelectItem>
               <SelectItem value="vi">Vietnamese</SelectItem>
             </SelectGroup>
           </SelectContent>

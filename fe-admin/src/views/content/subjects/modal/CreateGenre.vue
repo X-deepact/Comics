@@ -38,7 +38,7 @@ const resetGenre = () => {
   };
 };
 const checkForm = () => {
-  if (genre.name) return true;
+  if (genre.value.name) return true;
   toast({
     description: "Name cannot be empty!",
     variant: "destructive",
@@ -50,7 +50,7 @@ const checkForm = () => {
     @update:open="(value: boolean) => { genreStore.createDialogIsOpen = value; }">
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Create Subject</DialogTitle>
+        <DialogTitle>Create Genre</DialogTitle>
       </DialogHeader>
       <div class="flex items-center gap-4">
         <Label for="name" class="text-center w-1/4">Name</Label>

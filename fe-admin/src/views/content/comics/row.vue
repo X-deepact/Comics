@@ -32,6 +32,12 @@
           </Badge>
         </div>
         <div>
+          <Label>Original Language: </Label>
+          <Badge variant="outline" class="text-xs">
+            {{ langConverter(data.original_language) }}
+          </Badge>
+        </div>
+        <div>
           <Label>Language: </Label>
           <Badge variant="outline" class="text-xs">
             {{ langConverter(data.lang) }}
@@ -50,11 +56,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.created_by_user.username
-      }}</Badge>
+        }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.created_at, true)
-        }}</Label>
+          }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.created_at) }}
         </p>
@@ -63,11 +69,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.updated_by_user.username
-      }}</Badge>
+        }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.updated_at, true)
-        }}</Label>
+          }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.updated_at) }}
         </p>
@@ -99,6 +105,7 @@
               description: data.description,
               active: data.active,
               lang: data.lang,
+              original_language: data.original_language,
               audience: data.audience,
               authors: data.authors,
               genres: data.genres,
