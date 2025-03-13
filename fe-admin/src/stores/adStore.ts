@@ -277,6 +277,40 @@ export const useAdStore = defineStore("adStore", () => {
     }
   }
 
+  const uploadImage = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await axios.post(
+        `${API_URL}/upload-image`,
+        formData,
+        { 
+          headers: { 
+            ...authHeader(),
+            'Content-Type': 'multipart/form-data'
+          } 
+        }
+      );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      return response.data.filename; // Adjust based on your API response structure
+    } catch (error: any) {
+      toast({
+        description: error.response?.data?.message || error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
@@ -295,6 +329,7 @@ export const useAdStore = defineStore("adStore", () => {
     filters,
     updateAdStatus,
     sort,
-    updateSort
+    updateSort,
+    uploadImage
   };
 }); 

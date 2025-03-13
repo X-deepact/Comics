@@ -101,6 +101,11 @@ func (s *Server) getAdsList(ctx *gin.Context) {
 		return
 	}
 
+	prefix := s.minio.GetFileUrl(s.config.FileStorage.AdsFolder, "")
+	for i := 0; i < len(ads); i++ {
+		ads[i].Image = prefix + ads[i].Image
+	}
+
 	config.BuildListResponse(ctx, &common.Pagination{
 		Page:     req.Page,
 		PageSize: req.PageSize,
@@ -260,6 +265,8 @@ func (s *Server) getAdsById(ctx *gin.Context) {
 		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
+
+	response.Image = s.minio.GetFileUrl(s.config.FileStorage.AdsFolder, response.Image)
 
 	config.BuildSuccessResponse(ctx, gin.H{
 		"message": "Get advertisement successfully",

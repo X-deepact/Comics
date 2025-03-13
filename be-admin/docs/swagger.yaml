@@ -853,6 +853,37 @@ paths:
       summary: Update advertisement status
       tags:
       - ads
+  /api/ads/upload-image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an image for advertisement
+      parameters:
+      - description: Image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Advertisement image uploaded successfully
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload advertisement image
+      tags:
+      - ads
   /api/author:
     get:
       consumes:
