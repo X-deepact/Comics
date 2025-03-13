@@ -78,6 +78,13 @@ export interface RecommendComicRequest {
   comic_id: number;
 }
 
+// Add new interface for comic search response
+interface ComicSearchResponse {
+  code: string;
+  data: Comic[];
+  msg: string;
+}
+
 export const useRecommendStore = defineStore("recommendStore", () => {
   const createDialogIsOpen = ref(false);
   const updateDialogIsOpen = ref(false);
@@ -91,6 +98,10 @@ export const useRecommendStore = defineStore("recommendStore", () => {
   const searchKeyword = ref("");
   const sortBy = ref("updated_at");
   const sortDirection = ref<"asc" | "desc">("desc");
+
+  // Add new state for comic search
+  const searchingComics = ref(false);
+  const comicSearchResults = ref<Comic[]>([]);
 
   async function getRecommendData() {
     isLoading.value = true;
@@ -320,6 +331,49 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     current_page.value = 1; // Reset to first page when searching
   }
 
+  // Add new action for searching comics
+  async function searchComics(name: string | null | undefined) {
+    // Safely handle the input
+    const searchTerm = (name || '').toString().trim();
+    if (!searchTerm) {
+      comicSearchResults.value = [];
+      return;
+    }
+
+    searchingComics.value = true;
+    try {
+      const response = await axios.get<ComicSearchResponse>(
+        `${API_URL}/general/comics`,
+        {
+          params: { name: searchTerm },
+          headers: authHeader()
+        }
+      );
+
+      if (response.data.code === "SUCCESS") {
+        comicSearchResults.value = response.data.data;
+      } else {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        comicSearchResults.value = [];
+      }
+    } catch (error: any) {
+      toast({
+        description: error.response?.data?.msg || "Failed to search comics",
+        variant: "destructive",
+      });
+      comicSearchResults.value = [];
+    } finally {
+      searchingComics.value = false;
+    }
+  }
+
+  const clearComicSearchResults = () => {
+    comicSearchResults.value = [];
+  };
+
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
@@ -342,5 +396,9 @@ export const useRecommendStore = defineStore("recommendStore", () => {
     deleteRecommendComic,
     handleSort,
     handleSearch,
+    searchingComics,
+    comicSearchResults,
+    searchComics,
+    clearComicSearchResults,
   };
 }); 

@@ -110,8 +110,8 @@ func (s *Server) userRouter() {
 // @Accept json
 // @Produce json
 // @Param login body dto.LoginRequest true "User Login Data"
-// @Success 200 {object} dto.ResponseMessage{data=dto.LoginResponse}
-// @Failure 400  "Invalid request"
+// @Success 200 {object} dto.SuccessResponse{data=dto.LoginResponse}
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Router /api/user/login [post]
 func (s *Server) login(ctx *gin.Context) {
 	var req dto.LoginRequest
@@ -190,10 +190,9 @@ func (s *Server) login(ctx *gin.Context) {
 // @Param avatar formData file false "Avatar File"
 // @Param tier_id formData int64 true "Tier ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.UserDetailDto}
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Failure 401 {object} dto.ResponseMessage "User not authenticated"
+// @Success 200 {object} dto.SuccessResponse{data=dto.UserDetailDto}
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user [post]
 func (s *Server) createUser(ctx *gin.Context) {
 	var req dto.UserCreateRequest
@@ -339,9 +338,9 @@ func (s *Server) createUser(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse} "User retrieved successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.UserResponse} "User retrieved successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/{id} [get]
 func (s *Server) getUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -379,9 +378,9 @@ func (s *Server) getUser(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by"
 // @Param sort query string false "Sort order (asc, desc)"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.UserResponse} "List users"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.ListSuccessResponse{data=[]dto.UserResponse} "List users"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user [get]
 func (s *Server) getUsers(ctx *gin.Context) {
 	var req dto.UserListRequest
@@ -428,10 +427,9 @@ func (s *Server) getUsers(ctx *gin.Context) {
 // @Param avatar formData file false "Avatar File"
 // @Param tier_id formData int64 true "Tier ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse}
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Failure 401 {object} dto.ResponseMessage "User not authenticated"
+// @Success 200 {object} dto.SuccessResponse{data=dto.UserResponse}
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user [put]
 func (s *Server) updateUser(ctx *gin.Context) {
 	var req dto.UserUpdateRequest
@@ -551,9 +549,9 @@ func (s *Server) updateUser(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "User successfully deleted"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "User successfully deleted"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/{id} [delete]
 func (s *Server) deleteUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -589,9 +587,9 @@ func (s *Server) deleteUser(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "User ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "User successfully activated/deactivated"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "User successfully activated/deactivated"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/{id}/active [put]
 func (s *Server) activeUser(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -626,9 +624,9 @@ func (s *Server) activeUser(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse} "Profile retrieved successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.UserResponse} "Profile retrieved successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/profile [get]
 func (s *Server) getProfile(ctx *gin.Context) {
 	// Extract user ID from context
@@ -672,10 +670,9 @@ func (s *Server) getProfile(ctx *gin.Context) {
 // @Param description formData string false "Description"
 // @Param avatar formData file false "Avatar File"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.UserResponse}
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
-// @Failure 401 {object} dto.ResponseMessage "User not authenticated"
+// @Success 200 {object} dto.SuccessResponse{data=dto.UserResponse}
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/profile [put]
 func (s *Server) updateProfile(ctx *gin.Context) {
 	var req dto.UserProfileUpdateRequest
@@ -793,9 +790,9 @@ func (s *Server) updateProfile(ctx *gin.Context) {
 // @Accept json
 // @Param ChangePassword body dto.UserChangePasswordRequest true "Change Password Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Password changed successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Password changed successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/user/change-password [put]
 func (s *Server) changePassword(ctx *gin.Context) {
 	var req dto.UserChangePasswordRequest

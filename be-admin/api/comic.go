@@ -3,11 +3,9 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
+	"github.com/gin-gonic/gin"
 	"pkg-common/common"
 	"strconv"
-	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) comicRouter() {
@@ -35,10 +33,9 @@ func (s *Server) comicRouter() {
 // @Param authors formData []int false "Author ID"
 // @Param cover formData file false "Comic cover image"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ComicResponse} "Comic created successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 401 {object} dto.ResponseMessage "Unauthorized"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ComicResponse} "Comic created successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics [post]
 func (s *Server) createComic(ctx *gin.Context) {
 	var req dto.ComicRequest
@@ -82,9 +79,9 @@ func (s *Server) createComic(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ComicReturn} "Comic retrieved successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ComicReturn} "Comic retrieved successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics/{id} [get]
 func (s *Server) getComic(ctx *gin.Context) {
 	// Extract comic ID from URI
@@ -110,7 +107,7 @@ func (s *Server) getComic(ctx *gin.Context) {
 	} else {
 		userUpdate, _ = s.store.GetUser(comic.UpdatedBy)
 	}
-	if !strings.HasPrefix(comic.Cover, "http") {
+	if comic.Cover != "" {
 		comic.Cover = s.minio.GetFileUrl(s.config.FileStorage.CoverFolder, comic.Cover)
 	}
 
@@ -148,9 +145,9 @@ func (s *Server) getComic(ctx *gin.Context) {
 // @Param author query int false "Author ID"
 // @Param genre query int false "Genre ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ComicReturn} "List of comics"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.ListSuccessResponse{data=[]dto.ComicReturn} "List comics"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics [get]
 func (s *Server) getComics(ctx *gin.Context) {
 	var req dto.ComicListRequest
@@ -173,7 +170,7 @@ func (s *Server) getComics(ctx *gin.Context) {
 	user := map[int64]*dto.UserDetailDto{0: nil}
 
 	for i, comic := range comics {
-		if !strings.HasPrefix(comic.Cover, "http") {
+		if comic.Cover != "" {
 			comic.Cover = s.minio.GetFileUrl(s.config.FileStorage.CoverFolder, comic.Cover)
 		}
 		comicsReturn[i] = dto.ComicReturn{
@@ -226,10 +223,9 @@ func (s *Server) getComics(ctx *gin.Context) {
 // @Param authors formData []int false "Author ID"
 // @Param cover formData file false "Comic cover image"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ComicResponse} "Comic updated successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 401 {object} dto.ResponseMessage "Unauthorized"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ComicResponse} "Comic updated successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics [put]
 func (s *Server) updateComic(ctx *gin.Context) {
 	var req dto.ComicUpdateRequest
@@ -275,9 +271,9 @@ func (s *Server) updateComic(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Comic successfully deleted"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Comic successfully deleted"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics/{id} [delete]
 func (s *Server) deleteComic(ctx *gin.Context) {
 	var uri struct {
@@ -304,9 +300,9 @@ func (s *Server) deleteComic(ctx *gin.Context) {
 // @Produce json
 // @Param file formData file true "Comic cover image"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Comic cover uploaded successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Comic cover uploaded successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics/upload-cover [post]
 func (s *Server) saveCover(ctx *gin.Context) {
 	file, err := ctx.FormFile("cover")
@@ -337,10 +333,9 @@ func (s *Server) saveCover(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Comic ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Comic activated/deactivated successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 401 {object} dto.ResponseMessage "Unauthorized"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Comic activated/deactivated successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/comics/{id}/active [put]
 func (s *Server) activeComic(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))

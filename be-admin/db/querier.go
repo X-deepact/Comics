@@ -46,6 +46,7 @@ type Querier interface {
 	GetGeneralTiers() ([]*dto.TierModel, error)
 	GetGeneralGenres(req dto.GeneralGenreRequest) ([]dto.GeneralGenreResponse, error)
 	GetGeneralAuthors(req dto.GeneralAuthorRequest) ([]dto.GeneralAuthorResponse, error)
+	GetGeneralComics(req dto.GeneralComicRequest) ([]dto.GeneralComicResponse, error)
 
 	// Ads
 	CreateAds(ads *model.AdModel) error
@@ -53,6 +54,7 @@ type Querier interface {
 	GetAdsList(req dto.AdsListRequest) ([]dto.AdsResponse, int64, error)
 	UpdateAds(ads *model.AdModel) error
 	DeleteAds(id int64) error
+	UpdateAdsStatus(id int64, status string) error
 
 	// Chapters
 	CreateChapter(chapter *model.ChapterModel) error

@@ -35,9 +35,9 @@ func (s *Server) recommendRoutes() {
 // @Param active_to formData int false "Active To"
 // @Param cover formData file false "Cover "
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.RecommendResponse} "Recommend created successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.RecommendResponse} "Recommend created successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend [post]
 func (s *Server) CreateRecommend(ctx *gin.Context) {
 	var req dto.RecommendCreateRequest
@@ -115,9 +115,9 @@ func (s *Server) CreateRecommend(ctx *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Recommend ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.RecommendResponse} "Recommend found"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.RecommendResponse} "Recommend found"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend/{id} [get]
 func (s *Server) GetRecommendById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -168,9 +168,9 @@ func (s *Server) GetRecommendById(ctx *gin.Context) {
 // @Param page_size query int false "Page size"
 // @Param title query string false "Title"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.RecommendResponse} "List recommends"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.ListSuccessResponse{data=[]dto.RecommendResponse} "List recommends"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend [get]
 func (s *Server) GetRecommends(ctx *gin.Context) {
 	var req dto.RequestQueryFilter
@@ -229,9 +229,9 @@ func (s *Server) GetRecommends(ctx *gin.Context) {
 // @Param active_to formData int false "Active To"
 // @Param cover formData file false "Cover "
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.RecommendResponse} "Recommend updated successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.RecommendResponse} "Recommend updated successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend [put]
 func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 	var req dto.RecommendUpdateRequest
@@ -334,9 +334,9 @@ func (s *Server) UpdateRecommendById(ctx *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param id path int true "Recommend ID"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Recommend successfully deleted"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Recommend successfully deleted"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend/{id} [delete]
 func (s *Server) DeleteRecommendById(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -378,9 +378,9 @@ func (s *Server) DeleteRecommendById(ctx *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param recommend body dto.RecommendComicRequest true "Recommend comic create Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.RecommendComicResponse} "Recommend comic created successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.RecommendComicResponse} "Recommend comic created successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend/comic [post]
 func (s *Server) CreateRecommendComic(ctx *gin.Context) {
 	var req dto.RecommendComicRequest
@@ -417,9 +417,9 @@ func (s *Server) CreateRecommendComic(ctx *gin.Context) {
 // @Param     Authorization header string true "Bearer authorization token"
 // @Param recommend body dto.RecommendComicRequest true "Recommend comic create Request"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.RecommendComicResponse} "Recommend comic deleted successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.RecommendComicResponse} "Recommend comic deleted successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/recommend/comic [delete]
 func (s *Server) DeleteRecommendComic(ctx *gin.Context) {
 	var req dto.RecommendComicRequest

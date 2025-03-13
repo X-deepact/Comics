@@ -13,13 +13,14 @@ import (
 func (q *Queries) CreateComic(req *dto.ComicRequest) (*model.ComicModel, error) {
 
 	comic := &model.ComicModel{
-		Name:        req.Name,
-		Code:        req.Code,
-		Lang:        req.Lang,
-		Audience:    req.Audience,
-		Description: req.Description,
-		Cover:       req.Cover,
-		CreatedBy:   req.CreatedBy,
+		Name:             req.Name,
+		Code:             req.Code,
+		Lang:             req.Lang,
+		OriginalLanguage: req.OriginalLanguage,
+		Audience:         req.Audience,
+		Description:      req.Description,
+		Cover:            req.Cover,
+		CreatedBy:        req.CreatedBy,
 	}
 
 	if req.Status == common.COMIC_STATUS_COMPLETED || req.Status == common.COMIC_STATUS_ONGOING {
@@ -126,15 +127,16 @@ func (q *Queries) ListComics(req dto.ComicListRequest) ([]dto.ComicResponse, int
 
 func (q *Queries) UpdateComic(req *dto.ComicUpdateRequest) (*dto.ComicResponse, error) {
 	comic := &model.ComicModel{
-		Id:          req.ID,
-		Name:        req.Name,
-		Code:        req.Code,
-		Lang:        req.Lang,
-		Audience:    req.Audience,
-		Description: req.Description,
-		Cover:       req.Cover,
-		Status:      req.Status,
-		UpdatedBy:   req.UpdatedBy,
+		Id:               req.ID,
+		Name:             req.Name,
+		Code:             req.Code,
+		Lang:             req.Lang,
+		OriginalLanguage: req.OriginalLanguage,
+		Audience:         req.Audience,
+		Description:      req.Description,
+		Cover:            req.Cover,
+		Status:           req.Status,
+		UpdatedBy:        req.UpdatedBy,
 	}
 
 	if err := q.db.WithContext(context.Background()).Model(comic).Updates(comic).Error; err != nil {

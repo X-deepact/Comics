@@ -54,10 +54,11 @@ const searchComics = async () => {
 };
 
 // Function to select comic
-const selectComic = (comic: any) => {
-  selectedComic.value = { id: comic.id, name: comic.name };
+const selectComic = (comic: Comic) => {
+  selectedComic.value = comic;
   comicSearchKeyword.value = "";
-  searchResults.value = [];
+  // Clear the search results in the store
+  recommendStore.comicSearchResults = [];
 };
 
 // Function to remove selected comic
@@ -160,6 +161,30 @@ const validateForm = () => {
 
   return true;
 };
+
+// Remove the import { debounce } line and add this function in the setup script:
+const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void => {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+      timeout = null;
+    }, wait);
+  };
+};
+
+// Then use it as before
+const handleComicSearch = debounce((value: string | null | undefined) => {
+  recommendStore.searchComics(value);
+}, 300);
 </script>
 
 <template>
@@ -267,17 +292,17 @@ const validateForm = () => {
             <div class="flex gap-2">
               <Input
                 v-model="comicSearchKeyword"
-                placeholder="Search comics..."
-                @input="searchComics"
+                placeholder="Search comics by name..."
+                @input="(e) => handleComicSearch((e.target as HTMLInputElement).value)"
                 class="flex-1"
               />
             </div>
 
             <!-- Search Results -->
-            <div v-if="searchResults.length > 0" class="border rounded-lg shadow-sm">
+            <div v-if="recommendStore.comicSearchResults.length > 0" class="border rounded-lg shadow-sm mt-2">
               <div class="max-h-48 overflow-y-auto">
                 <div
-                  v-for="comic in searchResults"
+                  v-for="comic in recommendStore.comicSearchResults"
                   :key="comic.id"
                   class="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
                   @click="selectComic(comic)"
@@ -288,6 +313,19 @@ const validateForm = () => {
                   </Button>
                 </div>
               </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-else-if="recommendStore.searchingComics" class="mt-2 text-sm text-gray-500">
+              Searching...
+            </div>
+
+            <!-- No Results Message -->
+            <div 
+              v-else-if="comicSearchKeyword && recommendStore.comicSearchResults.length === 0" 
+              class="mt-2 text-sm text-gray-500"
+            >
+              No comics found
             </div>
 
             <!-- Selected Comic -->

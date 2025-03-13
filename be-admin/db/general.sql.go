@@ -49,3 +49,39 @@ func (q *Queries) GetGeneralAuthors(req dto.GeneralAuthorRequest) ([]dto.General
 
 	return genres, nil
 }
+
+func (q *Queries) GetGeneralComics(req dto.GeneralComicRequest) ([]dto.GeneralComicResponse, error) {
+	var comics []dto.GeneralComicResponse
+	var query = q.db.WithContext(context.Background()).Table("comics")
+
+	if req.Name != "" {
+		query.Where("name LIKE ?", "%"+req.Name+"%")
+	}
+
+	if req.Language != "" {
+		query.Where("lang = ?", req.Language)
+	}
+
+	if req.OriginalLanguage != "" {
+		query.Where("original_language = ?", req.OriginalLanguage)
+	}
+
+	if req.Audience != "" {
+		query.Where("audience = ? OR audience = 'all'", req.Audience)
+	}
+
+	if req.Author != 0 {
+		query = query.Joins("JOIN comic_authors ON comics.id = comic_authors.comic_id").Where("comic_authors.author_id = ?", req.Author)
+	}
+
+	if req.Genre != 0 {
+		query = query.Joins("JOIN comic_genres ON comics.id = comic_genres.comic_id").Where("comic_genres.genre_id = ?", req.Genre)
+	}
+
+	if err := query.Select("comics.id, comics.name").Order("comics.name").
+		Find(&comics).Error; err != nil {
+		return nil, err
+	}
+
+	return comics, nil
+}

@@ -2,13 +2,10 @@ package api
 
 import (
 	"comics-admin/dto"
-	"net/http"
 	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
 	"time"
-
-	"mime/multipart"
 
 	config "comics-admin/util"
 
@@ -22,9 +19,9 @@ import (
 // @Produce json
 // @Param item body dto.ChapterItemCreateRequest true "Chapter Item Request"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item created successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ChapterItemResponse} "Chapter item created successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items [post]
 func (s *Server) createChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemCreateRequest
@@ -70,9 +67,9 @@ func (s *Server) createChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter Item ID"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item retrieved successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ChapterItemResponse} "Chapter item retrieved successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items/{id} [get]
 func (s *Server) getChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -104,9 +101,9 @@ func (s *Server) getChapterItem(ctx *gin.Context) {
 // @Param sort_by query string false "Sort by field (e.g. page, created_at, updated_at)"
 // @Param sort query string false "Sort order (ASC/DESC)"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.ChapterItemResponse} "List chapter items"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.ListSuccessResponse{data=[]dto.ChapterItemResponse} "List chapter items"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items [get]
 func (s *Server) listChapterItems(ctx *gin.Context) {
 	var req dto.ChapterItemListRequest
@@ -119,6 +116,10 @@ func (s *Server) listChapterItems(ctx *gin.Context) {
 	if err != nil {
 		config.BuildErrorResponse(ctx, err, nil)
 		return
+	}
+
+	for i := range items {
+		items[i].Image = s.minio.GetFileUrl(s.config.FileStorage.ChapterItemFolder, items[i].Image)
 	}
 
 	config.BuildListResponse(ctx, &common.Pagination{
@@ -135,9 +136,9 @@ func (s *Server) listChapterItems(ctx *gin.Context) {
 // @Produce json
 // @Param item body dto.ChapterItemUpdateRequest true "Chapter Item Update Request"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=dto.ChapterItemResponse} "Chapter item updated successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=dto.ChapterItemResponse} "Chapter item updated successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items [put]
 func (s *Server) updateChapterItem(ctx *gin.Context) {
 	var req dto.ChapterItemUpdateRequest
@@ -182,9 +183,9 @@ func (s *Server) updateChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param id path int true "Chapter Item ID"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Chapter item deleted successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Chapter item deleted successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items/{id} [delete]
 func (s *Server) deleteChapterItem(ctx *gin.Context) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
@@ -210,9 +211,9 @@ func (s *Server) deleteChapterItem(ctx *gin.Context) {
 // @Produce json
 // @Param file formData file true "Image file"
 // @Security BearerAuth
-// @Success 200 {object} dto.ResponseMessage "Chapter item image uploaded successfully"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse "Chapter item image uploaded successfully"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/chapter-items/upload-image [post]
 func (s *Server) uploadChapterImage(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
@@ -221,50 +222,20 @@ func (s *Server) uploadChapterImage(ctx *gin.Context) {
 		return
 	}
 
-	fileLink := ""
+	fileName := ""
 
 	if file != nil {
-		fileName, err := s.minio.SaveImage(file, s.config.FileStorage.ChapterItemFolder)
+		fileName, err = s.minio.SaveImage(file, s.config.FileStorage.ChapterItemFolder)
 		if err != nil {
 			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
-
-		fileLink = s.minio.GetFileUrl(s.config.FileStorage.ChapterItemFolder, fileName)
 	}
 
 	config.BuildSuccessResponse(ctx, gin.H{
 		"message": "Chapter item image uploaded successfully",
-		"data":    fileLink,
+		"data":    fileName,
 	})
-}
-
-// isImageFile checks if the file is an image based on its content type
-func (s *Server) isImageFile(file *multipart.FileHeader) bool {
-	// Get file content type
-	openedFile, err := file.Open()
-	if err != nil {
-		return false
-	}
-	defer openedFile.Close()
-
-	// Read first 512 bytes to detect content type
-	buffer := make([]byte, 512)
-	_, err = openedFile.Read(buffer)
-	if err != nil {
-		return false
-	}
-
-	// Check content type
-	contentType := http.DetectContentType(buffer)
-	validTypes := []string{"image/jpeg", "image/png", "image/gif", "image/webp"}
-
-	for _, t := range validTypes {
-		if contentType == t {
-			return true
-		}
-	}
-	return false
 }
 
 // getUserIDFromContext extracts user ID from gin context

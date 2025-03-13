@@ -7,9 +7,10 @@ import (
 	"comics-admin/val"
 	"context"
 	"fmt"
-	"github.com/minio/minio-go/v7"
 	"net/http"
 	"os"
+
+	"github.com/minio/minio-go/v7"
 
 	ginzerolog "github.com/dn365/gin-zerolog"
 	"github.com/gin-contrib/cors"
@@ -112,6 +113,7 @@ func (s *Server) setUpRouter() {
 		adsGroup.PUT("", s.updateAds)
 		adsGroup.DELETE("/:id", s.deleteAds)
 		adsGroup.PATCH("/:id/status", s.updateAdsStatus)
+		adsGroup.POST("/upload-image", s.uploadAdsImage)
 	}
 
 	chapterItemGroup := s.router.Group("/api/chapter-items")

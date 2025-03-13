@@ -31,14 +31,17 @@ Get list of advertisements with pagination
 | page_size | query | Page size | Yes | integer |
 | title | query | Filter by title | No | string |
 | type | query | Filter by type (internal/external) | No | string |
+| status | query | Filter by status (active/inactive) | No | string |
+| sort_by | query | Sort by field (e.g. title, created_at, updated_at) | No | string |
+| sort | query | Sort order (ASC/DESC) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.AdsResponse](#dto.AdsResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Get advertisement list successfully | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -60,14 +63,15 @@ Create a new advertisement
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | ad | body | Advertisement Request | Yes | [dto.AdsCreateRequest](#dto.AdsCreateRequest) |
+| status | query | Filter by status (active/inactive) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.AdsResponse](#dto.AdsResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Advertisement created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -89,14 +93,15 @@ Update an existing advertisement
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | ad | body | Advertisement Update Request | Yes | [dto.AdsUpdateRequest](#dto.AdsUpdateRequest) |
+| status | query | Filter by status (active/inactive) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.AdsResponse](#dto.AdsResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Advertisement updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -125,9 +130,70 @@ Delete an advertisement by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Advertisement deleted successfully | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Advertisement deleted successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+#### GET
+##### Summary:
+
+Get advertisement by ID
+
+##### Description:
+
+Get detailed information of an advertisement by ID
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| id | path | Advertisement ID | Yes | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Get advertisement successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/ads/{id}/status
+
+#### PATCH
+##### Summary:
+
+Update advertisement status
+
+##### Description:
+
+Update the status of an advertisement to active or inactive
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| id | path | Advertisement ID | Yes | integer |
+| status | body | Status Request | Yes | [dto.AdsUpdateStatusRequest](#dto.AdsUpdateStatusRequest) |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Advertisement status updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -136,6 +202,40 @@ Delete an advertisement by ID
 | BearerAuth | |
 
 ### /api/author
+
+#### GET
+##### Summary:
+
+List GetAuthors
+
+##### Description:
+
+List all authors
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| name | query | Name | No | string |
+| sort_by | query | Sort By | No | string |
+| sort | query | Sort | No | string |
+| page | query | Page number | No | integer |
+| page_size | query | Page size | No | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | List authors | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
 
 #### POST
 ##### Summary:
@@ -150,46 +250,16 @@ Create a new author
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
 | author | body | Author Request | Yes | [dto.AuthorRequest](#dto.AuthorRequest) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.AuthorResponse](#dto.AuthorResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
-
-##### Security
-
-| Security Schema | Scopes |
-| --- | --- |
-| BearerAuth | |
-
-### /api/author/{id}
-
-#### GET
-##### Summary:
-
-Get GetAuthorById
-
-##### Description:
-
-Get a author by GetAuthorById
-
-##### Parameters
-
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| id | path | Author ID | Yes | integer |
-
-##### Responses
-
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [dto.AuthorResponse](#dto.AuthorResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Author created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -210,16 +280,16 @@ Update an existing author
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| id | path | Author ID | Yes | integer |
+| Authorization | header | Bearer authorization token | Yes | string |
 | author | body | Author Update Request | Yes | [dto.AuthorUpdateRequest](#dto.AuthorUpdateRequest) |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.AuthorResponse](#dto.AuthorResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Author updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -227,31 +297,61 @@ Update an existing author
 | --- | --- |
 | BearerAuth | |
 
-### /api/author/list
+### /api/author/{id}
 
-#### GET
+#### DELETE
 ##### Summary:
 
-List GetAuthors
+Delete author by Id
 
 ##### Description:
 
-List all authors
+Delete an existing author
 
 ##### Parameters
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| page | query | Page number | No | integer |
-| page_size | query | Page size | No | integer |
+| Authorization | header | Bearer authorization token | Yes | string |
+| id | path | Author ID | Yes | integer |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.AuthorResponse](#dto.AuthorResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Author deleted successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+#### GET
+##### Summary:
+
+Get GetAuthorById
+
+##### Description:
+
+Get a author by GetAuthorById
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| id | path | Author ID | Yes | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Author found | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -277,14 +377,16 @@ Get list of chapter items with pagination
 | chapter_id | query | Chapter ID | Yes | integer |
 | page | query | Page number | Yes | integer |
 | page_size | query | Page size | Yes | integer |
+| sort_by | query | Sort by field (e.g. page, created_at, updated_at) | No | string |
+| sort | query | Sort order (ASC/DESC) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.ChapterItemResponse](#dto.ChapterItemResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | List chapter items | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -311,9 +413,9 @@ Create a new chapter item (page)
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterItemResponse](#dto.ChapterItemResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter item created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -340,9 +442,9 @@ Update an existing chapter item
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterItemResponse](#dto.ChapterItemResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter item updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -371,9 +473,9 @@ Delete a chapter item by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Chapter item deleted successfully | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter item deleted successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -400,9 +502,9 @@ Get a chapter item by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterItemResponse](#dto.ChapterItemResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter item retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -431,9 +533,9 @@ Upload an image for a chapter item
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter item image uploaded successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -465,9 +567,9 @@ Get chapters
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.ChapterResponse](#dto.ChapterResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | List chapters | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -494,9 +596,9 @@ Create a new chapter
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterResponse](#dto.ChapterResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -523,9 +625,9 @@ Update a chapter
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterResponse](#dto.ChapterResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -554,9 +656,9 @@ Delete a chapter by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Record deleted successfully | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Record deleted successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -583,9 +685,40 @@ Get a chapter
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ChapterResponse](#dto.ChapterResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Chapter retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/chapters/active/{id}
+
+#### PUT
+##### Summary:
+
+Active a chapter
+
+##### Description:
+
+Active a chapter by ID
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| id | path | Chapter ID | Yes | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Record updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -612,18 +745,20 @@ List all comics
 | page_size | query | Page size | No | integer |
 | q | query | Search query | No | string |
 | sort_by | query | Sort by | No | string |
-| sort | query | Sort order | No | string |
+| sort | query | Sort order (asc, desc) | No | string |
 | active | query | Active | No | boolean |
 | language | query | Language | No | string |
 | audience | query | Audience | No | string |
+| author | query | Author ID | No | integer |
+| genre | query | Genre ID | No | integer |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | List of comics | [dto.ListResponse](#dto.ListResponse) & object |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | List comics | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -656,10 +791,9 @@ Create a new comic
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Comic created successfully | [dto.ComicResponse](#dto.ComicResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | Unauthorized | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Comic created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -694,10 +828,9 @@ Update an existing comic
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Comic updated successfully | [dto.ComicResponse](#dto.ComicResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | Unauthorized | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Comic updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -726,9 +859,9 @@ Delete a comic by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Comic successfully deleted | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Comic successfully deleted | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -755,9 +888,40 @@ Get a comic by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.ComicReturn](#dto.ComicReturn) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Comic retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/comics/{id}/active
+
+#### PUT
+##### Summary:
+
+Activate/Deactivate a comic
+
+##### Description:
+
+Activate/Deactivate a comic by ID
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| id | path | Comic ID | Yes | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Comic activated/deactivated successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -786,9 +950,72 @@ Upload a comic cover image
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Comic cover uploaded successfully | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Comic cover uploaded successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/general/authors
+
+#### GET
+##### Summary:
+
+Get general authors
+
+##### Description:
+
+Get general authors
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| name | query | Name | No | string |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Authors | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/general/genres
+
+#### GET
+##### Summary:
+
+Get general genres
+
+##### Description:
+
+Get general genres
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| name | query | Name | No | string |
+| language | query | Language | No | string |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Genres | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -811,9 +1038,9 @@ Get tiers
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.TierModel](#dto.TierModel) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Tiers | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -840,14 +1067,16 @@ List all genre
 | page_size | query | Page size (must be between 10 and 50) | Yes | integer |
 | name | query | Name | No | string |
 | language | query | Language | No | string |
+| sort_by | query | Sort by | No | string |
+| sort | query | Sort order (asc, desc) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.GenreResponse](#dto.GenreResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | List genres | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -874,10 +1103,9 @@ Create a new genre
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.GenreResponse](#dto.GenreResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | User not authenticated | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Genre created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -904,9 +1132,9 @@ Update a new genre
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.GenreResponse](#dto.GenreResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Genre updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -935,9 +1163,9 @@ Delete a genre by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Genre successfully deleted | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Genre successfully deleted | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -964,9 +1192,9 @@ Get a genre by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.GenreResponse](#dto.GenreResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Genre retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -975,6 +1203,40 @@ Get a genre by ID
 | BearerAuth | |
 
 ### /api/recommend
+
+#### GET
+##### Summary:
+
+List recommends
+
+##### Description:
+
+List all recommends
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| sort_by | query | Sort By | No | string |
+| sort | query | Sort | No | string |
+| page | query | Page number | No | integer |
+| page_size | query | Page size | No | integer |
+| title | query | Title | No | string |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | List recommends | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
 
 #### POST
 ##### Summary:
@@ -989,46 +1251,20 @@ Create a new recommend
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| recommend | body | Recommend Create Request | Yes | [dto.RecommendCreateRequest](#dto.RecommendCreateRequest) |
+| Authorization | header | Bearer authorization token | Yes | string |
+| title | formData | Title | Yes | string |
+| position | formData | Position | No | integer |
+| active_from | formData | Active From | No | integer |
+| active_to | formData | Active To | No | integer |
+| cover | formData | Cover  | No | file |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.RecommendResponse](#dto.RecommendResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
-
-##### Security
-
-| Security Schema | Scopes |
-| --- | --- |
-| BearerAuth | |
-
-### /api/recommend/{id}
-
-#### GET
-##### Summary:
-
-Get recommend by Id
-
-##### Description:
-
-Get a recommend by Id
-
-##### Parameters
-
-| Name | Located in | Description | Required | Schema |
-| ---- | ---------- | ----------- | -------- | ---- |
-| id | path | Recommend ID | Yes | integer |
-
-##### Responses
-
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | OK | [dto.RecommendResponse](#dto.RecommendResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Recommend created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1049,16 +1285,20 @@ Update an existing recommend
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| id | path | Recommend ID | Yes | integer |
-| recommend | body | Recommend Update Request | Yes | [dto.RecommendUpdateRequest](#dto.RecommendUpdateRequest) |
+| Authorization | header | Bearer authorization token | Yes | string |
+| title | formData | Title | Yes | string |
+| position | formData | Position | No | integer |
+| active_from | formData | Active From | No | integer |
+| active_to | formData | Active To | No | integer |
+| cover | formData | Cover  | No | file |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.RecommendResponse](#dto.RecommendResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Recommend updated successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1066,31 +1306,123 @@ Update an existing recommend
 | --- | --- |
 | BearerAuth | |
 
-### /api/recommend/list
+### /api/recommend/{id}
 
-#### GET
+#### DELETE
 ##### Summary:
 
-List recommends
+Delete recommend by Id
 
 ##### Description:
 
-List all recommends
+Delete a recommend by Id
 
 ##### Parameters
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
-| page | query | Page number | No | integer |
-| page_size | query | Page size | No | integer |
+| Authorization | header | Bearer authorization token | Yes | string |
+| id | path | Recommend ID | Yes | integer |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.RecommendResponse](#dto.RecommendResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Recommend successfully deleted | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+#### GET
+##### Summary:
+
+Get recommend by Id
+
+##### Description:
+
+Get a recommend by Id
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| id | path | Recommend ID | Yes | integer |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Recommend found | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+### /api/recommend/comic
+
+#### DELETE
+##### Summary:
+
+Delete recommend comic
+
+##### Description:
+
+Delete a recommend comic
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| recommend | body | Recommend comic create Request | Yes | [dto.RecommendComicRequest](#dto.RecommendComicRequest) |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Recommend comic deleted successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
+
+##### Security
+
+| Security Schema | Scopes |
+| --- | --- |
+| BearerAuth | |
+
+#### POST
+##### Summary:
+
+Create recommend comic
+
+##### Description:
+
+Create a new recommend comic
+
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
+| recommend | body | Recommend comic create Request | Yes | [dto.RecommendComicRequest](#dto.RecommendComicRequest) |
+
+##### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Recommend comic created successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1121,14 +1453,16 @@ List all user
 | name | query | Name | No | string |
 | display_name | query | Display name | No | string |
 | tier_id | query | Tier ID | No | integer |
+| sort_by | query | Sort by | No | string |
+| sort | query | Sort order (asc, desc) | No | string |
 
 ##### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [ [dto.UserResponse](#dto.UserResponse) ] |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | List users | [dto.ListSuccessResponse](#dto.ListSuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1149,6 +1483,7 @@ Create a new user
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
+| Authorization | header | Bearer authorization token | Yes | string |
 | username | formData | Username (Alphanumeric) | Yes | string |
 | phone | formData | Phone Number | No | string |
 | email | formData | Email Address | No | string |
@@ -1165,10 +1500,9 @@ Create a new user
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.UserDetailDto](#dto.UserDetailDto) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | User not authenticated | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | OK | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1205,10 +1539,9 @@ Update a new user
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.UserDetailDto](#dto.UserDetailDto) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | User not authenticated | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | OK | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1237,9 +1570,9 @@ Delete a user by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | User successfully deleted | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | User successfully deleted | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1266,9 +1599,9 @@ Get a user by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.UserDetailDto](#dto.UserDetailDto) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | User retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1297,9 +1630,9 @@ Activate/Deactivate a user by ID
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | User successfully activated/deactivated | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | User successfully activated/deactivated | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1328,9 +1661,9 @@ Change password
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Password changed successfully | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Password changed successfully | [dto.SuccessResponse](#dto.SuccessResponse) |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1359,8 +1692,8 @@ Authenticates the user and returns a JWT token
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Login successful | [dto.LoginResponse](#dto.LoginResponse) |
-| 400 | Invalid request |  |
+| 200 | OK | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ### /api/user/profile
 
@@ -1377,9 +1710,9 @@ Get profile
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.UserDetailDto](#dto.UserDetailDto) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | Profile retrieved successfully | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1414,10 +1747,9 @@ Update profile
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | OK | [dto.UserResponse](#dto.UserResponse) |
-| 400 | Invalid request | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 401 | User not authenticated | [dto.ResponseMessage](#dto.ResponseMessage) |
-| 500 | Internal server error | [dto.ResponseMessage](#dto.ResponseMessage) |
+| 200 | OK | [dto.SuccessResponse](#dto.SuccessResponse) & object |
+| 400 | Invalid request | [dto.ErrorResponse](#dto.ErrorResponse) |
+| 500 | Internal server error | [dto.ErrorResponse](#dto.ErrorResponse) |
 
 ##### Security
 
@@ -1437,6 +1769,7 @@ Update profile
 | comic_id | integer |  | No |
 | direct_url | string |  | No |
 | image | string |  | No |
+| status | string |  | Yes |
 | title | string |  | Yes |
 | type | string |  | Yes |
 
@@ -1452,6 +1785,7 @@ Update profile
 | direct_url | string |  | No |
 | id | integer |  | No |
 | image | string |  | No |
+| status | string |  | No |
 | title | string |  | No |
 | type | string |  | No |
 | updated_at | string |  | No |
@@ -1467,8 +1801,15 @@ Update profile
 | direct_url | string |  | No |
 | id | integer |  | Yes |
 | image | string |  | No |
+| status | string |  | No |
 | title | string |  | No |
 | type | string |  | No |
+
+#### dto.AdsUpdateStatusRequest
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| status | string |  | Yes |
 
 #### dto.AuthorRequest
 
@@ -1485,11 +1826,11 @@ Update profile
 | biography | string |  | No |
 | birth_day | string |  | No |
 | created_at | string |  | No |
-| created_by | integer |  | No |
+| created_by_name | string |  | No |
 | id | integer |  | No |
 | name | string |  | No |
 | updated_at | string |  | No |
-| updated_by | integer |  | No |
+| updated_by_name | string |  | No |
 
 #### dto.AuthorUpdateRequest
 
@@ -1497,6 +1838,7 @@ Update profile
 | ---- | ---- | ----------- | -------- |
 | biography | string |  | No |
 | birth_day | string |  | No |
+| id | integer |  | Yes |
 | name | string |  | No |
 
 #### dto.ChapterItemCreateRequest
@@ -1538,7 +1880,6 @@ Update profile
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| active | boolean |  | No |
 | comic_id | integer |  | Yes |
 | cover | boolean |  | No |
 | name | string |  | No |
@@ -1552,25 +1893,29 @@ Update profile
 | comic_id | integer |  | No |
 | cover | boolean |  | No |
 | created_at | string |  | No |
-| created_by | string |  | No |
-| created_by_user | string |  | No |
+| created_by_name | string |  | No |
 | id | integer |  | No |
 | name | string |  | No |
 | number | integer |  | No |
 | updated_at | string |  | No |
-| updated_by | string |  | No |
-| updated_by_user | string |  | No |
+| updated_by_name | string |  | No |
 
 #### dto.ChapterUpdateRequest
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| active | boolean |  | No |
 | comic_id | integer |  | Yes |
 | cover | boolean |  | No |
 | id | integer |  | Yes |
 | name | string |  | No |
 | number | integer |  | No |
+
+#### dto.ComicRecommendResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| id | integer |  | No |
+| name | string |  | No |
 
 #### dto.ComicResponse
 
@@ -1586,6 +1931,8 @@ Update profile
 | id | integer |  | No |
 | lang | string |  | No |
 | name | string |  | No |
+| original_language | string |  | No |
+| status | string |  | No |
 | updated_at | string |  | No |
 | updated_by | integer |  | No |
 
@@ -1595,18 +1942,43 @@ Update profile
 | ---- | ---- | ----------- | -------- |
 | active | boolean |  | No |
 | audience | string |  | No |
+| authors | [ [dto.AuthorResponse](#dto.AuthorResponse) ] |  | No |
 | code | string |  | No |
 | cover | string |  | No |
 | created_at | string |  | No |
 | created_by | integer |  | No |
 | created_by_user | [dto.UserDetailDto](#dto.UserDetailDto) |  | No |
 | description | string |  | No |
+| genres | [ [dto.GenreResponse](#dto.GenreResponse) ] |  | No |
 | id | integer |  | No |
 | lang | string |  | No |
 | name | string |  | No |
+| original_language | string |  | No |
+| status | string |  | No |
 | updated_at | string |  | No |
 | updated_by | integer |  | No |
 | updated_by_user | [dto.UserDetailDto](#dto.UserDetailDto) |  | No |
+
+#### dto.ErrorResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| code | string |  | No |
+| msg | string |  | No |
+
+#### dto.GeneralAuthorResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| id | integer |  | No |
+| name | string |  | No |
+
+#### dto.GeneralGenreResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| id | integer |  | No |
+| name | string |  | No |
 
 #### dto.GenreCreateRequest
 
@@ -1623,7 +1995,7 @@ Update profile
 | created_at | string |  | No |
 | created_by_name | string |  | No |
 | id | integer |  | No |
-| language | string |  | No |
+| lang | string |  | No |
 | name | string |  | No |
 | position | integer |  | No |
 | updated_at | string |  | No |
@@ -1638,11 +2010,13 @@ Update profile
 | name | string |  | Yes |
 | position | integer |  | Yes |
 
-#### dto.ListResponse
+#### dto.ListSuccessResponse
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
+| code | string |  | No |
 | data |  |  | No |
+| msg | string |  | No |
 | pagination | [dto.Pagination](#dto.Pagination) |  | No |
 
 #### dto.LoginRequest
@@ -1668,49 +2042,44 @@ Update profile
 | page_size | integer |  | No |
 | total | integer |  | No |
 
-#### dto.RecommendCreateRequest
+#### dto.RecommendComicRequest
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| activeFrom | integer |  | No |
-| activeTo | integer |  | No |
-| cover | string |  | No |
+| comic_id | integer |  | No |
+| recommend_id | integer |  | No |
+
+#### dto.RecommendComicResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| comic_id | integer |  | No |
 | id | integer |  | No |
-| position | integer |  | No |
-| title | string |  | No |
+| recommend_id | integer |  | No |
 
 #### dto.RecommendResponse
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| activeFrom | string |  | No |
-| activeTo | string |  | No |
+| active_from | string |  | No |
+| active_to | string |  | No |
+| comics | [ [dto.ComicRecommendResponse](#dto.ComicRecommendResponse) ] |  | No |
 | cover | string |  | No |
-| createdAt | string |  | No |
-| createdBy | integer |  | No |
+| created_at | string |  | No |
+| created_by_name | string |  | No |
 | id | integer |  | No |
 | position | integer |  | No |
 | title | string |  | No |
-| updatedAt | string |  | No |
-| updatedBy | integer |  | No |
+| updated_at | string |  | No |
+| updated_by_name | string |  | No |
 
-#### dto.RecommendUpdateRequest
-
-| Name | Type | Description | Required |
-| ---- | ---- | ----------- | -------- |
-| activeFrom | string |  | No |
-| activeTo | string |  | No |
-| cover | string |  | No |
-| position | integer |  | No |
-| title | string |  | No |
-
-#### dto.ResponseMessage
+#### dto.SuccessResponse
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| data | string |  | No |
-| message | string |  | No |
-| status | string |  | No |
+| code | string |  | No |
+| data |  |  | No |
+| msg | string |  | No |
 
 #### dto.TierModel
 

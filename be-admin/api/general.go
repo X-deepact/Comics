@@ -12,6 +12,7 @@ func (s *Server) generalRouter() {
 	group.GET("/tiers", s.getGeneralTiers)
 	group.GET("/genres", s.getGeneralGenres)
 	group.GET("/authors", s.getGeneralAuthors)
+	group.GET("/comics", s.getGeneralComics)
 }
 
 // @Summary Get tiers
@@ -20,9 +21,9 @@ func (s *Server) generalRouter() {
 // @Accept json
 // @Produce json
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.TierModel} "Tiers"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=[]dto.TierModel} "Tiers"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/general/tiers [get]
 func (s *Server) getGeneralTiers(ctx *gin.Context) {
 	tiers, err := s.store.GetGeneralTiers()
@@ -42,9 +43,9 @@ func (s *Server) getGeneralTiers(ctx *gin.Context) {
 // @Param name query string false "Name"
 // @Param language query string false "Language"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.GeneralGenreResponse} "Genres"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=[]dto.GeneralGenreResponse} "Genres"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/general/genres [get]
 func (s *Server) getGeneralGenres(ctx *gin.Context) {
 	var req dto.GeneralGenreRequest
@@ -69,9 +70,9 @@ func (s *Server) getGeneralGenres(ctx *gin.Context) {
 // @Produce json
 // @Param name query string false "Name"
 // @Security     BearerAuth
-// @Success 200 {object} dto.ResponseMessage{data=[]dto.GeneralAuthorResponse} "Authors"
-// @Failure 400 {object} dto.ResponseMessage "Invalid request"
-// @Failure 500 {object} dto.ResponseMessage "Internal server error"
+// @Success 200 {object} dto.SuccessResponse{data=[]dto.GeneralAuthorResponse} "Authors"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
 // @Router /api/general/authors [get]
 func (s *Server) getGeneralAuthors(ctx *gin.Context) {
 	var req dto.GeneralAuthorRequest
@@ -87,4 +88,36 @@ func (s *Server) getGeneralAuthors(ctx *gin.Context) {
 	}
 
 	config.BuildSuccessResponse(ctx, authors)
+}
+
+// @Summary Get general comics
+// @Description Get general comics
+// @Tags general
+// @Accept json
+// @Produce json
+// @Param name query string false "Name"
+// @Param author_id query int false "Author ID"
+// @Param genre_id query int false "Genre ID"
+// @Param lang query string false "Language"
+// @Param original_language query string false "Original language"
+// @Security     BearerAuth
+// @Success 200 {object} dto.SuccessResponse{data=[]dto.GeneralComicResponse} "Comics"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Router /api/general/comics [get]
+func (s *Server) getGeneralComics(ctx *gin.Context) {
+	var req dto.GeneralComicRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	comics, err := s.store.GetGeneralComics(req)
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	config.BuildSuccessResponse(ctx, comics)
+
 }
