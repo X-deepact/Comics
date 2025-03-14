@@ -20,6 +20,7 @@
             :columns="ColumnNames"
             :isLoading="adStore.isLoading"
             :row="AdRow"
+            class="w-full"
             @clickSorting="handleSort"
             @clickDelete="(data: Ad) => {
                 adStore.selectedData = data;
@@ -29,7 +30,8 @@
                 adStore.selectedData = data;
                 adStore.updateDialogIsOpen = true;
             }"
-        />
+        >
+        </TableComponent>
 
         <Pagination
             v-if="adStore.totalItems > 0"

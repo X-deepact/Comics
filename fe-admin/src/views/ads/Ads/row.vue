@@ -5,7 +5,7 @@
     <TableCell>
       <img 
         v-if="data.image"
-        :src="data.image" 
+        :src="getImageUrl(data.image)" 
         alt="Ad Image" 
         width="100"
         preview
@@ -15,7 +15,20 @@
     <TableCell>{{ formatDateSafe(data.active_from) }}</TableCell>
     <TableCell>{{ formatDateSafe(data.active_to) }}</TableCell>
     <TableCell>{{ data.type || 'N/A' }}</TableCell>
-    <TableCell>{{ data.direct_url || 'N/A' }}</TableCell>
+    <TableCell>
+      <div class="w-[200px] flex items-center gap-2" :title="data.direct_url">
+        <span class="truncate">{{ truncateUrl(data.direct_url) }}</span>
+        <Button 
+          v-if="data.direct_url" 
+          variant="ghost" 
+          size="icon" 
+          class="h-6 w-6 flex-shrink-0" 
+          @click="copyToClipboard(data.direct_url)"
+        >
+          <Copy class="h-4 w-4" />
+        </Button>
+      </div>
+    </TableCell>
     <TableCell> 
       <Badge :variant="data.status === 'active' ? 'success' : 'secondary'">
         {{ data.status || 'N/A' }}
@@ -71,7 +84,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Pencil } from "lucide-vue-next";
+import { Trash2, Pencil, Copy } from "lucide-vue-next";
 import { toast } from "@/components/ui/toast/use-toast";
 
 const props = defineProps<{
@@ -81,6 +94,35 @@ const props = defineProps<{
 defineEmits(["clickDelete", "clickUpdate"]);
 
 const adStore = useAdStore();
+
+const getImageUrl = (imageUrl: string): string => {
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  const API_URL = import.meta.env.VITE_API_URL;
+  return `${API_URL}/${imageUrl}`;
+};
+
+const truncateUrl = (url: string | null | undefined): string => {
+  if (!url) return 'N/A';
+  return url.length > 40 ? url.substring(0, 40) + '.........' : url;
+};
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast({
+      description: "URL copied to clipboard",
+      duration: 2000,
+    });
+  } catch (err) {
+    toast({
+      description: "Failed to copy URL",
+      variant: "destructive",
+    });
+  }
+};
 
 const formatDateSafe = (date: string | null | undefined): string => {
   if (!date) return 'N/A';

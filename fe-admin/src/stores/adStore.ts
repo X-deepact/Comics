@@ -209,14 +209,29 @@ export const useAdStore = defineStore("adStore", () => {
     }
   }
 
-  async function updateAd(data: Ad) {
+  async function updateAd(data: Partial<Ad>) {
     try {
+      // Create a new object with only the fields that should be updated
+      const updateData: any = {};
+      
+      // Always include these fields
+      updateData.id = data.id;
+      updateData.title = data.title;
+      updateData.active_from = data.active_from;
+      updateData.active_to = data.active_to;
+      updateData.type = data.type;
+      updateData.direct_url = data.direct_url;
+      updateData.status = data.status;
+      updateData.comic_id = data.type === 'internal' ? Number(data.comic_id) : null;
+      
+      // Only include image if it was explicitly provided (meaning it was changed)
+      if (data.image !== undefined) {
+        updateData.image = data.image;
+      }
+      
       const response = await axios.put(
         `${API_URL}/ads`,
-        {
-          ...data,
-          comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
-        },
+        updateData,
         { headers: authHeader() }
       );
 

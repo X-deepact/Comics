@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/toast/use-toast";
 const adStore = useAdStore();
 const isLoading = ref(false);
 const previewImage = ref('');
+const imageChanged = ref(false);
 
 const formatDateForInput = (dateString: string) => {
   if (!dateString) return '';
@@ -40,6 +41,8 @@ watch(() => adStore.updateDialogIsOpen, (newValue) => {
     adStore.selectedData.active_to = formatDateForInput(adStore.selectedData.active_to);
     // Set preview image
     previewImage.value = adStore.selectedData.image;
+    // Reset the imageChanged flag when opening the modal
+    imageChanged.value = false;
   }
 });
 
@@ -62,6 +65,8 @@ const handleFileUpload = async (event: Event) => {
       const response = await adStore.uploadAdImage(file);
       // Store just the filename, not the entire response object
       adStore.selectedData.image = response.data || response;
+      // Set the flag to indicate that the image has been changed
+      imageChanged.value = true;
     } catch (error) {
       previewImage.value = '';
       adStore.selectedData.image = '';
@@ -107,6 +112,8 @@ const handleSubmit = async () => {
       comic_id: adStore.selectedData.type === 'internal' ? parseInt(adStore.selectedData.comic_id.toString()) : null,
       active_from: new Date(adStore.selectedData.active_from).toISOString(),
       active_to: new Date(adStore.selectedData.active_to).toISOString(),
+      // Only include image in the update if it was changed
+      image: imageChanged.value ? adStore.selectedData.image : undefined
     };
     
     await adStore.updateAd(formattedData);
