@@ -23,6 +23,7 @@ import { toast } from "@/components/ui/toast/use-toast";
 
 const adStore = useAdStore();
 const isLoading = ref(false);
+const previewImage = ref('');
 
 const ad = ref({
   title: "",
@@ -46,35 +47,58 @@ const resetAd = () => {
     comic_id: 0,
     status: "active" as 'active' | 'inactive',
   };
+  previewImage.value = '';
 };
 
-const handleFileUpload = (event: Event) => {
+const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     const file = target.files[0];
+    
+    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        ad.value.image = e.target.result as string;
+        previewImage.value = e.target.result as string;
       }
     };
     reader.readAsDataURL(file);
+
+    try {
+      // Upload image and get filename
+      const response = await adStore.uploadAdImage(file);
+      // Store just the filename, not the entire response object
+      ad.value.image = response.data || response;
+    } catch (error) {
+      previewImage.value = '';
+      ad.value.image = '';
+      toast({
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
   }
 };
 
 const validateForm = () => {
-  if (!ad.value.title || 
-      !ad.value.image ||
-      !ad.value.type ||
-      !ad.value.direct_url ||
-      !ad.value.status ||
-      !ad.value.active_from ||
-      !ad.value.active_to) {
-    toast({
-      description: "Enter correctly",
-      variant: "destructive",
-    });
-    return false;
+  const requiredFields = {
+    title: "Title",
+    image: "Image",
+    type: "Type",
+    direct_url: "URL",
+    status: "Status",
+    active_from: "Start Date",
+    active_to: "End Date"
+  };
+
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (!ad.value[field as keyof typeof ad.value]) {
+      toast({
+        description: `${label} is required`,
+        variant: "destructive",
+      });
+      return false;
+    }
   }
   return true;
 };
@@ -84,19 +108,25 @@ const handleSubmit = async () => {
     if (!validateForm()) return;
     
     isLoading.value = true;
+    
     const formattedData = {
       ...ad.value,
-      comic_id: parseInt(ad.value.comic_id.toString()),
+      comic_id: ad.value.type === 'internal' ? parseInt(ad.value.comic_id.toString()) : null,
       active_from: new Date(ad.value.active_from).toISOString(),
       active_to: new Date(ad.value.active_to).toISOString(),
     };
+    
     await adStore.createAd(formattedData);
     adStore.createDialogIsOpen = false;
-    adStore.getAdData();
+    await adStore.getAdData();
     resetAd();
+    
+    toast({
+      description: "Ad created successfully",
+    });
   } catch (error: any) {
     toast({
-      description: error.response?.data?.message || error.message,
+      description: error.response?.data?.message || "Failed to create ad",
       variant: "destructive",
     });
   } finally {
@@ -116,6 +146,7 @@ const handleSubmit = async () => {
       <DialogHeader>
         <DialogTitle>Create Ad</DialogTitle>
       </DialogHeader>
+
       <div class="grid gap-4">
         <div class="flex items-center gap-4">
           <Label for="title" class="text-right w-1/4">Title *</Label>
@@ -123,7 +154,16 @@ const handleSubmit = async () => {
         </div>
         <div class="flex items-center gap-4">
           <Label for="image" class="text-right w-1/4">Image *</Label>
-          <Input type="file" @change="handleFileUpload" accept="image/*" />
+          <div class="w-full">
+            <Input type="file" @change="handleFileUpload" accept="image/*" />
+            <div v-if="previewImage" class="mt-2">
+              <img
+                :src="previewImage"
+                alt="Preview"
+                class="max-w-full h-32 object-contain rounded-md border"
+              />
+            </div>
+          </div>
         </div>
         <div class="flex items-center gap-4">
           <Label for="active_from" class="text-right w-1/4">Start Date *</Label>

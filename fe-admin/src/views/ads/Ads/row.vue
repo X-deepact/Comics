@@ -4,10 +4,11 @@
     <TableCell>{{ data.title || 'N/A' }}</TableCell>
     <TableCell>
       <img 
-        v-if="data.image" 
+        v-if="data.image"
         :src="data.image" 
-        alt="Ad Image"
-        class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-cover rounded-md transition-all duration-300" 
+        alt="Ad Image" 
+        width="100"
+        preview
       />
       <span v-else class="text-xs xs:text-sm sm:text-base text-gray-500">No image</span>
     </TableCell>

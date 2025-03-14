@@ -23,7 +23,7 @@ import { toast } from "@/components/ui/toast/use-toast";
 
 const adStore = useAdStore();
 const isLoading = ref(false);
-const fileInput = ref<HTMLInputElement | null>(null);
+const previewImage = ref('');
 
 const formatDateForInput = (dateString: string) => {
   if (!dateString) return '';
@@ -38,36 +38,60 @@ watch(() => adStore.updateDialogIsOpen, (newValue) => {
     // Format dates when modal opens
     adStore.selectedData.active_from = formatDateForInput(adStore.selectedData.active_from);
     adStore.selectedData.active_to = formatDateForInput(adStore.selectedData.active_to);
+    // Set preview image
+    previewImage.value = adStore.selectedData.image;
   }
 });
 
-const handleFileUpload = (event: Event) => {
+const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     const file = target.files[0];
+    
+    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        adStore.selectedData.image = e.target.result as string;
+        previewImage.value = e.target.result as string;
       }
     };
     reader.readAsDataURL(file);
+
+    try {
+      // Upload image and get filename
+      const response = await adStore.uploadAdImage(file);
+      // Store just the filename, not the entire response object
+      adStore.selectedData.image = response.data || response;
+    } catch (error) {
+      previewImage.value = '';
+      adStore.selectedData.image = '';
+      toast({
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    }
   }
 };
 
 const validateForm = () => {
-  if (!adStore.selectedData.title || 
-      !adStore.selectedData.image ||
-      !adStore.selectedData.type ||
-      !adStore.selectedData.direct_url ||
-      !adStore.selectedData.status ||
-      !adStore.selectedData.active_from ||
-      !adStore.selectedData.active_to) {
-    toast({
-      description: "Enter correctly",
-      variant: "destructive",
-    });
-    return false;
+  const requiredFields = {
+    title: "Title",
+    image: "Image",
+    type: "Type", 
+    direct_url: "URL",
+    status: "Status",
+    active_from: "Start Date",
+    active_to: "End Date"
+  };
+
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (!adStore.selectedData[field as keyof typeof adStore.selectedData]) {
+      toast({
+        description: `${label} is required`,
+        variant: "destructive",
+      });
+      return false;
+    }
   }
   return true;
 };
@@ -77,18 +101,24 @@ const handleSubmit = async () => {
     if (!validateForm()) return;
     
     isLoading.value = true;
+    
     const formattedData = {
       ...adStore.selectedData,
-      comic_id: parseInt(adStore.selectedData.comic_id.toString()),
+      comic_id: adStore.selectedData.type === 'internal' ? parseInt(adStore.selectedData.comic_id.toString()) : null,
       active_from: new Date(adStore.selectedData.active_from).toISOString(),
       active_to: new Date(adStore.selectedData.active_to).toISOString(),
     };
+    
     await adStore.updateAd(formattedData);
     adStore.updateDialogIsOpen = false;
-    adStore.getAdData();
+    await adStore.getAdData();
+    
+    toast({
+      description: "Ad updated successfully",
+    });
   } catch (error: any) {
     toast({
-      description: error.response?.data?.message || error.message,
+      description: error.response?.data?.message || "Failed to update ad",
       variant: "destructive",
     });
   } finally {
@@ -110,95 +140,62 @@ const handleSubmit = async () => {
       </DialogHeader>
       
       <div class="grid gap-4">
-        <div class=" gap-4">
-          <div class="space-y-4">
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Title *</Label>
-              <Input v-model="adStore.selectedData.title" class="col-span-3" placeholder="Enter title" />
-            </div>
-            <div class="space-y-4">
-              <div class="grid grid-cols-4 items-center gap-4">
-                <Label class="text-right">Image *</Label>
-                <div class="col-span-3">
-                  <input
-                    ref="fileInput"
-                    type="file"
-                    accept="image/*"
-                    class="hidden"
-                    @change="handleFileUpload"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    class="w-full"
-                    @click="fileInput?.click()"
-                  >
-                    Choose Image
-                  </Button>
-                  <div v-if="adStore.selectedData.image" class="mt-2">
-                    <img
-                      :src="adStore.selectedData.image"
-                      alt="Preview"
-                      class="max-w-full max-h-[200px] object-contain rounded-md border"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Type *</Label>
-              <div class="col-span-3">
-                <Select v-model="adStore.selectedData.type">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="internal">Internal</SelectItem>
-                    <SelectItem value="external">External</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">URL *</Label>
-              <Input v-model="adStore.selectedData.direct_url" class="col-span-3" placeholder="Enter URL" />
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Status *</Label>
-              <div class="col-span-3">
-                <Select v-model="adStore.selectedData.status">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Start Date *</Label>
-              <Input 
-                type="datetime-local" 
-                v-model="adStore.selectedData.active_from"
-                class="col-span-3"
+        <div class="flex items-center gap-4">
+          <Label for="title" class="text-right w-1/4">Title *</Label>
+          <Input v-model="adStore.selectedData.title" placeholder="Title" />
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="image" class="text-right w-1/4">Image *</Label>
+          <div class="w-full">
+            <Input type="file" @change="handleFileUpload" accept="image/*" />
+            <div v-if="previewImage" class="mt-2">
+              <img
+                :src="previewImage"
+                alt="Preview"
+                class="max-w-full h-32 object-contain rounded-md border"
               />
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">End Date *</Label>
-              <Input 
-                type="datetime-local" 
-                v-model="adStore.selectedData.active_to"
-                class="col-span-3"
-              />
-            </div>
-            <div class="grid grid-cols-4 items-center gap-4">
-              <Label class="text-right">Comic ID</Label>
-              <Input type="number" v-model="adStore.selectedData.comic_id" class="col-span-3" placeholder="Enter Comic ID" />
             </div>
           </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="active_from" class="text-right w-1/4">Start Date *</Label>
+          <Input type="datetime-local" v-model="adStore.selectedData.active_from" />
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="active_to" class="text-right w-1/4">End Date *</Label>
+          <Input type="datetime-local" v-model="adStore.selectedData.active_to" />
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="type" class="text-right w-1/4">Type *</Label>
+          <Select v-model="adStore.selectedData.type">
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="internal">Internal</SelectItem>
+              <SelectItem value="external">External</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="direct_url" class="text-right w-1/4">URL</Label>
+          <Input v-model="adStore.selectedData.direct_url" placeholder="URL" />
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="comic_id" class="text-right w-1/4">Comic ID</Label>
+          <Input type="number" v-model="adStore.selectedData.comic_id" placeholder="Comic ID" />
+        </div>
+        <div class="flex items-center gap-4">
+          <Label for="status" class="text-right w-1/4">Status *</Label>
+          <Select v-model="adStore.selectedData.status">
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -219,4 +216,4 @@ const handleSubmit = async () => {
       </DialogFooter>
     </DialogContent>
   </Dialog>
-</template> 
+</template>

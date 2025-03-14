@@ -142,14 +142,51 @@ export const useAdStore = defineStore("adStore", () => {
     }
   }
 
+  async function uploadAdImage(file: File): Promise<string> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(
+        `${API_URL}/ads/upload-image`,
+        formData,
+        { 
+          headers: { 
+            ...authHeader(),
+            'Content-Type': 'multipart/form-data'
+          } 
+        }
+      );
+
+      if (response.data.code === "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        throw new Error(response.data.msg);
+      }
+
+      return response.data.data;
+    } catch (error: any) {
+      toast({
+        description: error.response?.data?.msg || error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  }
+
   async function createAd(data: AdCreateRequest) {
     try {
+      
+      const requestData = {
+        ...data,
+        comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
+      };
+      
       const response = await axios.post(
         `${API_URL}/ads`,
-        {
-          ...data,
-          comic_id: data.type === 'internal' ? Number(data.comic_id) : null,
-        },
+        requestData,
         { headers: authHeader() }
       );
 
@@ -295,6 +332,7 @@ export const useAdStore = defineStore("adStore", () => {
     filters,
     updateAdStatus,
     sort,
-    updateSort
+    updateSort,
+    uploadAdImage,
   };
 }); 
