@@ -21,7 +21,7 @@
       </Badge>
     </TableCell>
     <TableCell>
-      <p v-if="data.created_by_name" class="font-medium">{{ data.created_by_name }}</p>
+      <p class="font-medium">{{ data.created_by_name || 'N/A' }}</p>
     </TableCell>
     <TableCell>
       <div>

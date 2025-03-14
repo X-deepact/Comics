@@ -24,7 +24,7 @@
       </div>
     </TableCell>
     <TableCell>
-      <div class="flex flex-col gap-1 min-w-[200px]">
+      <div class="flex flex-col gap-1 min-w-[320px]">
         <div>
           <Label>Code: </Label>
           <Badge variant="outline" class="text-xs">

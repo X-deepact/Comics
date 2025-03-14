@@ -54,7 +54,7 @@ const resetComic = () => {
     code: "",
     cover: null,
     description: "",
-    lang: "",
+    lang: "en",
     original_language: "en",
     audience: "",
     status: "ongoing",
@@ -135,9 +135,11 @@ const checkForm = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
+              <SelectItem value="jp">Japanese</SelectItem>
+              <SelectItem value="ko">Korean</SelectItem>
+              <SelectItem value="zh-cn">Chinese(Mainland)</SelectItem>
+              <SelectItem value="zh-tw">Chinese(Hong Kong & Taiwan)</SelectItem>
               <SelectItem value="en">English</SelectItem>
-              <SelectItem value="cn">Chinese</SelectItem>
-              <SelectItem value="vi">Vietnamese</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -152,7 +154,7 @@ const checkForm = () => {
             <SelectGroup>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="en">English</SelectItem>
-              <SelectItem value="cn">Chinese</SelectItem>
+              <SelectItem value="zh">Chinese</SelectItem>
               <SelectItem value="vi">Vietnamese</SelectItem>
             </SelectGroup>
           </SelectContent>

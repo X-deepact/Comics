@@ -62,7 +62,15 @@ export const langConverter = (lang: string): string => {
   switch (lang) {
     case "en":
       return "English";
-    case "cn":
+    case "jp":
+      return "Japanese";
+    case "ko":
+      return "Korean";
+    case "zh-cn":
+      return "Chinese(Mainland)";
+    case "zh-tw":
+      return "Chinese(Hong Kong & Taiwan)";
+    case "zh":
       return "Chinese";
     case "vi":
       return "Vietnamese";

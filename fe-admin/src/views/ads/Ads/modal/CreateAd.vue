@@ -48,13 +48,17 @@ const resetAd = () => {
   };
 };
 
-const emit = defineEmits(['upload-image']);
-
-const handleFileUpload = async (event: Event) => {
+const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     const file = target.files[0];
-    emit('upload-image', file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        ad.value.image = e.target.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
   }
 };
 

@@ -42,7 +42,7 @@
             }"
         />
 
-        <CreateAd @upload-image="handleImageUpload" />
+        <CreateAd />
         <UpdateAd />
         <DeleteAd />
     </div>
@@ -58,30 +58,14 @@ import DeleteAd from './modal/DeleteAd.vue';
 import UpdateAd from './modal/UpdateAd.vue';
 import AdRow from './row.vue';
 import { ColumnNames } from './columnHeader';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 
 const adStore = useAdStore();
-const isUploading = ref(false);
 
 const handleSort = async (key: string) => {
     if (key === 'updated_at') {
         adStore.updateSort(key);
         await adStore.getAdData();
-    }
-};
-
-const handleImageUpload = async (file: File) => {
-    try {
-        isUploading.value = true;
-        const filename = await adStore.uploadImage(file);
-        if (filename) {
-            // Update the image in the create ad form
-            adStore.selectedData.image = filename;
-        }
-    } catch (error) {
-        console.error('Error uploading image:', error);
-    } finally {
-        isUploading.value = false;
     }
 };
 
