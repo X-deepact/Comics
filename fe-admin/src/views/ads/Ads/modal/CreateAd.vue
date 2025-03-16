@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useAdStore } from "@/stores/adStore";
 import loadingImg from "@/assets/loading.svg";
 import {
@@ -20,10 +20,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast/use-toast";
+import axios from "axios";
+import { authHeader } from "@/services/authHeader";
 
 const adStore = useAdStore();
 const isLoading = ref(false);
 const previewImage = ref('');
+
+// Add comic search functionality
+const comicSearchKeyword = ref("");
+const comicSearchResults = ref<{id: number, name: string}[]>([]);
+const searchingComics = ref(false);
+const selectedComic = ref<{id: number, name: string} | null>(null);
 
 const ad = ref({
   title: "",
@@ -34,6 +42,14 @@ const ad = ref({
   direct_url: "",
   comic_id: 0,
   status: "active" as 'active' | 'inactive',
+});
+
+// Watch for type changes to reset comic selection when switching to external
+watch(() => ad.value.type, (newType) => {
+  if (newType === 'external') {
+    selectedComic.value = null;
+    ad.value.comic_id = 0;
+  }
 });
 
 const resetAd = () => {
@@ -48,7 +64,76 @@ const resetAd = () => {
     status: "active" as 'active' | 'inactive',
   };
   previewImage.value = '';
+  comicSearchKeyword.value = '';
+  comicSearchResults.value = [];
+  selectedComic.value = null;
 };
+
+// Comic search functions
+const handleComicSearch = debounce(async (value: string) => {
+  if (!value || value.trim().length === 0) {
+    comicSearchResults.value = [];
+    return;
+  }
+  
+  searchingComics.value = true;
+  try {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const response = await axios.get(`${API_URL}/general/comics`, {
+      params: { name: value.trim() },
+      headers: authHeader()
+    });
+
+    if (response.data.code === "SUCCESS") {
+      comicSearchResults.value = response.data.data;
+    } else {
+      comicSearchResults.value = [];
+      toast({
+        description: response.data.msg,
+        variant: "destructive",
+      });
+    }
+  } catch (error: any) {
+    comicSearchResults.value = [];
+    toast({
+      description: error.response?.data?.msg || "Failed to search comics",
+      variant: "destructive",
+    });
+  } finally {
+    searchingComics.value = false;
+  }
+}, 300);
+
+const selectComic = (comic: {id: number, name: string}) => {
+  selectedComic.value = comic;
+  ad.value.comic_id = comic.id;
+  comicSearchKeyword.value = "";
+  comicSearchResults.value = [];
+};
+
+const removeComic = () => {
+  selectedComic.value = null;
+  ad.value.comic_id = 0;
+};
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+      timeout = null;
+    }, wait);
+  };
+}
 
 const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -100,6 +185,16 @@ const validateForm = () => {
       return false;
     }
   }
+  
+  // Validate comic selection for internal ads
+  if (ad.value.type === 'internal' && !ad.value.comic_id) {
+    toast({
+      description: "Please select a comic for internal ads",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
   return true;
 };
 
@@ -189,9 +284,62 @@ const handleSubmit = async () => {
           <Label for="direct_url" class="text-right w-1/4">URL</Label>
           <Input v-model="ad.direct_url" placeholder="URL" />
         </div>
-        <div class="flex items-center gap-4">
-          <Label for="comic_id" class="text-right w-1/4">Comic ID</Label>
-          <Input type="number" v-model="ad.comic_id" placeholder="Comic ID" />
+        <div class="flex items-center gap-4" v-if="ad.type === 'internal'">
+          <Label for="comic_id" class="text-right w-1/4">Comic *</Label>
+          <div class="w-full">
+            <div class="flex gap-2">
+              <Input
+                v-model="comicSearchKeyword"
+                placeholder="Search comics by name..."
+                @input="(e) => handleComicSearch((e.target as HTMLInputElement).value)"
+                class="flex-1"
+              />
+            </div>
+
+            <!-- Search Results -->
+            <div v-if="comicSearchResults.length > 0" class="border rounded-lg shadow-sm mt-2">
+              <div class="max-h-48 overflow-y-auto">
+                <div
+                  v-for="comic in comicSearchResults"
+                  :key="comic.id"
+                  class="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                  @click="selectComic(comic)"
+                >
+                  <span class="font-medium">{{ comic.name }}</span>
+                  <Button size="sm" variant="ghost">
+                    Select
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div v-else-if="searchingComics" class="mt-2 text-sm text-gray-500">
+              Searching...
+            </div>
+
+            <!-- No Result Message -->
+            <div 
+              v-else-if="comicSearchKeyword && comicSearchResults.length === 0" 
+              class="mt-2 text-sm text-gray-500"
+            >
+              No comics found
+            </div>
+
+            <!-- Selected Comic -->
+            <div v-if="selectedComic" class="mt-2 border rounded-lg shadow-sm">
+              <div class="flex items-center justify-between p-3">
+                <span class="font-medium">{{ selectedComic.name }}</span>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  @click="removeComic"
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="flex items-center gap-4">
           <Label for="status" class="text-right w-1/4">Status *</Label>

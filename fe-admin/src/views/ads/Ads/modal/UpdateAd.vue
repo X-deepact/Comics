@@ -189,10 +189,6 @@ const handleSubmit = async () => {
           <Input v-model="adStore.selectedData.direct_url" placeholder="URL" />
         </div>
         <div class="flex items-center gap-4">
-          <Label for="comic_id" class="text-right w-1/4">Comic ID</Label>
-          <Input type="number" v-model="adStore.selectedData.comic_id" placeholder="Comic ID" />
-        </div>
-        <div class="flex items-center gap-4">
           <Label for="status" class="text-right w-1/4">Status *</Label>
           <Select v-model="adStore.selectedData.status">
             <SelectTrigger>
