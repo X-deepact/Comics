@@ -46,12 +46,13 @@ func (s *Server) createChapter(ctx *gin.Context) {
 	}
 
 	chapter := model.ChapterModel{
-		ComicId:   req.ComicId,
-		Name:      req.Name,
-		Cover:     req.Cover,
-		Number:    req.Number,
-		Active:    true,
-		CreatedBy: userID,
+		ComicId:    req.ComicId,
+		Name:       req.Name,
+		Cover:      req.Cover,
+		Number:     req.Number,
+		Active:     true,
+		CreatedBy:  userID,
+		ActiveFrom: req.ActiveFrom,
 	}
 
 	if err := s.store.CreateChapter(&chapter); err != nil {
@@ -152,12 +153,13 @@ func (s *Server) updateChapter(ctx *gin.Context) {
 	}
 
 	chapter := model.ChapterModel{
-		Id:        req.Id,
-		ComicId:   req.ComicId,
-		Name:      req.Name,
-		Cover:     req.Cover,
-		Number:    req.Number,
-		UpdatedBy: userId,
+		Id:         req.Id,
+		ComicId:    req.ComicId,
+		Name:       req.Name,
+		Cover:      req.Cover,
+		Number:     req.Number,
+		ActiveFrom: req.ActiveFrom,
+		UpdatedBy:  userId,
 	}
 
 	if err := s.store.UpdateChapter(&chapter); err != nil {

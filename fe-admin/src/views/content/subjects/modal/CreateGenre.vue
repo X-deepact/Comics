@@ -65,7 +65,7 @@ const checkForm = () => {
           <SelectContent>
             <SelectGroup>
               <SelectItem value="en">English</SelectItem>
-              <SelectItem value="ch">Chinese</SelectItem>
+              <SelectItem value="zh">Chinese</SelectItem>
               <SelectItem value="vi">Vietnamese</SelectItem>
             </SelectGroup>
           </SelectContent>

@@ -9,6 +9,11 @@ export const ColumnNames = {
     sortKey: "name",
     key: "name",
   },
+  active_from: {
+    label: "Active From",
+    sortKey: "active_from",
+    key: "active_from",
+  },
   active: {
     label: "Active",
     sortKey: "active",

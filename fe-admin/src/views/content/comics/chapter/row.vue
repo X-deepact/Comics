@@ -2,6 +2,7 @@
   <TableRow>
     <TableCell>{{ data.number }}</TableCell>
     <TableCell>{{ data.name }}</TableCell>
+    <TableCell><Label>{{ formatDateSafe(data.active_from, true) }}</Label></TableCell>
     <TableCell>{{ data.active }}</TableCell>
     <TableCell>{{ data.cover }}</TableCell>
     <TableCell>
@@ -42,9 +43,9 @@
               name: data.name,
               number: data.number,
               active: data.active,
+              active_from: data.active_from,
               comic_id: data.comic_id,
               cover: data.cover,
-              birth_day: data.birth_day,
             });
           }
         ">

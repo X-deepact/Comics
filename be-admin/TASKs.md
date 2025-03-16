@@ -70,6 +70,7 @@
 - [x] 🔴 **GET /general/tiers** - Get tiers
 - [x] 🔴 **GET /general/genres** - Get genres
 - [x] 🔴 **GET /general/authors** - Get authors
+- [x]
 
 ---
 

@@ -22,6 +22,22 @@ import { ref } from "vue";
 import { useChapterStore } from "../../../../../stores/chapterStore";
 import { useComicStore } from "../../../../../stores/comicStore";
 import { useToast } from "@/components/ui/toast/use-toast";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  DateFormatter,
+  getLocalTimeZone,
+} from "@internationalized/date";
+import { CalendarIcon } from "lucide-vue-next";
+const df = new DateFormatter("en-US", {
+  dateStyle: "long",
+});
+
 const { toast } = useToast();
 const comicStore = useComicStore();
 const isLoading = ref(false);
@@ -59,6 +75,28 @@ const checkForm = () => {
           placeholder="Number"
           type="number"
         />
+      </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Active From</Label>
+        <Popover>
+          <PopoverTrigger as-child>
+            <Button variant="outline" :class="cn(
+              'w-[280px] justify-start text-left font-normal',
+              !chapterStore.selectedData.active_from && 'text-muted-foreground'
+            )
+              ">
+              <CalendarIcon class="mr-2 h-4 w-4" />
+              {{
+                chapterStore.selectedData.active_from
+                  ? df.format(chapterStore.selectedData.active_from.toDate(getLocalTimeZone()))
+                  : "Pick a date"
+              }}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent class="w-auto p-0">
+            <Calendar v-model="chapterStore.selectedData.active_from" initial-focus />
+          </PopoverContent>
+        </Popover>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
@@ -105,6 +143,7 @@ const checkForm = () => {
                   id: chapterStore.selectedData.id,
                   name: chapterStore.selectedData.name,
                   number: chapterStore.selectedData.number,
+                  active_from: chapterStore.selectedData.active_from?.toDate(getLocalTimeZone()).toISOString(),
                   active: chapterStore.selectedData.active,
                   cover: chapterStore.selectedData.cover,
                   comic_id: comicStore.selectedData.id,

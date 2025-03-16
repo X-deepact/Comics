@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
 import { useComicStore } from "./comicStore";
+import { type DateValue } from "@internationalized/date";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
 const comicStore = useComicStore();
@@ -13,6 +14,7 @@ export interface Chapter {
   name: string;
   number: number;
   active: boolean;
+  active_from: string;
   comic_id: number;
   cover: boolean;
   created_by_name: string;
@@ -26,17 +28,14 @@ export const useChapterStore = defineStore("chapterStore", () => {
   const deleteDialogIsOpen = ref(false);
   const chapteritemDialogIsOpen = ref(false);
   const chaptersData = ref<Chapter[]>([]);
-  const selectedData = ref<Chapter>({
+  const selectedData = ref({
     id: 0,
     name: "",
     number: 0,
+    active_from: null as DateValue | null,
     active: false,
     comic_id: 0,
     cover: false,
-    created_by_name: "",
-    created_at: "",
-    updated_by_name: "",
-    updated_at: "",
   });
   const searchKeyword = ref("");
   const isLoading = ref(true);
@@ -121,17 +120,14 @@ export const useChapterStore = defineStore("chapterStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Chapter>{
+    selectedData.value = {
       id: 0,
       name: "",
       number: 0,
       active: false,
+      active_from: null as DateValue | null,
       comic_id: 0,
       cover: false,
-      created_by_name: "",
-      created_at: "",
-      updated_by_name: "",
-      updated_at: "",
     };
   }
   async function deleteChapter(id: any) {
@@ -157,17 +153,14 @@ export const useChapterStore = defineStore("chapterStore", () => {
           variant: "destructive",
         });
       });
-    selectedData.value = <Chapter>{
+    selectedData.value = {
       id: 0,
       name: "",
       number: 0,
+      active_from: null as DateValue | null,
       active: false,
       comic_id: 0,
       cover: false,
-      created_by_name: "",
-      created_at: "",
-      updated_by_name: "",
-      updated_at: "",
     };
   }
   function setSorting() {

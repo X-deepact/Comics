@@ -1,10 +1,13 @@
 package dto
 
+import "time"
+
 type ChapterRequest struct {
-	ComicId int64  `json:"comic_id" binding:"required"`
-	Name    string `json:"name"`
-	Cover   bool   `json:"cover"`
-	Number  int    `json:"number"`
+	ComicId    int64      `json:"comic_id" binding:"required"`
+	Name       string     `json:"name"`
+	Cover      bool       `json:"cover"`
+	Number     int        `json:"number"`
+	ActiveFrom *time.Time `json:"active_from"`
 }
 
 type ChapterResponse struct {
@@ -14,6 +17,7 @@ type ChapterResponse struct {
 	Cover         bool   `json:"cover"`
 	Number        int    `json:"number"`
 	Active        bool   `json:"active"`
+	ActiveFrom    string `json:"active_from"`
 	CreatedAt     string `json:"created_at"`
 	UpdatedAt     string `json:"updated_at"`
 	CreatedByName string `json:"created_by_name"`

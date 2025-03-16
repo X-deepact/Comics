@@ -26,7 +26,14 @@
           }
         " @clickUpdate="
           (data: any) => {
-            chapterStore.selectedData = data;
+            chapterStore.selectedData.id = data.id;
+            chapterStore.selectedData.name = data.name;
+            chapterStore.selectedData.number = data.number;
+            const date = new Date(data.active_from);
+            chapterStore.selectedData.active_from = new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            chapterStore.selectedData.active = data.active;
+            chapterStore.selectedData.comic_id = data.comic_id;
+            chapterStore.selectedData.cover = data.cover;
             chapterStore.updateDialogIsOpen = true;
           }
         " @clickAction="
@@ -69,6 +76,7 @@ import CreateChapter from "./modal/CreateChapter.vue";
 import UpdateChapter from "./modal/UpdateChapter.vue";
 import DeleteChapter from "./modal/DeleteChapter.vue";
 import ChapterItem from "./chapteritem/ChapterItem.vue";
+import { CalendarDate } from "@internationalized/date";
 import { useChapterItemStore } from "../../../../stores/chapteritemStore";
 const comicStore = useComicStore();
 const chapterStore = useChapterStore();

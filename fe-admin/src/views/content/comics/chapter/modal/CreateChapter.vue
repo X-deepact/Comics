@@ -22,17 +22,38 @@ import loadingImg from "@/assets/loading.svg";
 import { useChapterStore } from "../../../../../stores/chapterStore";
 import { useComicStore } from "../../../../../stores/comicStore";
 import { useToast } from "@/components/ui/toast/use-toast";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  DateFormatter,
+  type DateValue,
+  getLocalTimeZone,
+} from "@internationalized/date";
+import { CalendarIcon } from "lucide-vue-next";
+
 const { toast } = useToast();
 const comicStore = useComicStore();
 const chapterStore = useChapterStore();
 const isLoading = ref(false);
+const df = new DateFormatter("en-US", {
+  dateStyle: "long",
+});
+const value = ref<DateValue>();
+
 const chapter = ref({
   comic_id: 0,
   number: 1,
   name: "",
   cover: true,
   active: true,
+  active_from: null as string | null,
 });
+
 const resetChapter = () => {
   chapter.value = {
     comic_id: 0,
@@ -40,15 +61,36 @@ const resetChapter = () => {
     name: "",
     cover: true,
     active: true,
+    active_from: null,
   };
+  value.value = undefined;
 };
+
+const setActiveFrom = () => {
+  if (value.value) {
+    const date = value.value.toDate(getLocalTimeZone());
+    chapter.value.active_from = date.toISOString();
+  }
+};
+
 const checkForm = () => {
-  if (chapter.value.name) return true;
-  toast({
-    description: "Name is required",
-    variant: "destructive",
-  });
-  return false;
+  if (!chapter.value.name) {
+    toast({
+      description: "Name is required",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
+  if (!value.value) {
+    toast({
+      description: "Active From date is required",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
+  return true;
 };
 </script>
 <template>
@@ -72,6 +114,28 @@ const checkForm = () => {
           type="number"
           :min="1"
         />
+      </div>
+      <div class="flex items-center gap-4">
+        <Label class="text-center w-1/4">Active From</Label>
+        <Popover>
+          <PopoverTrigger as-child>
+            <Button variant="outline" :class="cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground'
+            )
+              ">
+              <CalendarIcon class="mr-2 h-4 w-4" />
+              {{
+                value
+                  ? df.format(value.toDate(getLocalTimeZone()))
+                  : "Pick a date"
+              }}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent class="w-auto p-0">
+            <Calendar v-model="value" initial-focus />
+          </PopoverContent>
+        </Popover>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
@@ -115,6 +179,7 @@ const checkForm = () => {
               if (checkForm()) {
                 isLoading = true;
                 chapter.comic_id = comicStore.selectedData.id;
+                setActiveFrom();
                 await chapterStore.createChapter(chapter);
                 isLoading = false;
                 chapterStore.createDialogIsOpen = false;

@@ -2,7 +2,7 @@
   <TableRow>
     <TableCell>{{ data.name }}</TableCell>
     <TableCell>{{ data.position }}</TableCell>
-    <TableCell>{{ data.lang }}</TableCell>
+    <TableCell>{{ langConverter(data.lang) }}</TableCell>
     <TableCell>
       <p class="font-medium">{{ data.created_by_name }}</p>
     </TableCell>
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { Genre } from "@/stores/genreStore";
-import { formatDate, getTimeAgo } from "@/lib/utils";
+import { formatDate, getTimeAgo, langConverter } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
