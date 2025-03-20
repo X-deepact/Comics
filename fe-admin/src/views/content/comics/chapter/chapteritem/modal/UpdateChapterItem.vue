@@ -91,7 +91,7 @@ const handleFileChange = (event: Event) => {
         accept="image/*" />
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Page</Label>
-        <Input v-model="chapteritem.page" :placeholder="chapteritemStore.selectedData.page" type="number" />
+        <Input v-model="chapteritemStore.selectedData.page" type="number" />
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active From</Label>
@@ -138,6 +138,7 @@ const handleFileChange = (event: Event) => {
             isLoading = true;
             chapteritem.image = await chapteritemStore.uploadImage(image);
             chapteritem.id = chapteritemStore.selectedData.id;
+            chapteritem.page = chapteritemStore.selectedData.page;
             chapteritem.active_from = chapteritemStore.selectedData.active_from?.toDate(getLocalTimeZone()).toISOString();
             await chapteritemStore.updateChapterItem(chapteritem);
             chapteritemStore.getChapterItemsData();

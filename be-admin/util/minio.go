@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
 	"mime/multipart"
 	"strconv"
 	"sync"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 // MinIO Configuration Struct
@@ -44,7 +45,7 @@ func NewMinioClient(endpoint, accessKey, secretKey, bucketName string, useSSL bo
 	return &MinioConfig{Client: client, BucketName: bucketName, FileUrl: fileUrl}
 }
 
-// Upload File to MinIO
+// SaveImage uploads an image file to MinIO
 func (m *MinioConfig) SaveImage(fileHeader *multipart.FileHeader, folderPath string) (string, error) {
 	if fileHeader.Size > MaxImageSize {
 		return "", errors.New("file size exceeds the maximum allowed limit of 1MB")
@@ -59,6 +60,28 @@ func (m *MinioConfig) SaveImage(fileHeader *multipart.FileHeader, folderPath str
 		return "", errors.New("file is not an image")
 	}
 
+	return m.UploadFile(fileHeader, folderPath)
+}
+
+// SaveVideo uploads a video file to MinIO
+func (m *MinioConfig) SaveVideo(fileHeader *multipart.FileHeader, folderPath string) (string, error) {
+	if fileHeader.Size > MaxVideoSize {
+		return "", errors.New("file size exceeds the maximum allowed limit of 1GB")
+	}
+
+	isVideo, err := IsVideo(fileHeader)
+	if err != nil {
+		return "", err
+	}
+
+	if !isVideo {
+		return "", errors.New("file is not a video")
+	}
+
+	return m.UploadFile(fileHeader, folderPath)
+}
+
+func (m *MinioConfig) UploadFile(fileHeader *multipart.FileHeader, folderPath string) (string, error) {
 	ctx := context.Background()
 	// Open the file
 	file, err := fileHeader.Open()

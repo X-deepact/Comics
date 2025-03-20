@@ -7,11 +7,14 @@ const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
 // Views
 const Login = () => import("../views/auth/Login.vue");
 const Dashboard = () => import("../views/Dashboard.vue");
+const Skits = () => import("../views/skits_manage/skits/Skits.vue");
+const Genres = () => import("../views/skits_manage/genres/Genres.vue");
 const Comics = () => import("../views/content/comics/Comics.vue");
 const Subjects = () => import("../views/content/subjects/Subjects.vue");
 const Authors = () => import("../views/content/authors/Authors.vue");
 const Ads = () => import("../views/ads/Ads/Ads.vue");
-const Recommendation = () => import("../views/ads/Recommendate/Recommendation.vue");
+const Recommendation = () =>
+  import("../views/ads/Recommendate/Recommendation.vue");
 const Profile = () => import("../views/profile/Profile.vue");
 const Users = () => import("../views/system/Users.vue");
 
@@ -61,6 +64,8 @@ const routes = [
         name: "recommendation",
         component: Recommendation,
       },
+      { path: "skits", name: "skits", component: Skits },
+      { path: "genres", name: "genres", component: Genres },
       // System Management
       {
         path: "users",

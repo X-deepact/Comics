@@ -9,6 +9,7 @@ import (
 )
 
 const MaxImageSize = 1 << 20 // 1MB
+const MaxVideoSize = 1 << 30 // 1GB
 
 func IsImage(fileHeader *multipart.FileHeader) (bool, error) {
 	// Open the uploaded file
@@ -28,6 +29,33 @@ func IsImage(fileHeader *multipart.FileHeader) (bool, error) {
 	// Detect MIME type
 	mimeType := http.DetectContentType(buffer)
 	return mimeType == "image/jpeg" || mimeType == "image/png" || mimeType == "image/gif", nil
+}
+
+func IsVideo(fileHeader *multipart.FileHeader) (bool, error) {
+	// Open the uploaded file
+	file, err := fileHeader.Open()
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	// Read the first 512 bytes of the file
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return false, err
+	}
+
+	// Detect MIME type
+	mimeType := http.DetectContentType(buffer)
+	validTypes := []string{"video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska"}
+
+	for _, t := range validTypes {
+		if mimeType == t {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func MakeUniqueIDWithTime() string {

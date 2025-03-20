@@ -7,21 +7,21 @@ export function useNavigation() {
 
   const navigation = computed<NavigationItem[]>(() => [
     {
-      title: "Content Manage",
+      title: "Comics Manage",
       icon: "file",
       children: [
         {
-          name: "Comics Manage",
+          name: "Comics",
           href: "/dashboard/comics",
           active: route.path === "/dashboard/comics",
         },
         {
-          name: "Genre Manage",
+          name: "Genres",
           href: "/dashboard/subjects",
           active: route.path === "/dashboard/subjects",
         },
         {
-          name: `Author Manage`,
+          name: `Authors`,
           href: "/dashboard/authors",
           active: route.path === `/dashboard/authors`,
         },
@@ -37,9 +37,25 @@ export function useNavigation() {
           active: route.path === "/dashboard/ads",
         },
         {
-          name: "Recommendation",
+          name: "Recommendations",
           href: "/dashboard/recommendation",
           active: route.path === "/dashboard/recommendation",
+        },
+      ],
+    },
+    {
+      title: "Skits manage",
+      icon: "target",
+      children: [
+        {
+          name: "Skits",
+          href: "/dashboard/skits",
+          active: route.path === "/dashboard/skits",
+        },
+        {
+          name: "Genres",
+          href: "/dashboard/genres",
+          active: route.path === "/dashboard/genres",
         },
       ],
     },
@@ -48,7 +64,7 @@ export function useNavigation() {
       icon: "settings",
       children: [
         {
-          name: "User",
+          name: "Users",
           href: "/dashboard/users",
           active: route.path === "/dashboard/users",
         },

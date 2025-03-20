@@ -47,7 +47,7 @@
   <UpdateStatus />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { useUserStore } from "../../stores/userStore";
 import Component from "@/lib/Component.vue";
