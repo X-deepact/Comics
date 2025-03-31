@@ -1517,10 +1517,6 @@ paths:
         in: query
         name: comic_id
         type: integer
-      - description: ASC or DESC
-        in: query
-        name: order
-        type: string
       - description: Page number
         in: query
         name: page
@@ -1529,6 +1525,14 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:
@@ -2676,7 +2680,7 @@ paths:
       summary: Get a genre
       tags:
       - genres
-  /api/genres:
+  /api/genres-drama:
     get:
       consumes:
       - application/json
@@ -2736,7 +2740,7 @@ paths:
       - BearerAuth: []
       summary: List genres
       tags:
-      - genres
+      - genres-drama
     post:
       consumes:
       - application/json
@@ -2772,7 +2776,7 @@ paths:
       - BearerAuth: []
       summary: Create a new genre for drama
       tags:
-      - genres
+      - genres-drama
     put:
       consumes:
       - application/json
@@ -2808,8 +2812,8 @@ paths:
       - BearerAuth: []
       summary: Update a genre for drama
       tags:
-      - genres
-  /api/genres/{id}:
+      - genres-drama
+  /api/genres-drama/{id}:
     delete:
       consumes:
       - application/json
@@ -2839,7 +2843,7 @@ paths:
       - BearerAuth: []
       summary: Delete a genre
       tags:
-      - genres
+      - genres-drama
     get:
       consumes:
       - application/json
@@ -2878,7 +2882,7 @@ paths:
       - BearerAuth: []
       summary: Get genre details
       tags:
-      - genres
+      - genres-drama
   /api/recommend:
     get:
       consumes:
@@ -3208,43 +3212,7 @@ paths:
       summary: Create recommend comic
       tags:
       - recommends
-  /api/upload-short-drama/subtitle:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Upload a subtitle file for a drama
-      parameters:
-      - description: Subtitle file
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Subtitle uploaded successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.SuccessResponse'
-            - properties:
-                data:
-                  type: string
-              type: object
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Upload subtitle for drama
-      tags:
-      - upload-short-drama
-  /api/upload-short-drama/thumbnail:
+  /api/uploads/drama-thumb:
     post:
       consumes:
       - multipart/form-data
@@ -3279,8 +3247,44 @@ paths:
       - BearerAuth: []
       summary: Upload thumbnail for drama
       tags:
-      - upload-short-drama
-  /api/upload-short-drama/video:
+      - uploads
+  /api/uploads/episode-sub:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a subtitle file for a drama
+      parameters:
+      - description: Subtitle file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subtitle uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload subtitle for drama
+      tags:
+      - uploads
+  /api/uploads/episode-video:
     post:
       consumes:
       - multipart/form-data
@@ -3320,7 +3324,7 @@ paths:
       - BearerAuth: []
       summary: Upload video for drama
       tags:
-      - upload-short-drama
+      - uploads
   /api/user:
     get:
       consumes:

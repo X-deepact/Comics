@@ -10,17 +10,17 @@ import (
 )
 
 func (s *Server) uploadDramaRouter() {
-	group := s.router.Group("api/upload-short-drama/")
+	group := s.router.Group("api/uploads/")
 
 	group.Use(s.authMiddleware(s.tokenMaker))
-	group.POST("/video", s.uploadVideoDrama)
-	group.POST("/thumbnail", s.uploadThumbnailDrama)
-	group.POST("/subtitle", s.uploadSubtitleDrama)
+	group.POST("/episode-video", s.uploadVideoDrama)
+	group.POST("/drama-thumb", s.uploadThumbnailDrama)
+	group.POST("/episode-sub", s.uploadSubtitleDrama)
 }
 
 // @Summary Upload video for drama
 // @Description Upload a video file for a drama
-// @Tags upload-short-drama
+// @Tags uploads
 // @Accept multipart/form-data
 // @Produce json
 // @Param id formData int true "Drama ID"
@@ -29,7 +29,7 @@ func (s *Server) uploadDramaRouter() {
 // @Success 200 {object} dto.SuccessResponse{data=string} "Video uploaded successfully"
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/upload-short-drama/video [post]
+// @Router /api/uploads/episode-video [post]
 func (s *Server) uploadVideoDrama(ctx *gin.Context) {
 	idStr := ctx.PostForm("id")
 	if idStr == "" {
@@ -67,7 +67,7 @@ func (s *Server) uploadVideoDrama(ctx *gin.Context) {
 
 // @Summary Upload thumbnail for drama
 // @Description Upload a thumbnail image for a drama
-// @Tags upload-short-drama
+// @Tags uploads
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "Thumbnail image file"
@@ -75,7 +75,7 @@ func (s *Server) uploadVideoDrama(ctx *gin.Context) {
 // @Success 200 {object} dto.SuccessResponse{data=string} "Thumbnail uploaded successfully"
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/upload-short-drama/thumbnail [post]
+// @Router /api/uploads/drama-thumb [post]
 func (s *Server) uploadThumbnailDrama(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
 	if err != nil {
@@ -101,7 +101,7 @@ func (s *Server) uploadThumbnailDrama(ctx *gin.Context) {
 
 // @Summary Upload subtitle for drama
 // @Description Upload a subtitle file for a drama
-// @Tags upload-short-drama
+// @Tags uploads
 // @Accept multipart/form-data
 // @Produce json
 // @Param file formData file true "Subtitle file"
@@ -109,7 +109,7 @@ func (s *Server) uploadThumbnailDrama(ctx *gin.Context) {
 // @Success 200 {object} dto.SuccessResponse{data=string} "Subtitle uploaded successfully"
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"
 // @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/upload-short-drama/subtitle [post]
+// @Router /api/uploads/episode-sub [post]
 func (s *Server) uploadSubtitleDrama(ctx *gin.Context) {
 	file, err := ctx.FormFile("file")
 	if err != nil {

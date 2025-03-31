@@ -1236,12 +1236,6 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "string",
-                        "description": "ASC or DESC",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",
@@ -1251,6 +1245,18 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Page size",
                         "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
                         "in": "query"
                     }
                 ],
@@ -3128,7 +3134,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/genres": {
+        "/api/genres-drama": {
             "get": {
                 "security": [
                     {
@@ -3143,7 +3149,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "genres"
+                    "genres-drama"
                 ],
                 "summary": "List genres",
                 "parameters": [
@@ -3238,7 +3244,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "genres"
+                    "genres-drama"
                 ],
                 "summary": "Update a genre for drama",
                 "parameters": [
@@ -3299,7 +3305,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "genres"
+                    "genres-drama"
                 ],
                 "summary": "Create a new genre for drama",
                 "parameters": [
@@ -3347,7 +3353,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/genres/{id}": {
+        "/api/genres-drama/{id}": {
             "get": {
                 "security": [
                     {
@@ -3362,7 +3368,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "genres"
+                    "genres-drama"
                 ],
                 "summary": "Get genre details",
                 "parameters": [
@@ -3427,7 +3433,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "genres"
+                    "genres-drama"
                 ],
                 "summary": "Delete a genre",
                 "parameters": [
@@ -3995,68 +4001,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/upload-short-drama/subtitle": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Upload a subtitle file for a drama",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "upload-short-drama"
-                ],
-                "summary": "Upload subtitle for drama",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "Subtitle file",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Subtitle uploaded successfully",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/upload-short-drama/thumbnail": {
+        "/api/uploads/drama-thumb": {
             "post": {
                 "security": [
                     {
@@ -4071,7 +4016,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "upload-short-drama"
+                    "uploads"
                 ],
                 "summary": "Upload thumbnail for drama",
                 "parameters": [
@@ -4117,7 +4062,68 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/upload-short-drama/video": {
+        "/api/uploads/episode-sub": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload a subtitle file for a drama",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "uploads"
+                ],
+                "summary": "Upload subtitle for drama",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Subtitle file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subtitle uploaded successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/uploads/episode-video": {
             "post": {
                 "security": [
                     {
@@ -4132,7 +4138,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "upload-short-drama"
+                    "uploads"
                 ],
                 "summary": "Upload video for drama",
                 "parameters": [
