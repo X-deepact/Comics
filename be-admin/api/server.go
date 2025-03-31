@@ -94,10 +94,13 @@ func (s *Server) setUpRouter() {
 	s.userRouter()
 	s.comicRouter()
 	s.genreRouter()
+	s.genreDramaRouter()
 	s.generalRouter()
 	s.authorRoutes()
 	s.recommendRoutes()
 	s.chapterRouter()
+	s.uploadDramaRouter()
+	s.shortDramaRoutes()
 	//router.POST("/register", s.register)
 	//router.POST("/login", s.login)
 

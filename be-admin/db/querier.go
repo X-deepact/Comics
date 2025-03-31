@@ -47,6 +47,7 @@ type Querier interface {
 	GetGeneralGenres(req dto.GeneralGenreRequest) ([]dto.GeneralGenreResponse, error)
 	GetGeneralAuthors(req dto.GeneralAuthorRequest) ([]dto.GeneralAuthorResponse, error)
 	GetGeneralComics(req dto.GeneralComicRequest) ([]dto.GeneralComicResponse, error)
+	GetGeneralDramaGenres(req dto.GeneralDramaGenreRequest) ([]dto.GeneralDramaGenreResponse, error)
 
 	// Ads
 	CreateAds(ads *model.AdModel) error
@@ -85,6 +86,20 @@ type Querier interface {
 	UpdateRecommend(r *model.RecommendManagerModel) error
 	CreateRecommendComic(r *model.RecommendComicModel) error
 	DeleteRecommendComicById(comicId, recommendId int64) (*model.RecommendComicModel, error)
+
+	// Short Drama
+	CreateDrama(d *model.ShortDramaModel) error
+	CreateDramaTranslations(d []*model.DramaTranslationModel) error
+	CreateDramaGenres(ids []*model.DramaGenreModel) error
+	GetDrama(id int64) (*dto.ShortDrama, error)
+	GetDramaTranslations(id int64) ([]dto.DramaTranslation, error)
+	GetDramaGenres(id int64) ([]dto.GenreForShortDramaResponse, error)
+	GetDramas(req dto.ShortDramaListRequest) ([]*dto.ShortDrama, int64, error)
+	UpdateDrama(d *model.ShortDramaModel) error
+	DeleteDramaTranslations(id int64) error
+	DeleteDramaGenres(id int64) error
+	DeleteDrama(id int64) error
+	ActiveDrama(id int64, adminId int64) error
 }
 
 var _ Querier = (*Queries)(nil)

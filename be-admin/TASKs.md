@@ -70,9 +70,99 @@
 - [x] 🔴 **GET /general/tiers** - Get tiers
 - [x] 🔴 **GET /general/genres** - Get genres
 - [x] 🔴 **GET /general/authors** - Get authors
-- [x]
+- [x] 🟢 **GET /general/comics** - Get comics
+- [ ] 🔴 **GET /general/genre-for-short-drama** - Get genres for short drama
 
 ---
+
+# Short Drama API
+
+## Drama API
+- [ ] 🟢 **GET /dramas** - List dramas
+- [ ] 🟢 **GET /dramas/{id}** - Get drama details
+- [ ] 🟢 **POST /dramas** - Create a new drama
+- [ ] 🟢 **PUT /dramas/{id}** - Update drama
+- [ ] 🟢 **DELETE /dramas/{id}** - Delete drama
+- [ ] 🟢 **PUT /dramas/{id}/active** - Activate/deactivate drama
+
+### Request
+```json
+{
+  "release_date": "2023-11-15",
+  "thumb": "http://server.com/thumb.jpg",
+  "translations": [
+    {
+      "language_code": "en",
+      "title": "Love in Tokyo",
+      "description": "A romantic story set in Tokyo"
+    },
+    {
+      "language_code": "es",
+      "title": "Amor en Tokio",
+      "description": "Una historia romántica ambientada en Tokio"
+    }
+  ],
+  "genres": [1, 3, 5]
+}
+```
+
+## Episodes API
+- [ ] 🟡 **GET /episodes** - List episodes
+- [ ] 🟡 **GET /episodes/{id}** - Get episode details
+- [ ] 🟡 **POST /episodes** - Add new episode to drama
+- [ ] 🟡 **PUT /episodes/** - Update episode
+- [ ] 🟡 **DELETE /episodes/{id}** - Delete episode
+- [ ] 🟡 **PUT /episodes/{id}/active** - Activate/deactivate episode
+
+### Request
+```json
+{
+  "number": 1,
+  "drama_id": 123,
+  "video": "https://storage.com/dramas/123/ep1.mp4",
+  "subtitles": [
+    {
+      "language_code": "en",
+      "url": "https://storage.com/dramas/123/ep1-en.srt"
+    },
+    {
+      "language_code": "es",
+      "url": "https://storage.com/dramas/123/ep1-es.srt"
+    }
+  ]
+}
+```
+
+## Genre API
+- [ ] 🔵 **GET /genres** - List genres
+- [ ] 🔵 **GET /genres/{id}** - Get genre details
+- [ ] 🔵 **POST /genres** - Create a new genre
+- [ ] 🔵 **PUT /genres/** - Update genre
+- [ ] 🔵 **DELETE /genres/{id}** - Delete genre
+
+### Request
+```json
+{
+  "name": "Romance",
+  "position": 1,
+  "translations": [
+    {
+      "language_code": "en",
+      "name": "Romance"
+    },
+    {
+      "language_code": "es",
+      "name": "Romance"
+    }
+  ]
+}
+```
+
+## Uploads API
+- [ ] 🔴 **POST /uploads/episode-video** - Upload episode video
+- [ ] 🔴 **POST /uploads/episode-subtitle** - Upload episode subtitle
+- [ ] 🔴 **POST /uploads/drama-thumb** - Upload drama thumb
+
 
 ### Team Members and Their Assigned Colors
 

@@ -37,3 +37,13 @@ type GeneralComicResponse struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
+
+type GeneralDramaGenreRequest struct {
+	Name     string `form:"name"`
+	Language string `form:"language"`
+}
+
+type GeneralDramaGenreResponse struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+}

@@ -85,3 +85,23 @@ func (q *Queries) GetGeneralComics(req dto.GeneralComicRequest) ([]dto.GeneralCo
 
 	return comics, nil
 }
+
+func (q *Queries) GetGeneralDramaGenres(req dto.GeneralDramaGenreRequest) ([]dto.GeneralDramaGenreResponse, error) {
+	var genres []dto.GeneralDramaGenreResponse
+	var query = q.db.WithContext(context.Background()).Table("genres_for_short_drama as g").
+		Joins("INNER JOIN genre_translations gt ON gt.genre_id = g.id")
+
+	if req.Language != "" {
+		query.Where("gt.language = ?", req.Language)
+	}
+
+	if req.Name != "" {
+		query.Where("gt.translated_name LIKE ?", "%"+req.Name+"%")
+	}
+
+	if err := query.Select("g.id, gt.translated_name as name").Order("name").Find(&genres).Error; err != nil {
+		return nil, err
+	}
+
+	return genres, nil
+}

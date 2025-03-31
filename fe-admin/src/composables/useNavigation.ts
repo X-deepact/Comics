@@ -7,7 +7,7 @@ export function useNavigation() {
 
   const navigation = computed<NavigationItem[]>(() => [
     {
-      title: "Comics Manage",
+      title: "Comics Management",
       icon: "file",
       children: [
         {
@@ -44,13 +44,13 @@ export function useNavigation() {
       ],
     },
     {
-      title: "Skits manage",
+      title: "Dramas Management",
       icon: "target",
       children: [
         {
-          name: "Skits",
-          href: "/dashboard/skits",
-          active: route.path === "/dashboard/skits",
+          name: "Dramas",
+          href: "/dashboard/dramas",
+          active: route.path === "/dashboard/dramas",
         },
         {
           name: "Genres",
@@ -60,7 +60,7 @@ export function useNavigation() {
       ],
     },
     {
-      title: "System Manage",
+      title: "System Management",
       icon: "settings",
       children: [
         {

@@ -13,6 +13,7 @@ func (s *Server) generalRouter() {
 	group.GET("/genres", s.getGeneralGenres)
 	group.GET("/authors", s.getGeneralAuthors)
 	group.GET("/comics", s.getGeneralComics)
+	group.GET("/drama-genres", s.getGeneralDramaGenres)
 }
 
 // @Summary Get tiers
@@ -119,5 +120,34 @@ func (s *Server) getGeneralComics(ctx *gin.Context) {
 	}
 
 	config.BuildSuccessResponse(ctx, comics)
+
+}
+
+// @Summary Get general drama genres
+// @Description Get general drama genres
+// @Tags general
+// @Accept json
+// @Produce json
+// @Param name query string false "Name"
+// @Param language query string false "Language"
+// @Security     BearerAuth
+// @Success 200 {object} dto.SuccessResponse{data=[]dto.GeneralDramaGenreResponse} "Comics"
+// @Failure 400 {object} dto.ErrorResponse "Invalid request"
+// @Failure 500 {object} dto.ErrorResponse "Internal server error"
+// @Router /api/general/drama-genres [get]
+func (s *Server) getGeneralDramaGenres(ctx *gin.Context) {
+	var req dto.GeneralDramaGenreRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	genres, err := s.store.GetGeneralDramaGenres(req)
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+
+	config.BuildSuccessResponse(ctx, genres)
 
 }

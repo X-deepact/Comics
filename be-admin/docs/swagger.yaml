@@ -197,6 +197,8 @@ definitions:
     type: object
   dto.ChapterRequest:
     properties:
+      active_from:
+        type: string
       comic_id:
         type: integer
       cover:
@@ -212,6 +214,8 @@ definitions:
     properties:
       active:
         type: boolean
+      active_from:
+        type: string
       comic_id:
         type: integer
       cover:
@@ -233,6 +237,8 @@ definitions:
     type: object
   dto.ChapterUpdateRequest:
     properties:
+      active_from:
+        type: string
       comic_id:
         type: integer
       cover:
@@ -328,6 +334,15 @@ definitions:
       updated_by_user:
         $ref: '#/definitions/dto.UserDetailDto'
     type: object
+  dto.DramaTranslation:
+    properties:
+      description:
+        type: string
+      language:
+        type: string
+      title:
+        type: string
+    type: object
   dto.ErrorResponse:
     properties:
       code:
@@ -344,6 +359,13 @@ definitions:
         type: string
     type: object
   dto.GeneralComicResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.GeneralDramaGenreResponse:
     properties:
       id:
         type: integer
@@ -370,6 +392,71 @@ definitions:
     - name
     - position
     type: object
+  dto.GenreDramaCreateRequest:
+    properties:
+      name:
+        type: string
+      position:
+        type: integer
+      translations:
+        items:
+          $ref: '#/definitions/dto.GenreTranslationRequest'
+        minItems: 1
+        type: array
+    required:
+    - name
+    - position
+    - translations
+    type: object
+  dto.GenreDramaResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      position:
+        type: integer
+      translations:
+        items:
+          $ref: '#/definitions/dto.GenreTranslationResponse'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  dto.GenreDramaUpdateRequest:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      position:
+        type: integer
+      translations:
+        items:
+          $ref: '#/definitions/dto.GenreTranslationRequest'
+        minItems: 1
+        type: array
+    required:
+    - id
+    - name
+    - position
+    - translations
+    type: object
+  dto.GenreForShortDramaResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      position:
+        type: integer
+    type: object
   dto.GenreResponse:
     properties:
       created_at:
@@ -388,6 +475,35 @@ definitions:
         type: string
       updated_by_name:
         type: string
+    type: object
+  dto.GenreTranslationRequest:
+    properties:
+      language:
+        type: string
+      translated_name:
+        type: string
+    required:
+    - language
+    - translated_name
+    type: object
+  dto.GenreTranslationResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      genre_id:
+        type: integer
+      id:
+        type: integer
+      language:
+        type: string
+      translated_name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
     type: object
   dto.GenreUpdateRequest:
     properties:
@@ -492,6 +608,48 @@ definitions:
       updated_by_name:
         type: string
     type: object
+  dto.ShortDramaRequest:
+    properties:
+      genres:
+        items:
+          type: integer
+        type: array
+      release_date:
+        type: string
+      thumb:
+        type: string
+      translations:
+        items:
+          $ref: '#/definitions/dto.DramaTranslation'
+        type: array
+    type: object
+  dto.ShortDramaResponse:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      created_by_name:
+        type: string
+      genres:
+        items:
+          $ref: '#/definitions/dto.GenreForShortDramaResponse'
+        type: array
+      id:
+        type: integer
+      release_date:
+        type: string
+      thumb:
+        type: string
+      translations:
+        items:
+          $ref: '#/definitions/dto.DramaTranslation'
+        type: array
+      updated_at:
+        type: string
+      updated_by_name:
+        type: string
+    type: object
   dto.SuccessResponse:
     properties:
       code:
@@ -508,6 +666,25 @@ definitions:
         type: string
       id:
         type: integer
+    type: object
+  dto.UpdateShortDramaRequest:
+    properties:
+      genres:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      release_date:
+        type: string
+      thumb:
+        type: string
+      translations:
+        items:
+          $ref: '#/definitions/dto.DramaTranslation'
+        type: array
+    required:
+    - id
     type: object
   dto.UserChangePasswordRequest:
     properties:
@@ -1884,6 +2061,220 @@ paths:
       summary: Upload a comic cover
       tags:
       - comics
+  /api/dramas:
+    get:
+      consumes:
+      - application/json
+      description: Get list of dramas
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of dramas
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ShortDramaResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get list of dramas
+      tags:
+      - dramas
+    post:
+      consumes:
+      - application/json
+      description: Create a drama
+      parameters:
+      - description: Drama Request
+        in: body
+        name: drama
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ShortDramaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Drama created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a drama
+      tags:
+      - dramas
+    put:
+      consumes:
+      - application/json
+      description: Update a drama
+      parameters:
+      - description: Drama Update Request
+        in: body
+        name: drama
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateShortDramaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Drama updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a drama
+      tags:
+      - dramas
+  /api/dramas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a drama by ID
+      parameters:
+      - description: Drama ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Drama deleted successfully
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a drama
+      tags:
+      - dramas
+    get:
+      consumes:
+      - application/json
+      description: Get a drama
+      parameters:
+      - description: Drama ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Drama retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ShortDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a drama
+      tags:
+      - dramas
+  /api/dramas/active/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Active a drama by ID
+      parameters:
+      - description: Drama ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Drama activated/deactivated successfully
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Active a drama
+      tags:
+      - dramas
   /api/general/authors:
     get:
       consumes:
@@ -1972,6 +2363,47 @@ paths:
       security:
       - BearerAuth: []
       summary: Get general comics
+      tags:
+      - general
+  /api/general/drama-genres:
+    get:
+      consumes:
+      - application/json
+      description: Get general drama genres
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Language
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comics
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GeneralDramaGenreResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get general drama genres
       tags:
       - general
   /api/general/genres:
@@ -2242,6 +2674,209 @@ paths:
       security:
       - BearerAuth: []
       summary: Get a genre
+      tags:
+      - genres
+  /api/genres:
+    get:
+      consumes:
+      - application/json
+      description: List all genres with pagination and filtering
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size (must be between 10 and 50)
+        in: query
+        maximum: 50
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by language
+        in: query
+        name: language
+        type: string
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort direction (asc/desc)
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of genres
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.ListSuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.GenreDramaResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List genres
+      tags:
+      - genres
+    post:
+      consumes:
+      - application/json
+      description: Create a new genre for drama with translations
+      parameters:
+      - description: Genre Drama Request
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenreDramaCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Genre created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new genre for drama
+      tags:
+      - genres
+    put:
+      consumes:
+      - application/json
+      description: Update a genre for drama with translations
+      parameters:
+      - description: Genre Drama Update Request
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenreDramaUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Genre updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a genre for drama
+      tags:
+      - genres
+  /api/genres/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a genre and its translations
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Genre deleted successfully
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a genre
+      tags:
+      - genres
+    get:
+      consumes:
+      - application/json
+      description: Get genre details by ID with translations
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Genre details retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.GenreDramaResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Genre not found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get genre details
       tags:
       - genres
   /api/recommend:
@@ -2573,6 +3208,119 @@ paths:
       summary: Create recommend comic
       tags:
       - recommends
+  /api/upload-short-drama/subtitle:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a subtitle file for a drama
+      parameters:
+      - description: Subtitle file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subtitle uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload subtitle for drama
+      tags:
+      - upload-short-drama
+  /api/upload-short-drama/thumbnail:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a thumbnail image for a drama
+      parameters:
+      - description: Thumbnail image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Thumbnail uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload thumbnail for drama
+      tags:
+      - upload-short-drama
+  /api/upload-short-drama/video:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a video file for a drama
+      parameters:
+      - description: Drama ID
+        in: formData
+        name: id
+        required: true
+        type: integer
+      - description: Video file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Video uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload video for drama
+      tags:
+      - upload-short-drama
   /api/user:
     get:
       consumes:

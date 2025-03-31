@@ -7,8 +7,8 @@ const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
 // Views
 const Login = () => import("../views/auth/Login.vue");
 const Dashboard = () => import("../views/Dashboard.vue");
-const Skits = () => import("../views/skits_manage/skits/Skits.vue");
-const Genres = () => import("../views/skits_manage/genres/Genres.vue");
+const Dramas = () => import("../views/drama_manage/dramas/Skits.vue");
+const Genres = () => import("../views/drama_manage/genres/Genres.vue");
 const Comics = () => import("../views/content/comics/Comics.vue");
 const Subjects = () => import("../views/content/subjects/Subjects.vue");
 const Authors = () => import("../views/content/authors/Authors.vue");
@@ -64,7 +64,7 @@ const routes = [
         name: "recommendation",
         component: Recommendation,
       },
-      { path: "skits", name: "skits", component: Skits },
+      { path: "dramas", name: "dramas", component: Dramas },
       { path: "genres", name: "genres", component: Genres },
       // System Management
       {

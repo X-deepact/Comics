@@ -96,9 +96,10 @@ func (s *Server) getChapter(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param comic_id query int false "Comic ID"
-// @Param order query string false "ASC or DESC"
 // @Param page query int false "Page number"
 // @Param page_size query int false "Page size"
+// @Param sort_by query string false "Sort by"
+// @Param sort query string false "Sort"
 // @Security     BearerAuth
 // @Success 200 {object} dto.ListSuccessResponse{data=[]dto.ChapterResponse} "List chapters"
 // @Failure 400 {object} dto.ErrorResponse "Invalid request"

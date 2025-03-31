@@ -23,17 +23,19 @@ type ApiFileConfig struct {
 }
 
 type FileStorageConfig struct {
-	Endpoint          string `mapstructure:"ENDPOINT"`
-	AccessKey         string `mapstructure:"ACCESS_KEY"`
-	SecretKey         string `mapstructure:"SECRET_KEY"`
-	BucketName        string `mapstructure:"BUCKET_NAME"`
-	UseSSL            bool   `mapstructure:"USE_SSL"`
-	AvatarFolder      string `mapstructure:"AVATAR_FOLDER"`
-	CoverFolder       string `mapstructure:"COMIC_COVER_FOLDER"`
-	ChapterItemFolder string `mapstructure:"CHAPTER_ITEM_FOLDER"`
-	RecommendFolder   string `mapstructure:"RECOMMEND_FOLDER"`
-	AdsFolder         string `mapstructure:"ADS_FOLDER"`
-	ShortDramaFolder  string `mapstructure:"SHORT_DRAMA_FOLDER"`
+	Endpoint              string `mapstructure:"ENDPOINT"`
+	AccessKey             string `mapstructure:"ACCESS_KEY"`
+	SecretKey             string `mapstructure:"SECRET_KEY"`
+	BucketName            string `mapstructure:"BUCKET_NAME"`
+	UseSSL                bool   `mapstructure:"USE_SSL"`
+	AvatarFolder          string `mapstructure:"AVATAR_FOLDER"`
+	CoverFolder           string `mapstructure:"COMIC_COVER_FOLDER"`
+	ChapterItemFolder     string `mapstructure:"CHAPTER_ITEM_FOLDER"`
+	RecommendFolder       string `mapstructure:"RECOMMEND_FOLDER"`
+	AdsFolder             string `mapstructure:"ADS_FOLDER"`
+	ShortDramaFolder      string `mapstructure:"SHORT_DRAMA_FOLDER"`
+	ShortDramaThumbFolder string `mapstructure:"SHORT_DRAMA_THUMB_FOLDER"`
+	ShortDramaSubFolder   string `mapstructure:"SHORT_DRAMA_SUB_FOLDER"`
 }
 
 type WebConfig struct {
