@@ -10,8 +10,8 @@ export const ColumnNames = {
   },
   genres: { label: "Genres", key: "genres" },
   properties: {
-    label: "Properties",
-    key: "properties",
+    label: "Release Date",
+    key: "release_date",
   },
   create: {
     label: "Create",

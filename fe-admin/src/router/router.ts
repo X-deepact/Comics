@@ -7,7 +7,7 @@ const DashboardLayout = () => import("../layouts/DashboardLayout.vue");
 // Views
 const Login = () => import("../views/auth/Login.vue");
 const Dashboard = () => import("../views/Dashboard.vue");
-const Dramas = () => import("../views/drama_manage/dramas/Skits.vue");
+const Dramas = () => import("../views/drama_manage/dramas/Dramas.vue");
 const Genres = () => import("../views/drama_manage/genres/Genres.vue");
 const Comics = () => import("../views/content/comics/Comics.vue");
 const Subjects = () => import("../views/content/subjects/Subjects.vue");
