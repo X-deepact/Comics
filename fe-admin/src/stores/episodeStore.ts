@@ -3,18 +3,39 @@ import axios from "axios";
 import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
-import { type DateValue } from "@internationalized/date";
+import { useDramaStore } from "./dramaStore";
 const API_URL = import.meta.env.VITE_API_URL;
 const { toast } = useToast();
+const dramaStore = useDramaStore();
 
-export interface Episode {}
+export interface Episode {
+  id: number;
+  drama_id: number;
+  number: number;
+  video: string;
+  active: boolean;
+  created_at: string;
+  created_by_name: string;
+  updated_at: string;
+  updated_by_name: string;
+  subtitles: [];
+}
 
 export const useEpisodeStore = defineStore("episodeStore", () => {
   const createDialogIsOpen = ref(false);
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
+  const updateActiveDialogIsOpen = ref(false);
+  const playDialogIsOpen = ref(false);
   const isLoading = ref(true);
-  const selectedData = ref({});
+  const selectedData = ref({
+    id: 0,
+    drama_id: 0,
+    number: 0,
+    video: "",
+    active: true,
+    subtitles: [],
+  });
   const current_page = ref(1);
   const page_size = ref(10);
   const searchKeyword = ref("");
@@ -22,11 +43,12 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
   const episodeData = ref<Episode[]>([]);
   const sortBy = ref("");
   const sorting = ref("asc");
-  async function getDramaData() {
+
+  async function getEpisodeData() {
     isLoading.value = true;
     await axios
       .get(
-        `${API_URL}/episodes?page=${current_page.value}&page_size=${page_size.value}&sort=${sorting.value}&sort_by=${sortBy.value}`,
+        `${API_URL}/episodes?page=${current_page.value}&page_size=${page_size.value}&sort=${sorting.value}&sort_by=${sortBy.value}&drama_id=${dramaStore.selectedData.id}`,
         {
           headers: authHeader(),
         }
@@ -39,7 +61,7 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
           });
           return false;
         }
-        dramaData.value = response.data.data;
+        episodeData.value = response.data.data;
         current_page.value = response.data.pagination.page;
         totalItems.value = response.data.pagination.total
           ? response.data.pagination.total
@@ -55,9 +77,9 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
       });
   }
 
-  async function createAuthor(data: any) {
+  async function createEpisode(data: any) {
     await axios
-      .post(`${API_URL}/author`, data, { headers: authHeader() })
+      .post(`${API_URL}/episodes`, data, { headers: authHeader() })
       .then((response) => {
         if (response.data.code == "ERROR") {
           toast({
@@ -78,9 +100,9 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
       });
   }
 
-  async function updateAuthor(data: any) {
+  async function updateEpisode(data: any) {
     await axios
-      .put(`${API_URL}/author`, data, { headers: authHeader() })
+      .put(`${API_URL}/episodes`, data, { headers: authHeader() })
       .then((response) => {
         if (response.data.code == "ERROR") {
           toast({
@@ -101,14 +123,16 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
       });
     selectedData.value = {
       id: 0,
-      name: "",
-      biography: "",
-      birth_day: null as DateValue | null,
+      drama_id: 0,
+      number: 0,
+      video: "",
+      active: true,
+      subtitles: [],
     };
   }
-  async function deleteAuthor(id: any) {
+  async function deleteEpisode(id: any) {
     await axios
-      .delete(`${API_URL}/author/${id}`, {
+      .delete(`${API_URL}/episodes/${id}`, {
         headers: authHeader(),
       })
       .then((response) => {
@@ -131,9 +155,11 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
       });
     selectedData.value = {
       id: 0,
-      name: "",
-      biography: "",
-      birth_day: null as DateValue | null,
+      drama_id: 0,
+      number: 0,
+      video: "",
+      active: true,
+      subtitles: [],
     };
   }
 
@@ -144,22 +170,83 @@ export const useEpisodeStore = defineStore("episodeStore", () => {
       sorting.value = "asc";
     }
   }
+  async function uploadVideo(data: any, id: any): Promise<string | undefined> {
+    const formData = new FormData();
+    formData.append("file", data);
+    formData.append("id", id);
+    try {
+      const response = await axios.post(
+        `${API_URL}/uploads/episode-video`,
+        formData,
+        {
+          headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
+        }
+      );
+      if (response.data.code == "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return undefined;
+      }
+
+      return response.data.data;
+    } catch (error: any) {
+      toast({
+        description: error.message,
+        variant: "destructive",
+      });
+      return undefined;
+    }
+  }
+  async function uploadSubtitle(data: any): Promise<string | undefined> {
+    const formData = new FormData();
+    formData.append("file", data);
+    try {
+      const response = await axios.post(
+        `${API_URL}/uploads/episode-sub`,
+        formData,
+        {
+          headers: { ...authHeader(), "Content-Type": "multipart/form-data" },
+        }
+      );
+      if (response.data.code == "ERROR") {
+        toast({
+          description: response.data.msg,
+          variant: "destructive",
+        });
+        return undefined;
+      }
+
+      return response.data.data;
+    } catch (error: any) {
+      toast({
+        description: error.message,
+        variant: "destructive",
+      });
+      return undefined;
+    }
+  }
   return {
     createDialogIsOpen,
     updateDialogIsOpen,
     deleteDialogIsOpen,
+    updateActiveDialogIsOpen,
     selectedData,
-    dramaData,
+    episodeData,
     current_page,
     page_size,
     searchKeyword,
     totalItems,
     isLoading,
     sortBy,
-    getDramaData,
-    createAuthor,
-    updateAuthor,
-    deleteAuthor,
+    playDialogIsOpen,
+    getEpisodeData,
+    createEpisode,
+    updateEpisode,
+    deleteEpisode,
     setSorting,
+    uploadVideo,
+    uploadSubtitle,
   };
 });

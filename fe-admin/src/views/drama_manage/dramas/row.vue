@@ -31,11 +31,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.created_by_name
-      }}</Badge>
+        }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.created_at, true)
-          }}</Label>
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.created_at) }}
         </p>
@@ -44,11 +44,11 @@
     <TableCell>
       <Badge variant="secondary" class="text-sm">{{
         data.updated_by_name
-      }}</Badge>
+        }}</Badge>
       <div>
         <Label class="text-xs">{{
           formatDateSafe(data.updated_at, true)
-          }}</Label>
+        }}</Label>
         <p className="text-xs text-muted-foreground">
           {{ getTimeAgoSafe(data.updated_at) }}
         </p>
@@ -65,7 +65,7 @@
       <div class="flex gap-3">
         <Button variant="outline" size="icon" @click="
           () => {
-            $emit('clickAction', data.id);
+            $emit('clickAction', data);
           }
         ">
           <FilePenLine />

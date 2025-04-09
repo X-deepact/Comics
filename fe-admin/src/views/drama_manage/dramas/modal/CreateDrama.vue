@@ -75,7 +75,7 @@ const checkForm = () => {
       <div class="flex flex-row gap-4 h-full">
         <div class="flex flex-col gap-2 w-[20%]">
           <div class="border border-gray-100 h-[150px] rounded-lg">
-            <p class="flex justify-center items-center h-full text-gray-500">Thumbnail</p>
+            <p v-if="!previewUrl" class="flex justify-center items-center h-full text-gray-500">Thumbnail</p>
             <img v-if="previewUrl" :src="previewUrl" class="w-full h-full justify-self-center h-auto" />
           </div>
           <Input type="file" placeholder="Cover" class="justify-self-center" @change="handleFileChange"

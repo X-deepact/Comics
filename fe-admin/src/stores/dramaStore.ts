@@ -24,6 +24,7 @@ export const useDramaStore = defineStore("dramaStore", () => {
   const updateDialogIsOpen = ref(false);
   const deleteDialogIsOpen = ref(false);
   const updateActiveDialogIsOpen = ref(false);
+  const episodeDialogIsOpen = ref(false);
   const isLoading = ref(true);
   const selectedData = ref({
     id: 0,
@@ -255,6 +256,7 @@ export const useDramaStore = defineStore("dramaStore", () => {
     updateDialogIsOpen,
     deleteDialogIsOpen,
     updateActiveDialogIsOpen,
+    episodeDialogIsOpen,
     selectedData,
     dramaData,
     current_page,

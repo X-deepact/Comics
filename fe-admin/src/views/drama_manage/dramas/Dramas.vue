@@ -1,6 +1,6 @@
 <template>
     <div class="p-8">
-        <Component title="Short Drama" :pageSize="dramaStore.page_size" :searchIsEnable="false"
+        <Component title="Drama" :pageSize="dramaStore.page_size" :searchIsEnable="false"
             @clickAdd="() => (dramaStore.createDialogIsOpen = true)" @clickRefresh="
                 () => {
                     dramaStore.getDramaData();
@@ -39,6 +39,10 @@
                     (data: any) => {
                         dramaStore.selectedData.id = data.id;
                         dramaStore.updateActiveDialogIsOpen = true;
+                    }" @clickAction="(data: any) => {
+                        dramaStore.selectedData.id = data.id;
+                        episodeStore.getEpisodeData();
+                        dramaStore.episodeDialogIsOpen = true
                     }" />
 
         <Pagination :currentPage="dramaStore.current_page" :totalItems="dramaStore.totalItems" :totalPages="dramaStore.totalItems % dramaStore.page_size === 0
@@ -54,6 +58,7 @@
         <UpdateDrama />
         <DeleteDrama />
         <UpdateActiveDrama />
+        <Episode />
     </div>
 </template>
 
@@ -68,9 +73,10 @@ import DeleteDrama from "./modal/DeleteDrama.vue";
 import UpdateDrama from "./modal/UpdateDrama.vue";
 import UpdateActiveDrama from "./modal/UpdateActiveDrama.vue";
 import DramaRow from "./row.vue";
-
+import Episode from "./episodes/Episodes.vue";
+import { useEpisodeStore } from "../../../stores/episodeStore";
 // Define columns structure
 const dramaStore = useDramaStore();
 dramaStore.getDramaData();
-
+const episodeStore = useEpisodeStore();
 </script>
