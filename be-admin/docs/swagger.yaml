@@ -343,6 +343,69 @@ definitions:
       title:
         type: string
     type: object
+  dto.EpisodeCreateRequest:
+    properties:
+      active:
+        type: boolean
+      drama_id:
+        type: integer
+      number:
+        type: integer
+      subtitles:
+        items:
+          $ref: '#/definitions/dto.Subtitle'
+        type: array
+      video:
+        type: string
+    required:
+    - drama_id
+    - number
+    - video
+    type: object
+  dto.EpisodeResponse:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      created_by_name:
+        type: string
+      drama_id:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: integer
+      subtitles:
+        items:
+          $ref: '#/definitions/dto.Subtitle'
+        type: array
+      updated_at:
+        type: string
+      updated_by_name:
+        type: string
+      video:
+        type: string
+    required:
+    - subtitles
+    type: object
+  dto.EpisodeUpdateRequest:
+    properties:
+      active:
+        type: boolean
+      drama_id:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: integer
+      subtitles:
+        items:
+          $ref: '#/definitions/dto.Subtitle'
+        type: array
+      video:
+        type: string
+    type: object
   dto.ErrorResponse:
     properties:
       code:
@@ -649,6 +712,16 @@ definitions:
         type: string
       updated_by_name:
         type: string
+    type: object
+  dto.Subtitle:
+    properties:
+      language:
+        type: string
+      url:
+        type: string
+    required:
+    - language
+    - url
     type: object
   dto.SuccessResponse:
     properties:
@@ -2279,6 +2352,195 @@ paths:
       summary: Active a drama
       tags:
       - dramas
+  /api/episodes:
+    get:
+      consumes:
+      - application/json
+      description: Get list of episodes
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size (must be between 10 and 50)
+        in: query
+        maximum: 50
+        minimum: 10
+        name: page_size
+        required: true
+        type: integer
+      - description: Sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List episodes
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.ListSuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.EpisodeResponse'
+                  type: array
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get list of episodes
+      tags:
+      - episodes
+    post:
+      consumes:
+      - application/json
+      description: Create an createEpisode
+      parameters:
+      - description: Episode Request
+        in: body
+        name: episode
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EpisodeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Episode created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EpisodeResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create an createEpisode
+      tags:
+      - episodes
+    put:
+      consumes:
+      - application/json
+      description: Update an updateEpisode
+      parameters:
+      - description: Episode Request
+        in: body
+        name: episode
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EpisodeUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Episode updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EpisodeResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an updateEpisode
+      tags:
+      - episodes
+  /api/episodes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an episode by Id
+      parameters:
+      - description: Episode ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Episode deleted successfully
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an episode by Id
+      tags:
+      - episodes
+    get:
+      consumes:
+      - application/json
+      description: Get an episode by getEpisodeById
+      parameters:
+      - description: Episode ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Episode retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EpisodeResponse'
+              type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an episode by ID
+      tags:
+      - episodes
   /api/general/authors:
     get:
       consumes:

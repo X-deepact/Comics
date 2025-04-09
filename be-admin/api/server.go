@@ -101,6 +101,7 @@ func (s *Server) setUpRouter() {
 	s.chapterRouter()
 	s.uploadDramaRouter()
 	s.shortDramaRoutes()
+	s.episodeRoutes()
 	//router.POST("/register", s.register)
 	//router.POST("/login", s.login)
 

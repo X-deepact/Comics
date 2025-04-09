@@ -3,9 +3,10 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"github.com/gin-gonic/gin"
 	"pkg-common/common"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) comicRouter() {

@@ -2,6 +2,7 @@ package db
 
 import (
 	"comics-admin/dto"
+	"context"
 	"pkg-common/model"
 )
 
@@ -100,6 +101,19 @@ type Querier interface {
 	DeleteDramaGenres(id int64) error
 	DeleteDrama(id int64) error
 	ActiveDrama(id int64, adminId int64) error
+
+	CreateEpisode(episode *model.EpisodeModel) error
+	GetEpisodeById(id int64) (*model.EpisodeModel, error)
+	ListEpisodes(req *dto.EpisodeListRequest) ([]*model.EpisodeModel, int64, error)
+	UpdateEpisode(episode *model.EpisodeModel) error
+	DeleteEpisode(id int64) error
+
+	CreateSubtitle(ctx context.Context, subtitle *model.SubtitleModel) error
+	CreateSubtitles(ctx context.Context, subtitles []*model.SubtitleModel) error
+	GetSubtitleByEpisodeId(ctx context.Context, id int64) ([]dto.Subtitle, error)
+	GetSubtitleByEpisodeIds(ctx context.Context, epsilonIds []int64) (map[int64][]dto.Subtitle, error)
+	DeleteSubtitleByEpisodeId(ctx context.Context, id int64) error
+	UpdateSubtitleUrlByEpisodeId(ctx context.Context, epsilonId, updatedBy int64, input []dto.Subtitle) error
 }
 
 var _ Querier = (*Queries)(nil)

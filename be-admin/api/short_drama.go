@@ -3,10 +3,13 @@ package api
 import (
 	"comics-admin/dto"
 	config "comics-admin/util"
-	"github.com/gin-gonic/gin"
+	"errors"
 	"pkg-common/common"
 	"pkg-common/model"
 	"strconv"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (s *Server) shortDramaRoutes() {
@@ -48,27 +51,18 @@ func (s *Server) getDramas(c *gin.Context) {
 		return
 	}
 
-	result := make([]dto.ShortDramaResponse, len(dramas))
+	if len(dramas) == 0 {
+		config.BuildErrorResponse(c, errors.New("no dramas"), nil)
+		return
+	}
+	result := make([]*dto.ShortDramaResponse, len(dramas))
 	for i, drama := range dramas {
-		translations, _ := s.store.GetDramaTranslations(drama.Id)
-		genres, _ := s.store.GetDramaGenres(drama.Id)
-		if drama.Thumb != "" {
-			drama.Thumb = s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, drama.Thumb)
+		result[i] = &dto.ShortDramaResponse{
+			ShortDrama:   *drama,
+			Translations: s.mapDramaTranslations(drama.Id),
+			Genres:       s.mapDramaGenres(drama.Id),
 		}
-		result[i] = dto.ShortDramaResponse{
-			ShortDrama: dto.ShortDrama{
-				Id:            drama.Id,
-				ReleaseDate:   drama.ReleaseDate,
-				Thumb:         drama.Thumb,
-				Active:        drama.Active,
-				CreatedAt:     drama.CreatedAt,
-				UpdatedAt:     drama.UpdatedAt,
-				CreatedByName: drama.CreatedByName,
-				UpdatedByName: drama.UpdatedByName,
-			},
-			Translations: translations,
-			Genres:       genres,
-		}
+		result[i].ShortDrama.Thumb = s.mapThumb(drama.Thumb)
 	}
 
 	config.BuildListResponse(c, &common.Pagination{
@@ -102,10 +96,6 @@ func (s *Server) getDrama(ctx *gin.Context) {
 		return
 	}
 
-	if drama.Thumb != "" {
-		drama.Thumb = s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, drama.Thumb)
-	}
-
 	translations, err := s.store.GetDramaTranslations(int64(id))
 	if err != nil {
 		config.BuildErrorResponse(ctx, err, nil)
@@ -118,20 +108,13 @@ func (s *Server) getDrama(ctx *gin.Context) {
 		return
 	}
 
-	config.BuildSuccessResponse(ctx, dto.ShortDramaResponse{
-		ShortDrama: dto.ShortDrama{
-			Id:            drama.Id,
-			ReleaseDate:   drama.ReleaseDate,
-			Thumb:         drama.Thumb,
-			Active:        drama.Active,
-			CreatedAt:     drama.CreatedAt,
-			UpdatedAt:     drama.UpdatedAt,
-			CreatedByName: drama.CreatedByName,
-			UpdatedByName: drama.UpdatedByName,
-		},
+	resp := dto.ShortDramaResponse{
+		ShortDrama:   *drama,
 		Translations: translations,
 		Genres:       genres,
-	})
+	}
+	resp.ShortDrama.Thumb = s.mapThumb(drama.Thumb)
+	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary Create a drama
@@ -164,11 +147,15 @@ func (s *Server) createDrama(ctx *gin.Context) {
 		return
 	}
 
+	now := time.Now()
 	drama := model.ShortDramaModel{
 		ReleaseDate: &releaseDate,
 		Thumb:       req.Thumb,
 		CreatedBy:   userIDInt64,
 		UpdatedBy:   userIDInt64,
+		Active:      config.Bool(false),
+		CreatedAt:   &now,
+		UpdatedAt:   &now,
 	}
 
 	if err := s.store.CreateDrama(&drama); err != nil {
@@ -209,13 +196,8 @@ func (s *Server) createDrama(ctx *gin.Context) {
 		return
 	}
 
-	dramaDTO, err := s.store.GetDrama(drama.Id)
-	if err != nil {
-		config.BuildErrorResponse(ctx, err, nil)
-		return
-	}
-
-	config.BuildSuccessResponse(ctx, dramaDTO)
+	resp := s.mapShortDramaFromEntityToResponse(&drama)
+	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary Update a drama
@@ -310,11 +292,7 @@ func (s *Server) updateDrama(ctx *gin.Context) {
 		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
-
-	if dramaDTO.Thumb != "" {
-		dramaDTO.Thumb = s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, dramaDTO.Thumb)
-	}
-
+	dramaDTO.Thumb = s.mapThumb(drama.Thumb)
 	config.BuildSuccessResponse(ctx, dramaDTO)
 }
 
@@ -382,5 +360,48 @@ func (s *Server) activeDrama(ctx *gin.Context) {
 	}
 
 	config.BuildSuccessResponse(ctx, "Drama activated/deactivated successfully")
+}
 
+func (s *Server) mapShortDramaFromEntityToResponse(drama *model.ShortDramaModel) *dto.ShortDramaResponse {
+	if drama.Thumb != "" {
+		drama.Thumb = s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, drama.Thumb)
+	}
+
+	resp := &dto.ShortDramaResponse{
+		ShortDrama: dto.ShortDrama{
+			Id:          drama.Id,
+			ReleaseDate: drama.ReleaseDate.Format(time.RFC3339),
+			Thumb:       s.mapThumb(drama.Thumb),
+			CreatedAt:   drama.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:   drama.UpdatedAt.Format(time.RFC3339),
+		},
+		Translations: s.mapDramaTranslations(drama.Id),
+		Genres:       s.mapDramaGenres(drama.Id),
+	}
+	if drama.Active != nil {
+		resp.Active = *drama.Active
+	}
+	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{drama.CreatedBy, drama.UpdatedBy})
+	if err == nil && len(mapIdUserName) > 0 {
+		resp.CreatedByName = mapIdUserName[drama.CreatedBy]
+		resp.UpdatedByName = mapIdUserName[drama.UpdatedBy]
+	}
+	return resp
+}
+
+func (s *Server) mapThumb(thump string) string {
+	if thump != "" {
+		return s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, thump)
+	}
+	return thump
+}
+
+func (s *Server) mapDramaTranslations(id int64) []dto.DramaTranslation {
+	translations, _ := s.store.GetDramaTranslations(id)
+	return translations
+}
+
+func (s *Server) mapDramaGenres(id int64) []dto.GenreForShortDramaResponse {
+	genres, _ := s.store.GetDramaGenres(id)
+	return genres
 }

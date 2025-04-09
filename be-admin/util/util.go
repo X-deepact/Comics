@@ -93,3 +93,7 @@ func Upper(str string) string {
 func Lower(str string) string {
 	return strings.ToLower(str)
 }
+
+func Bool(val bool) *bool {
+	return &val
+}
