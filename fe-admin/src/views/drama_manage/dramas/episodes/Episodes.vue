@@ -26,6 +26,7 @@
                         episodeStore.selectedData.active = data.active;
                         episodeStore.selectedData.drama_id = data.drama_id;
                         episodeStore.selectedData.video = data.video;
+                        episodeStore.selectedData.subtitles = data.subtitles;
                         episodeStore.updateDialogIsOpen = true;
                     }
                 " @clickActive="(data: any) => {

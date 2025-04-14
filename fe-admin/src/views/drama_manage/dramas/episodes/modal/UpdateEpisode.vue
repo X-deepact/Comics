@@ -138,36 +138,56 @@ const formattedSubtitles = (datas: any) => {
                 </Button>
                 <Button :disabled="isLoading" @click="
                     async () => {
-                        if (checkForm()) {
-                            isLoading = true;
-                            let videoURL;
-                            if (video) {
-                                videoURL = await episodeStore.uploadVideo(video, drameStore.selectedData.id);
-                            } else { videoURL = null }
-                            if (en != null)
-                                episode.subtitle_en = await episodeStore.uploadSubtitle(en);
-                            if (zh != null)
-                                episode.subtitle_zh = await episodeStore.uploadSubtitle(zh);
-                            if (vi != null)
-                                episode.subtitle_vi = await episodeStore.uploadSubtitle(vi);
-                            const subtitles = [];
-                            if (episode.subtitle_en != null) subtitles.push({ language: 'en', url: episode.subtitle_en });
-                            if (episode.subtitle_zh != null) subtitles.push({ language: 'zh', url: episode.subtitle_zh });
-                            if (episode.subtitle_vi != null) subtitles.push({ language: 'vi', url: episode.subtitle_vi });
 
-                            const data = {
-                                id: episodeStore.selectedData.id,
-                                drama_id: drameStore.selectedData.id,
-                                number: episodeStore.selectedData.number,
-                                video: videoURL,
-                                subtitles: subtitles,
-                            };
-                            await episodeStore.updateEpisode(data);
-                            await episodeStore.getEpisodeData();
-                            isLoading = false;
-                            episodeStore.updateDialogIsOpen = false;
-                            resetEpisode();
+                        isLoading = true;
+                        let videoURL;
+                        if (video) {
+                            videoURL = await episodeStore.uploadVideo(video, drameStore.selectedData.id);
+                        } else { videoURL = null }
+                        if (en != null) {
+                            episode.subtitle_en = await episodeStore.uploadSubtitle(en);
+                        } else {
+                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'en');
+                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
+                                episode.subtitle_en = enSubtitle.url.split(`/`).pop()
+                            }
                         }
+
+                        if (zh != null) {
+                            episode.subtitle_zh = await episodeStore.uploadSubtitle(zh);
+                        } else {
+                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'zh');
+                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
+                                episode.subtitle_zh = enSubtitle.url.split(`/`).pop()
+                            }
+                        }
+
+                        if (vi != null) {
+                            episode.subtitle_vi = await episodeStore.uploadSubtitle(vi);
+                        } else {
+                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'vi');
+                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
+                                episode.subtitle_vi = enSubtitle.url.split(`/`).pop()
+                            }
+                        }
+                        const subtitles = [];
+                        if (episode.subtitle_en != null) subtitles.push({ language: 'en', url: episode.subtitle_en });
+                        if (episode.subtitle_zh != null) subtitles.push({ language: 'zh', url: episode.subtitle_zh });
+                        if (episode.subtitle_vi != null) subtitles.push({ language: 'vi', url: episode.subtitle_vi });
+
+                        const data = {
+                            id: episodeStore.selectedData.id,
+                            drama_id: drameStore.selectedData.id,
+                            number: episodeStore.selectedData.number,
+                            video: videoURL,
+                            subtitles: subtitles,
+                        };
+                        await episodeStore.updateEpisode(data);
+                        await episodeStore.getEpisodeData();
+                        isLoading = false;
+                        episodeStore.updateDialogIsOpen = false;
+                        resetEpisode();
+
                     }">
                     <img v-if="isLoading" :src="loadingImg" size="icon" />Update</Button>
             </DialogFooter>

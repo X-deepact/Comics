@@ -25,13 +25,31 @@ const episodeStore = useEpisodeStore()
                 <Button :disabled="isLoading" @click="
                     async () => {
                         isLoading = true;
+                        let video = episodeStore.selectedData.video;
+
+                        if (video.includes(`http`)) {
+                            const parts = video.split(`/`);
+                            video = parts.slice(-2).join(`/`);
+                        }
+
+                        const subtitles = episodeStore.selectedData.subtitles.map(item => {
+                            if (item.url.includes('http')) {
+                                const url = item.url.split('/').pop();
+                                return { language: item.language, url: url };
+                            } else {
+                                return { ...item };
+                            }
+                        });
+
+                        console.log(subtitles)
+
                         const formdata = {
                             id: episodeStore.selectedData.id,
                             drama_id: episodeStore.selectedData.drama_id,
                             number: episodeStore.selectedData.number,
-                            video: episodeStore.selectedData.video,
+                            video: video,
                             active: !episodeStore.selectedData.active,
-                            subtitles: episodeStore.selectedData.subtitles
+                            subtitles: subtitles
                         }
                         await episodeStore.updateEpisode(formdata);
                         isLoading = false;

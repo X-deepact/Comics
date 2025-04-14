@@ -24,7 +24,7 @@ const formattedSubtitles = (datas: any) => {
     <Dialog :open="episodeStore.playDialogIsOpen" @update:open="(value: boolean) => {
         episodeStore.playDialogIsOpen = value;
     }">
-        <DialogContent class="min-w-[80%]">
+        <DialogContent class="min-w-[60%]">
             <DialogHeader class="flex justify-center items-center py-1 font-medium">{{ episodeStore.selectedData.number
                 }}
             </DialogHeader>
