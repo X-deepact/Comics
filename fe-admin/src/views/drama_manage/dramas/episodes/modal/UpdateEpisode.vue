@@ -97,7 +97,7 @@ const formattedSubtitles = (datas: any) => {
 <template>
     <Dialog :open="episodeStore.updateDialogIsOpen"
         @update:open="(value: boolean) => { episodeStore.updateDialogIsOpen = value; }">
-        <DialogContent>
+        <DialogContent class="overflow-y-auto max-h-full">
             <DialogHeader>
                 <DialogTitle>Update Episode</DialogTitle>
             </DialogHeader>

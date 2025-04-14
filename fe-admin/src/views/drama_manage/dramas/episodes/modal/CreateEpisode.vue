@@ -91,8 +91,8 @@ const handleSubtitleChange = (event: Event) => {
 </script>
 <template>
     <Dialog :open="episodeStore.createDialogIsOpen"
-        @update:open="(value: boolean) => { episodeStore.createDialogIsOpen = value; }">
-        <DialogContent>
+        @update:open="(value: boolean) => { episodeStore.createDialogIsOpen = value; }" class="overflow-y-auto">
+        <DialogContent class="overflow-y-auto max-h-full">
             <DialogHeader>
                 <DialogTitle>Create Episode</DialogTitle>
             </DialogHeader>
