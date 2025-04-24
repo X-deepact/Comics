@@ -1,0 +1,10 @@
+
+go.sum
+
+vendor/
+vendor/*
+
+server
+
+mysql
+mysql/*

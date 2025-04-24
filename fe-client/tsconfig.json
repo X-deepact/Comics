@@ -1,0 +1,18 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ],
+	"compilerOptions": {
+		"module": "esnext", // or "es2020", "es2022", etc.
+		"target": "esnext", // recommended for Vite (lets you use modern features)
+	}
+}

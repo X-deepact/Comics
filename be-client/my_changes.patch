@@ -1,0 +1,91 @@
+diff --git a/config/config.ini b/config/config.ini
+index 15b95de..e8d7a23 100644
+--- a/config/config.ini
++++ b/config/config.ini
+@@ -8,8 +8,8 @@ WRITE_TIMEOUT = 10
+ [file_storage]
+ ENDPOINT = http://206.238.118.2:10181
+ FILE_URL = 206.238.118.2:10181
+-ACCESS_KEY = b9fWDmem1ifxoUUUEen8
+-SECRET_KEY = 6kSuUAruVuOk4JL8A2Xv45kHjoTpl1FfgNJm3WyS
++ACCESS_KEY = HndDQ94akkeCHhIsGo2R
++SECRET_KEY = 12946CRLrRHEGsa7e9B1NRILkRN1AeLTfLN1K1vk
+ BUCKET_NAME = comics
+ USE_SSL = false
+ AVATAR_FILE_PATH = /avatar/
+@@ -25,7 +25,7 @@ HOST = 206.238.118.2
+ PORT = 3306
+ USERNAME = comicser
+ PASSWORD = c6nUche!
+-DB_NAME = comics
++DB_NAME = comics1
+ SSL_MODE = disable
+ MAX_OPEN_CONNECTIONS = 100
+ MAX_IDLE_CONNECTIONS = 10
+diff --git a/internal/biz/short_drama_biz.go b/internal/biz/short_drama_biz.go
+index a299f5c..86cc77b 100644
+--- a/internal/biz/short_drama_biz.go
++++ b/internal/biz/short_drama_biz.go
+@@ -17,11 +17,17 @@ type ShortDramaBiz interface {
+ 
+ type shortDramaBiz struct {
+ 	shortDramaMapper     mapper.ShortDramaMapper
++	subtitleMapper       mapper.SubtitleMapper
+ 	shortDramaRepository repository.ShortDramaRepository
+ 	dramaTranslationRepo repository.DramaTranslationRepository
++	subtitleRepo         repository.SubtitleRepository
+ }
+ 
+-func NewShortDramaBiz(repo repository.ShortDramaRepository, dramaTranslationRepo repository.DramaTranslationRepository, mapper mapper.ShortDramaMapper) ShortDramaBiz {
++func NewShortDramaBiz(
++	repo repository.ShortDramaRepository,
++	dramaTranslationRepo repository.DramaTranslationRepository,
++	mapper mapper.ShortDramaMapper,
++) ShortDramaBiz {
+ 	return &shortDramaBiz{
+ 		shortDramaMapper:     mapper,
+ 		shortDramaRepository: repo,
+@@ -50,3 +56,12 @@ func (b *shortDramaBiz) GetShortDramaBySearch(ctx context.Context, req request.G
+ 	}
+ 	return b.shortDramaMapper.ToShortDramaSearchResponse(results), pagination, nil
+ }
++
++func (b *shortDramaBiz) GetDramaVttFiles(ctx context.Context, dramaId, episodeId int64) ([]response.SubtitleResponse, error) {
++	//TEMPORARY, MAYBE WILL FIND EPISODE ID BY DRAMAID AND EPISODE NUMBER
++	files, err := b.subtitleRepo.GetVTTsByEpisodeId(ctx, episodeId)
++	if err != nil {
++		return nil, err
++	}
++	return b.subtitleMapper.MapToResponse(files), nil
++}
+diff --git a/internal/handler/short_drama_handler.go b/internal/handler/short_drama_handler.go
+index 890ab19..cd7870f 100644
+--- a/internal/handler/short_drama_handler.go
++++ b/internal/handler/short_drama_handler.go
+@@ -75,6 +75,7 @@ func (h *shortDramaHandler) GetShortDramaBySearch(c *fiber.Ctx) error {
+ 	return util.ResponseApiPagination(c, res, &pagination, nil)
+ }
+ 
++// TODO: REMEMBER UPDATE RESPONSE
+ func (h *shortDramaHandler) StreamM3U8(c *fiber.Ctx) error {
+ 	dramaId, err := c.ParamsInt("dramaId")
+ 	if err != nil {
+@@ -116,6 +117,7 @@ func (h *shortDramaHandler) StreamM3U8(c *fiber.Ctx) error {
+ 	return nil
+ }
+ 
++// TODO: REMEMBER UPDATE RESPONSE
+ func (h *shortDramaHandler) StreamTS(c *fiber.Ctx) error {
+ 	dramaId, err := c.ParamsInt("dramaId")
+ 	if err != nil {
+diff --git a/internal/route/route.go b/internal/route/route.go
+index 4e568f0..b73a23a 100644
+--- a/internal/route/route.go
++++ b/internal/route/route.go
+@@ -26,5 +26,6 @@ func InitRoute(cf *config.Config, db database.DBInterface, minioConfig *minio.Mi
+ 	SetupRecommendComicRoute(apiv1, db, cf)
+ 	SetupAdsRoute(apiv1, db, cf)
+ 	SetupShortDramaRoute(apiv1, db, cf, minioConfig)
++	SetupSubtitleRoute(apiv1, db, cf, minioConfig)
+ 	httpClient.Start()
+ }

@@ -1,0 +1,1313 @@
+basePath: /api
+definitions:
+  common.Pagination:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  common.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+      msg:
+        type: string
+      pagination:
+        $ref: '#/definitions/common.Pagination'
+    type: object
+  middleware.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  request.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  request.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  request.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      username:
+        type: string
+    type: object
+  request.UserUpdateRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone:
+        type: string
+    type: object
+  response.AdsComicResponse:
+    properties:
+      ads_active_from:
+        type: string
+      ads_active_to:
+        type: string
+      ads_direct_url:
+        type: string
+      ads_id:
+        type: integer
+      ads_image:
+        type: string
+      ads_title:
+        type: string
+      ads_type:
+        type: string
+      comic_active:
+        type: boolean
+      comic_audience:
+        type: string
+      comic_code:
+        type: string
+      comic_cover:
+        type: string
+      comic_description:
+        type: string
+      comic_id:
+        type: integer
+      comic_language:
+        type: string
+      comic_name:
+        type: string
+    type: object
+  response.ChapterDetailResponse:
+    properties:
+      active:
+        type: boolean
+      active_from:
+        type: integer
+      comic_id:
+        type: integer
+      comic_name:
+        type: string
+      cover:
+        type: boolean
+      created_at:
+        type: integer
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/response.ChapterItemResponse'
+        type: array
+      name:
+        type: string
+      next_chapter:
+        type: integer
+      number:
+        type: integer
+      prev_chapter:
+        type: integer
+    type: object
+  response.ChapterItemResponse:
+    properties:
+      active:
+        type: boolean
+      active_from:
+        type: integer
+      created_at:
+        type: integer
+      image:
+        type: string
+      page:
+        type: integer
+    type: object
+  response.ComicAndDramaSearchResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      authors:
+        items:
+          $ref: '#/definitions/response.ComicAuthorTimeResponse'
+        type: array
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterTimeResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      latest_episode:
+        type: integer
+      name:
+        type: string
+      release_date:
+        type: string
+      thumb:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.ComicAuthorResponse:
+    properties:
+      biography:
+        type: string
+      birth_day:
+        type: integer
+      created_at:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: integer
+    type: object
+  response.ComicAuthorTimeResponse:
+    properties:
+      biography:
+        type: string
+      birth_day:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.ComicChapterResponse:
+    properties:
+      created_at:
+        type: integer
+      id:
+        type: integer
+      is_cover:
+        type: boolean
+      name:
+        type: string
+      number:
+        type: integer
+    type: object
+  response.ComicChapterTimeResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_cover:
+        type: boolean
+      name:
+        type: string
+      number:
+        type: integer
+    type: object
+  response.ComicDetailResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      authors:
+        items:
+          $ref: '#/definitions/response.ComicAuthorResponse'
+        type: array
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: integer
+      description:
+        type: string
+      genres:
+        items:
+          $ref: '#/definitions/response.ComicGenreResponse'
+        type: array
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: integer
+    type: object
+  response.ComicGenreResponse:
+    properties:
+      created_at:
+        type: integer
+      created_by:
+        type: integer
+      id:
+        type: integer
+      lang:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+      updated_at:
+        type: integer
+      updated_by:
+        type: integer
+    type: object
+  response.ComicRecent:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterTimeResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      latest_date:
+        type: string
+      name:
+        type: string
+    type: object
+  response.ComicWithChapterAndAuthorResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      authors:
+        items:
+          $ref: '#/definitions/response.ComicAuthorTimeResponse'
+        type: array
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterTimeResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.ComicWithChapterResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: integer
+    type: object
+  response.ComicWithChapterTimeResponse:
+    properties:
+      active:
+        type: boolean
+      audience:
+        type: string
+      chapters:
+        items:
+          $ref: '#/definitions/response.ComicChapterTimeResponse'
+        type: array
+      code:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.EpisodeGetResponse:
+    properties:
+      created_at:
+        type: string
+      updated_at:
+        type: string
+      video:
+        type: string
+    type: object
+  response.EpisodeResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      number:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  response.GenreResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      position:
+        type: integer
+    type: object
+  response.GenresForShortDramaResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+      translated_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      refresh_token:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/response.UserResponse'
+    type: object
+  response.ProfileResponse:
+    properties:
+      active:
+        type: boolean
+      avatar:
+        type: string
+      created_at:
+        type: integer
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: integer
+      tier:
+        $ref: '#/definitions/response.ProfileTierResponse'
+      updated_at:
+        type: integer
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  response.ProfileTierResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: integer
+      id:
+        type: integer
+    type: object
+  response.RecommendComicResponse:
+    properties:
+      active_from:
+        type: string
+      active_to:
+        description: nullable
+        type: string
+      comics:
+        items:
+          $ref: '#/definitions/response.ComicWithChapterTimeResponse'
+        type: array
+      cover:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      position:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.RegisterResponse:
+    properties:
+      profile:
+        $ref: '#/definitions/response.ProfileResponse'
+      refresh_token:
+        type: string
+      token:
+        type: string
+    type: object
+  response.ShortDramaByClassificationResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      latest_episode:
+        type: integer
+      name:
+        type: string
+      release_date:
+        type: string
+      thumb:
+        type: string
+      translated_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.ShortDramaDetailResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      episodes:
+        items:
+          $ref: '#/definitions/response.EpisodeResponse'
+        type: array
+      genres:
+        items:
+          $ref: '#/definitions/response.GenresForShortDramaResponse'
+        type: array
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      release_date:
+        type: string
+      thumb:
+        type: string
+      translated_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.SubtitleResponse:
+    properties:
+      episode_id:
+        type: integer
+      language:
+        type: string
+      subtitle_url:
+        type: string
+    type: object
+  response.UserResponse:
+    properties:
+      created_at:
+        type: integer
+      email:
+        type: string
+      first_name:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: integer
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@your-domain.com
+    name: API Support
+  description: Comics API Documentation
+  termsOfService: http://swagger.io/terms/
+  title: Comics API
+  version: "1.0"
+paths:
+  /v1/ads/comic:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of ads comics
+      parameters:
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.AdsComicResponse'
+                  type: array
+              type: object
+      summary: Get ads comics
+      tags:
+      - ads
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user with username and password in the system
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.LoginResponse'
+              type: object
+      summary: Login user with username and password
+      tags:
+      - Auth
+  /v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh user token
+      parameters:
+      - description: Refresh token
+        in: header
+        name: RefreshToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/middleware.TokenPair'
+              type: object
+      summary: Refresh user token
+      tags:
+      - Auth
+  /v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account and return JWT tokens
+      parameters:
+      - description: Registration credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.RegisterResponse'
+              type: object
+      summary: Register new user
+      tags:
+      - Auth
+  /v1/chapter/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get chapter detail by id
+      parameters:
+      - description: Chapter id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ChapterDetailResponse'
+              type: object
+      summary: Get chapter detail by id
+      tags:
+      - Chapters
+  /v1/comic:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of popular comics filtered by genre, progress,
+        audience, language, original_language, page, and page size.
+      parameters:
+      - description: Filter by genre ID
+        example: 1
+        in: query
+        name: genre_id
+        type: integer
+      - description: Filter by progress (ongoing, completed)
+        example: '"completed"'
+        in: query
+        name: progress
+        type: string
+      - description: Filter by audience (teen, adult)
+        example: '"teen"'
+        in: query
+        name: audience
+        type: string
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      - description: Filter by Original Language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: original_language
+        type: string
+      - default: 1
+        description: Page number for pagination
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        example: 10
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ComicWithChapterResponse'
+                  type: array
+              type: object
+      summary: Get popular comics
+      tags:
+      - Comics
+  /v1/comic/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a comic detail by id
+      parameters:
+      - description: Comic id
+        example: '"id"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ComicDetailResponse'
+              type: object
+      summary: Get comic detail by id
+      tags:
+      - Comics
+  /v1/comic/recent:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of recently comics
+      parameters:
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      - default: 1
+        description: Page number for pagination
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        example: 10
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ComicRecent'
+                  type: array
+              type: object
+      summary: Get recently comics
+      tags:
+      - Comics
+  /v1/comic/search:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of comics by search
+      parameters:
+      - description: Filter by language (en,cn,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      - description: Filter by comic name or author name (Superhero Adventures, etc.)
+        example: '"Superhero Adventures"'
+        in: query
+        name: search_keyword
+        type: string
+      - default: 1
+        description: Page number for pagination
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        example: 10
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ComicWithChapterAndAuthorResponse'
+                  type: array
+              type: object
+      summary: Get all Recommend Comics
+      tags:
+      - Comics
+  /v1/comic/searchAll:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of comics and drama by search
+      parameters:
+      - description: Filter by language (en,cn,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      - description: Filter by comic name or author name or drama name (Superhero
+          Adventures, etc.)
+        example: '"Superhero Adventures"'
+        in: query
+        name: search_keyword
+        type: string
+      - default: 1
+        description: Page number for pagination
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        example: 10
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ComicAndDramaSearchResponse'
+                  type: array
+              type: object
+      summary: Get all comics and drama
+      tags:
+      - Comics And Short Drama
+  /v1/episode/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a episode by id
+      parameters:
+      - description: Episode id
+        example: '"id"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.EpisodeGetResponse'
+              type: object
+      summary: Get episode by id
+      tags:
+      - Episode
+  /v1/genre/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all genres, or only for the homepage, with optional
+        language filtering
+      parameters:
+      - description: Set to true to get only homepage genres (position 1-15)
+        in: query
+        name: isHomePage
+        type: boolean
+      - description: Language code for filtering genres (e.g., 'en', 'fr', 'es')
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.GenreResponse'
+                  type: array
+              type: object
+      summary: Get all genres
+      tags:
+      - Genres
+  /v1/recommend-comics/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all recommend manager with comics
+      parameters:
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.RecommendComicResponse'
+                  type: array
+              type: object
+      summary: Get all Recommend Comics
+      tags:
+      - Recommend Comics
+  /v1/short-drama:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of short drama filtered by genre, release_year,
+        language, page, and page size.
+      parameters:
+      - description: Filter by genre ID
+        example: 1
+        in: query
+        name: genre_id
+        type: integer
+      - description: Filter by release year (2024, 2025)
+        example: '"2025"'
+        in: query
+        name: release_year
+        type: string
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      - default: 1
+        description: Page number for pagination
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        example: 10
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.ShortDramaByClassificationResponse'
+                  type: array
+              type: object
+      summary: Get short drama
+      tags:
+      - Short Drama
+  /v1/short-drama-genre/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all genres for short drama, with language filtering
+      parameters:
+      - description: Language code for filtering genres (e.g., 'en', 'fr', 'es')
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.GenresForShortDramaResponse'
+                  type: array
+              type: object
+      summary: Get all genres for short drama
+      tags:
+      - Genres For Short Drama
+  /v1/short-drama/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a short drama detail by id
+      parameters:
+      - description: Short Drama id
+        example: '"id"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Filter by language (en,zh,vi, etc.)
+        example: '"en"'
+        in: query
+        name: language
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ShortDramaDetailResponse'
+              type: object
+      summary: Get short drama detail by id
+      tags:
+      - Short Drama
+  /v1/subtitles/{episode_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of VTT by episode id
+      parameters:
+      - description: Episode Id
+        example: '"episode_id"'
+        in: path
+        name: episode_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.SubtitleResponse'
+              type: object
+      summary: Get VTTs by episode id
+      tags:
+      - Subtitles
+  /v1/user/change-password:
+    put:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Change password request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.UserResponse'
+              type: object
+      summary: Change user password
+      tags:
+      - Users
+  /v1/user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get user profile
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ProfileResponse'
+              type: object
+      summary: Get user profile
+      tags:
+      - Users
+  /v1/user/update:
+    put:
+      consumes:
+      - application/json
+      description: Create a new user in the system
+      parameters:
+      - description: Bearer authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful response or Fail response. Code can be 'SUCCESS'
+            or 'ERROR'.
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.UserResponse'
+              type: object
+      summary: Create new user
+      tags:
+      - Users
+schemes:
+- http
+- https
+swagger: "2.0"
