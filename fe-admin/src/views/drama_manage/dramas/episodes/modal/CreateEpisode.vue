@@ -9,11 +9,15 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ref } from "vue";
+import { ref, watch, toRefs } from "vue";
 import loadingImg from "@/assets/loading.svg";
 import { useToast } from "@/components/ui/toast/use-toast";
 import { useDramaStore } from "../../../../../stores/dramaStore";
 import { useEpisodeStore } from "../../../../../stores/episodeStore";
+
+const props = defineProps<{ total: number }>();
+const { total } = toRefs(props);
+
 const { toast } = useToast();
 const drameStore = useDramaStore();
 const episodeStore = useEpisodeStore()
@@ -28,6 +32,14 @@ const episode = ref({
     subtitle_vi: null as string | null,
     active: true,
 });
+
+watch(
+    total,
+    (newTotal) => {
+        episode.value.number = newTotal + 1 ?? 1;
+    },
+    { immediate: true }
+);
 const resetEpisode = () => {
     episode.value = {
         drama_id: 0,

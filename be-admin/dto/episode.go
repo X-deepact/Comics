@@ -6,16 +6,16 @@ import (
 )
 
 type EpisodeCreateRequest struct {
-	DramaId   int64      `json:"drama_id" binding:"required"`
-	Number    int64      `json:"number" binding:"required"`
-	Video     string     `json:"video" binding:"required"`
-	Active    *bool      `json:"active"`
-	Subtitles []Subtitle `json:"subtitles"`
+	DramaId   int64      `json:"drama_id,omitempty"`
+	Number    int64      `json:"number,omitempty"`
+	Video     string     `json:"video,omitempty"`
+	Active    *bool      `json:"active,omitempty"`
+	Subtitles []Subtitle `json:"subtitles,omitempty"`
 }
 
 type Subtitle struct {
-	Language string `json:"language,omitempty" binding:"required"`
-	Url      string `json:"url,omitempty" binding:"required"`
+	Language string `json:"language,omitempty"`
+	Url      string `json:"url,omitempty"`
 }
 
 type EpisodeResponse struct {
@@ -24,7 +24,7 @@ type EpisodeResponse struct {
 	Number    int64      `json:"number,omitempty"`
 	Video     string     `json:"video,omitempty"`
 	Active    *bool      `json:"active,omitempty"`
-	Subtitles []Subtitle `json:"subtitles,omitempty" binding:"required"`
+	Subtitles []Subtitle `json:"subtitles,omitempty"`
 	CreatedAt string     `json:"created_at,omitempty"`
 	UpdatedAt string     `json:"updated_at,omitempty"`
 	CreatedBy string     `json:"created_by_name,omitempty"`
@@ -39,12 +39,12 @@ type EpisodeListRequest struct {
 }
 
 type EpisodeUpdateRequest struct {
-	Id        int64      `json:"id"`
-	DramaId   int64      `json:"drama_id"`
-	Number    int64      `json:"number"`
-	Video     string     `json:"video"`
-	Active    *bool      `json:"active"`
-	Subtitles []Subtitle `json:"subtitles"`
+	Id        int64      `json:"id,omitempty" binding:"required"`
+	DramaId   int64      `json:"drama_id,omitempty"`
+	Number    int64      `json:"number,omitempty"`
+	Video     string     `json:"video,omitempty"`
+	Active    *bool      `json:"active,omitempty"`
+	Subtitles []Subtitle `json:"subtitles,omitempty"`
 }
 
 func (r *EpisodeUpdateRequest) Bind(ctx *gin.Context) error {
@@ -64,6 +64,18 @@ func (r *EpisodeCreateRequest) Bind(ctx *gin.Context) error {
 func (r *EpisodeListRequest) Bind(ctx *gin.Context) error {
 	if err := ctx.ShouldBindWith(r, binding.Form); err != nil {
 		return err
+	}
+	if r.PageSize <= 0 || r.PageSize > 10 {
+		r.PageSize = 10
+	}
+	if r.Page <= 0 {
+		r.Page = 1
+	}
+	if len(r.SortBy) <= 0 {
+		r.SortBy = "created_at"
+	}
+	if len(r.Sort) <= 0 {
+		r.Sort = "ASC"
 	}
 	return nil
 }

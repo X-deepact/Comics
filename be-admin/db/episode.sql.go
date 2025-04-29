@@ -22,6 +22,10 @@ func (q *Queries) GetEpisodeById(id int64) (*model.EpisodeModel, error) {
 	return episode, nil
 }
 
+func (q *Queries) DeleteByEpisodeId(ctx context.Context, id int64) error {
+	return q.db.WithContext(ctx).Delete(&model.SubtitleModel{}, "episode_id = ?", id).Error
+}
+
 func (q *Queries) ListEpisodes(req *dto.EpisodeListRequest) ([]*model.EpisodeModel, int64, error) {
 	if req == nil {
 		return nil, 0, errors.New("invalid request")
@@ -29,6 +33,9 @@ func (q *Queries) ListEpisodes(req *dto.EpisodeListRequest) ([]*model.EpisodeMod
 	var episodes []*model.EpisodeModel
 	var total int64
 	query := q.db.WithContext(context.Background()).Model(&model.EpisodeModel{})
+	if req.DramaId > 0 {
+		query = query.Where("drama_id = ?", req.DramaId)
+	}
 	if req.SortBy != "" {
 		order := req.SortBy + " " + req.Sort
 		query = query.Order(order)

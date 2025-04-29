@@ -2487,6 +2487,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Drama ID",
+                        "name": "drama_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "Page number",
                         "name": "page",
                         "in": "query",
@@ -2674,65 +2680,6 @@ const docTemplate = `{
             }
         },
         "/api/episodes/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get an episode by getEpisodeById",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "episodes"
-                ],
-                "summary": "Get an episode by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Episode ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Episode retrieved successfully",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/dto.SuccessResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.EpisodeResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "security": [
                     {
@@ -5812,11 +5759,6 @@ const docTemplate = `{
         },
         "dto.EpisodeCreateRequest": {
             "type": "object",
-            "required": [
-                "drama_id",
-                "number",
-                "video"
-            ],
             "properties": {
                 "active": {
                     "type": "boolean"
@@ -5840,9 +5782,6 @@ const docTemplate = `{
         },
         "dto.EpisodeResponse": {
             "type": "object",
-            "required": [
-                "subtitles"
-            ],
             "properties": {
                 "active": {
                     "type": "boolean"
@@ -5881,6 +5820,9 @@ const docTemplate = `{
         },
         "dto.EpisodeUpdateRequest": {
             "type": "object",
+            "required": [
+                "id"
+            ],
             "properties": {
                 "active": {
                     "type": "boolean"
@@ -6368,10 +6310,6 @@ const docTemplate = `{
         },
         "dto.Subtitle": {
             "type": "object",
-            "required": [
-                "language",
-                "url"
-            ],
             "properties": {
                 "language": {
                     "type": "string"

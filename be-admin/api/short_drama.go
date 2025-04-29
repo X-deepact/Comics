@@ -55,14 +55,23 @@ func (s *Server) getDramas(c *gin.Context) {
 		config.BuildErrorResponse(c, errors.New("no dramas"), nil)
 		return
 	}
+
+	userIds := []int64{}
+	for _, drama := range dramas {
+		userIds = append(userIds, drama.CreatedBy)
+		userIds = append(userIds, drama.UpdatedBy)
+	}
+	mapIdUserName, err := s.store.GetUserNamesByIds(userIds)
+	if err != nil {
+		config.BuildErrorResponse(c, err, nil)
+		return
+	}
 	result := make([]*dto.ShortDramaResponse, len(dramas))
 	for i, drama := range dramas {
-		result[i] = &dto.ShortDramaResponse{
-			ShortDrama:   *drama,
-			Translations: s.mapDramaTranslations(drama.Id),
-			Genres:       s.mapDramaGenres(drama.Id),
-		}
-		result[i].ShortDrama.Thumb = s.mapThumb(drama.Thumb)
+		rs := s.mapShortDramaFromEntityToResponse(drama)
+		rs.CreatedByName = mapIdUserName[drama.CreatedBy]
+		rs.UpdatedByName = mapIdUserName[drama.UpdatedBy]
+		result[i] = rs
 	}
 
 	config.BuildListResponse(c, &common.Pagination{
@@ -96,24 +105,14 @@ func (s *Server) getDrama(ctx *gin.Context) {
 		return
 	}
 
-	translations, err := s.store.GetDramaTranslations(int64(id))
+	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{drama.CreatedBy, drama.UpdatedBy})
 	if err != nil {
 		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
-
-	genres, err := s.store.GetDramaGenres(int64(id))
-	if err != nil {
-		config.BuildErrorResponse(ctx, err, nil)
-		return
-	}
-
-	resp := dto.ShortDramaResponse{
-		ShortDrama:   *drama,
-		Translations: translations,
-		Genres:       genres,
-	}
-	resp.ShortDrama.Thumb = s.mapThumb(drama.Thumb)
+	resp := s.mapShortDramaFromEntityToResponse(drama)
+	resp.CreatedByName = mapIdUserName[drama.CreatedBy]
+	resp.UpdatedByName = mapIdUserName[drama.UpdatedBy]
 	config.BuildSuccessResponse(ctx, resp)
 }
 
@@ -196,7 +195,14 @@ func (s *Server) createDrama(ctx *gin.Context) {
 		return
 	}
 
+	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{userIDInt64})
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
 	resp := s.mapShortDramaFromEntityToResponse(&drama)
+	resp.CreatedByName = mapIdUserName[drama.CreatedBy]
+	resp.UpdatedByName = mapIdUserName[drama.UpdatedBy]
 	config.BuildSuccessResponse(ctx, resp)
 }
 
@@ -287,13 +293,20 @@ func (s *Server) updateDrama(ctx *gin.Context) {
 		return
 	}
 
-	dramaDTO, err := s.store.GetDrama(drama.Id)
+	dramaModel, err := s.store.GetDrama(drama.Id)
 	if err != nil {
 		config.BuildErrorResponse(ctx, err, nil)
 		return
 	}
-	dramaDTO.Thumb = s.mapThumb(drama.Thumb)
-	config.BuildSuccessResponse(ctx, dramaDTO)
+	resp := s.mapShortDramaFromEntityToResponse(dramaModel)
+	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{drama.CreatedBy, drama.UpdatedBy})
+	if err != nil {
+		config.BuildErrorResponse(ctx, err, nil)
+		return
+	}
+	resp.CreatedByName = mapIdUserName[drama.CreatedBy]
+	resp.UpdatedByName = mapIdUserName[drama.UpdatedBy]
+	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary Delete a drama
@@ -363,10 +376,6 @@ func (s *Server) activeDrama(ctx *gin.Context) {
 }
 
 func (s *Server) mapShortDramaFromEntityToResponse(drama *model.ShortDramaModel) *dto.ShortDramaResponse {
-	if drama.Thumb != "" {
-		drama.Thumb = s.minio.GetFileUrl(s.config.FileStorage.ShortDramaThumbFolder, drama.Thumb)
-	}
-
 	resp := &dto.ShortDramaResponse{
 		ShortDrama: dto.ShortDrama{
 			Id:          drama.Id,

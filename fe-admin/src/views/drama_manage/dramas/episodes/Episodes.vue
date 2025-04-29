@@ -50,7 +50,7 @@
                         episodeStore.getEpisodeData();
                     }
                 " />
-            <CreateEpisode />
+            <CreateEpisode :total="episodeStore.totalItems" />
             <UpdateEpisode />
             <DeleteEpisode />
             <UpdateActiveEpisode />

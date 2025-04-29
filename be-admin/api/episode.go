@@ -18,7 +18,6 @@ func (s *Server) episodeRoutes() {
 	{
 		group.POST("", s.createEpisode)
 		group.PUT("", s.updateEpisode)
-		group.GET("/:id", s.getEpisodeById)
 		group.GET("", s.getEpisodes)
 		group.DELETE("/:id", s.deleteEpisodeById)
 	}
@@ -29,6 +28,7 @@ func (s *Server) episodeRoutes() {
 // @Tags episodes
 // @Accept json
 // @Produce json
+// @param drama_id query int false "Drama ID"
 // @Param page query int true "Page number"
 // @Param page_size query int true "Page size (must be between 10 and 50)" minimum(10) maximum(50)
 // @Param sort_by query string false "Sort by"
@@ -81,48 +81,6 @@ func (s *Server) getEpisodes(ctx *gin.Context) {
 		}
 	}
 	config.BuildListResponse(ctx, &common.Pagination{Page: req.Page, PageSize: req.PageSize, Total: int(total)}, resp)
-}
-
-// @Summary Get an episode by ID
-// @Description Get an episode by getEpisodeById
-// @Tags episodes
-// @Accept json
-// @Produce json
-// @Param id path int true "Episode ID"
-// @Security BearerAuth
-// @Success 200 {object} dto.SuccessResponse{data=dto.EpisodeResponse} "Episode retrieved successfully"
-// @Failure 400 {object} dto.ErrorResponse "Invalid request"
-// @Failure 500 {object} dto.ErrorResponse "Internal server error"
-// @Router /api/episodes/{id} [get]
-func (s *Server) getEpisodeById(ctx *gin.Context) {
-	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		config.BuildErrorResponse(ctx, errors.New("invalid id"), nil)
-		return
-	}
-
-	episode, err := s.store.GetEpisodeById(id)
-	if err != nil {
-		config.BuildErrorResponse(ctx, err, nil)
-		return
-	}
-	if episode == nil {
-		config.BuildErrorResponse(ctx, errors.New("episode not found"), nil)
-		return
-	}
-	resp := s.mapFromEntityToResponse(episode)
-	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{episode.CreatedBy, episode.UpdatedBy})
-	if err == nil && len(mapIdUserName) > 0 {
-		resp.CreatedBy = mapIdUserName[episode.CreatedBy]
-		resp.UpdatedBy = mapIdUserName[episode.UpdatedBy]
-	}
-	subtitle, err := s.store.GetSubtitleByEpisodeId(context.Background(), resp.Id)
-	if err != nil {
-		config.BuildErrorResponse(ctx, err, nil)
-		return
-	}
-	resp.Subtitles = s.mapUrlSubtitleEntityToResponse(subtitle)
-	config.BuildSuccessResponse(ctx, resp)
 }
 
 // @Summary Create an createEpisode
@@ -181,7 +139,7 @@ func (s *Server) createEpisode(ctx *gin.Context) {
 			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
-		resp.Subtitles = s.mapUrlSubtitleEntityToResponse(req.Subtitles)
+		resp.Subtitles = s.mapUrlSubtitleEntityToResponse(subtitles)
 	}
 
 	mapIdUserName, err := s.store.GetUserNamesByIds([]int64{episode.CreatedBy, episode.UpdatedBy})
@@ -253,8 +211,15 @@ func (s *Server) updateEpisode(ctx *gin.Context) {
 			config.BuildErrorResponse(ctx, err, nil)
 			return
 		}
+		err = s.store.DeleteSubtitleByEpisodeId(context.Background(), episode.Id)
+		if err != nil {
+			config.BuildErrorResponse(ctx, err, nil)
+			return
+		}
+
 		if len(req.Subtitles) > 0 {
-			err = s.store.UpdateSubtitleUrlByEpisodeId(context.Background(), episode.Id, userId, req.Subtitles)
+			subtitles := s.mapSubtitleToEntity(episode.Id, req.Subtitles)
+			err = s.store.CreateSubtitles(context.Background(), subtitles)
 			if err != nil {
 				config.BuildErrorResponse(ctx, err, nil)
 				return
@@ -331,7 +296,7 @@ func (s *Server) mapFromEntityToResponse(episode *model.EpisodeModel) *dto.Episo
 	return resp
 }
 
-func (s *Server) mapUrlSubtitleEntityToResponse(subtitle []dto.Subtitle) []dto.Subtitle {
+func (s *Server) mapUrlSubtitleEntityToResponse(subtitle []*model.SubtitleModel) []dto.Subtitle {
 	if len(subtitle) == 0 {
 		return []dto.Subtitle{}
 	}
@@ -339,7 +304,19 @@ func (s *Server) mapUrlSubtitleEntityToResponse(subtitle []dto.Subtitle) []dto.S
 	for i, subtitle := range subtitle {
 		resp[i] = dto.Subtitle{
 			Language: subtitle.Language,
-			Url:      s.minio.GetFileUrl(s.config.FileStorage.ShortDramaSubFolder, subtitle.Url),
+			Url:      s.minio.GetFileUrl(s.config.FileStorage.ShortDramaSubFolder, subtitle.SubtitleUrl),
+		}
+	}
+	return resp
+}
+
+func (r *Server) mapSubtitleToEntity(episodeId int64, input []dto.Subtitle) []*model.SubtitleModel {
+	resp := make([]*model.SubtitleModel, len(input))
+	for i, sub := range input {
+		resp[i] = &model.SubtitleModel{
+			EpisodeId:   episodeId,
+			SubtitleUrl: sub.Url,
+			Language:    sub.Language,
 		}
 	}
 	return resp

@@ -92,10 +92,10 @@ type Querier interface {
 	CreateDrama(d *model.ShortDramaModel) error
 	CreateDramaTranslations(d []*model.DramaTranslationModel) error
 	CreateDramaGenres(ids []*model.DramaGenreModel) error
-	GetDrama(id int64) (*dto.ShortDrama, error)
+	GetDrama(id int64) (*model.ShortDramaModel, error)
 	GetDramaTranslations(id int64) ([]dto.DramaTranslation, error)
 	GetDramaGenres(id int64) ([]dto.GenreForShortDramaResponse, error)
-	GetDramas(req dto.ShortDramaListRequest) ([]*dto.ShortDrama, int64, error)
+	GetDramas(req dto.ShortDramaListRequest) ([]*model.ShortDramaModel, int64, error)
 	UpdateDrama(d *model.ShortDramaModel) error
 	DeleteDramaTranslations(id int64) error
 	DeleteDramaGenres(id int64) error
@@ -105,15 +105,16 @@ type Querier interface {
 	CreateEpisode(episode *model.EpisodeModel) error
 	GetEpisodeById(id int64) (*model.EpisodeModel, error)
 	ListEpisodes(req *dto.EpisodeListRequest) ([]*model.EpisodeModel, int64, error)
+	DeleteByEpisodeId(ctx context.Context, id int64) error
 	UpdateEpisode(episode *model.EpisodeModel) error
 	DeleteEpisode(id int64) error
 
 	CreateSubtitle(ctx context.Context, subtitle *model.SubtitleModel) error
 	CreateSubtitles(ctx context.Context, subtitles []*model.SubtitleModel) error
-	GetSubtitleByEpisodeId(ctx context.Context, id int64) ([]dto.Subtitle, error)
-	GetSubtitleByEpisodeIds(ctx context.Context, epsilonIds []int64) (map[int64][]dto.Subtitle, error)
+	GetSubtitleByEpisodeId(ctx context.Context, id int64) ([]*model.SubtitleModel, error)
+	GetSubtitleByEpisodeIds(ctx context.Context, epsilonIds []int64) (map[int64][]*model.SubtitleModel, error)
 	DeleteSubtitleByEpisodeId(ctx context.Context, id int64) error
-	UpdateSubtitleUrlByEpisodeId(ctx context.Context, epsilonId, updatedBy int64, input []dto.Subtitle) error
+	UpdateSubtitleUrlByEpisodeId(ctx context.Context, epsilonId, updatedBy int64, input []*model.SubtitleModel) error
 }
 
 var _ Querier = (*Queries)(nil)

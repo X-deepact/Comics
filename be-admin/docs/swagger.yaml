@@ -357,10 +357,6 @@ definitions:
         type: array
       video:
         type: string
-    required:
-    - drama_id
-    - number
-    - video
     type: object
   dto.EpisodeResponse:
     properties:
@@ -386,8 +382,6 @@ definitions:
         type: string
       video:
         type: string
-    required:
-    - subtitles
     type: object
   dto.EpisodeUpdateRequest:
     properties:
@@ -405,6 +399,8 @@ definitions:
         type: array
       video:
         type: string
+    required:
+    - id
     type: object
   dto.ErrorResponse:
     properties:
@@ -719,9 +715,6 @@ definitions:
         type: string
       url:
         type: string
-    required:
-    - language
-    - url
     type: object
   dto.SuccessResponse:
     properties:
@@ -2358,6 +2351,10 @@ paths:
       - application/json
       description: Get list of episodes
       parameters:
+      - description: Drama ID
+        in: query
+        name: drama_id
+        type: integer
       - description: Page number
         in: query
         name: page
@@ -2504,41 +2501,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete an episode by Id
-      tags:
-      - episodes
-    get:
-      consumes:
-      - application/json
-      description: Get an episode by getEpisodeById
-      parameters:
-      - description: Episode ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Episode retrieved successfully
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.SuccessResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.EpisodeResponse'
-              type: object
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get an episode by ID
       tags:
       - episodes
   /api/general/authors:

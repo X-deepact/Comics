@@ -3,8 +3,9 @@ package db
 import (
 	"comics-admin/dto"
 	"context"
-	"gorm.io/gorm"
 	"pkg-common/model"
+
+	"gorm.io/gorm"
 )
 
 func (q *Queries) CreateDrama(drama *model.ShortDramaModel) error {
@@ -19,18 +20,12 @@ func (q *Queries) CreateDramaGenres(dramaGenres []*model.DramaGenreModel) error 
 	return q.db.WithContext(context.Background()).Create(dramaGenres).Error
 }
 
-func (q *Queries) GetDrama(id int64) (*dto.ShortDrama, error) {
-	var drama dto.ShortDrama
-	if err := q.db.WithContext(context.Background()).
-		Table("short_dramas").
-		Select("short_dramas.*, uc.username AS created_by_name, up.username AS updated_by_name").
-		Joins("LEFT JOIN users uc ON uc.id = short_dramas.created_by").
-		Joins("LEFT JOIN users up ON up.id = short_dramas.updated_by").
-		Where("short_dramas.id = ?", id).
-		First(&drama).Error; err != nil {
+func (q *Queries) GetDrama(id int64) (*model.ShortDramaModel, error) {
+	var drama *model.ShortDramaModel
+	if err := q.db.WithContext(context.Background()).Model(&model.ShortDramaModel{}).Where("id = ?", id).First(&drama).Error; err != nil {
 		return nil, err
 	}
-	return &drama, nil
+	return drama, nil
 
 }
 
@@ -58,16 +53,10 @@ func (q *Queries) GetDramaGenres(dramaId int64) ([]dto.GenreForShortDramaRespons
 	return genres, nil
 }
 
-func (q *Queries) GetDramas(req dto.ShortDramaListRequest) ([]*dto.ShortDrama, int64, error) {
-	var dramas []*dto.ShortDrama
+func (q *Queries) GetDramas(req dto.ShortDramaListRequest) ([]*model.ShortDramaModel, int64, error) {
+	var dramas []*model.ShortDramaModel
 	var total int64
-
-	query := q.db.WithContext(context.Background()).Table("short_dramas")
-
-	query = query.Select("short_dramas.*, uc.username AS created_by_name, up.username AS updated_by_name").
-		Joins("LEFT JOIN users uc ON uc.id = short_dramas.created_by").
-		Joins("LEFT JOIN users up ON up.id = short_dramas.updated_by")
-
+	query := q.db.WithContext(context.Background()).Model(&model.ShortDramaModel{})
 	if req.SortBy != "" {
 		order := req.SortBy + " " + req.Sort
 		query = query.Order(order)
