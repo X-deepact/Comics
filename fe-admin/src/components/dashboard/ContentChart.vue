@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { computed } from 'vue';
 import {
   Chart as ChartJS,
   CategoryScale,

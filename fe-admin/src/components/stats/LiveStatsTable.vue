@@ -1,10 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { TableHeader } from '@/types/table';
-
-const props = defineProps<{
-    headers: TableHeader[]
-}>();
 
 const pageSize = ref(5);
 const currentPage = ref(1);

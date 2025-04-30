@@ -12,9 +12,6 @@ interface Stat {
   icon: string;
 }
 
-const props = defineProps<{
-  stat: Stat;
-}>();
 
 const getIcon = (iconName: string) => {
   const icons = {

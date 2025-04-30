@@ -22,11 +22,11 @@
             :row="AdRow"
             class="w-full"
             @clickSorting="handleSort"
-            @clickDelete="(data: Ad) => {
+            @clickDelete="(data: any) => {
                 adStore.selectedData = data;
                 adStore.deleteDialogIsOpen = true;
             }"
-            @clickUpdate="(data: Ad) => {
+            @clickUpdate="(data: any) => {
                 adStore.selectedData = data;
                 adStore.updateDialogIsOpen = true;
             }"

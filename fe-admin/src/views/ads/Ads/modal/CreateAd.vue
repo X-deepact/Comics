@@ -291,7 +291,7 @@ const handleSubmit = async () => {
               <Input
                 v-model="comicSearchKeyword"
                 placeholder="Search comics by name..."
-                @input="(e) => handleComicSearch((e.target as HTMLInputElement).value)"
+                @input="(e: any) => handleComicSearch((e.target as HTMLInputElement).value)"
                 class="flex-1"
               />
             </div>

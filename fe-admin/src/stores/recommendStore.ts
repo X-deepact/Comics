@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { authHeader } from "../services/authHeader";
 import { useToast } from "@/components/ui/toast/use-toast";
 const API_URL = import.meta.env.VITE_API_URL;

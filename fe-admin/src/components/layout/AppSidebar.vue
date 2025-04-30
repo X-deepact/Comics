@@ -27,7 +27,7 @@ props.navigation.forEach(section => {
     <aside class="w-[260px] fixed top-16 bottom-0 left-0 bg-white border-r overflow-y-auto">
         <nav class="py-4">
             <div class="space-y-1">
-                <div v-for="(section, index) in navigation" :key="section.title">
+                <div v-for="section in navigation" :key="section.title">
                     <!-- Section Header -->
                     <div 
                         class="flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-900 cursor-pointer hover:bg-gray-50"

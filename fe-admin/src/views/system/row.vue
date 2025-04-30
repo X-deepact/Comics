@@ -48,10 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import { User } from "@/stores/userStore";
-import { formatDate, getTimeAgo } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
+
 import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-vue-next";
 import { Switch } from "@/components/ui/switch";
@@ -60,7 +59,7 @@ import { useToast } from "@/components/ui/toast/use-toast";
 const { toast } = useToast();
 
 defineProps<{
-  data: User;
+  data: any;
 }>();
 defineEmits(["clickDelete", "clickUpdate", "clickActive"]);
 
@@ -79,16 +78,5 @@ const formatDateSafe = (
   }
 };
 
-const getTimeAgoSafe = (date: Date | string | number): string => {
-  try {
-    return getTimeAgo(date);
-  } catch (error) {
-    toast({
-      description: "Error calculating time ago",
-      variant: "destructive",
-    });
-    return "Invalid date";
-  }
-};
 
 </script>
