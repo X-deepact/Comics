@@ -11,26 +11,33 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ref } from "vue";
 import loadingImg from "@/assets/loading.svg";
-import { useToast } from "@/components/ui/toast/use-toast";
+
 import { useDramaStore } from "../../../../../stores/dramaStore";
 import { useEpisodeStore } from "../../../../../stores/episodeStore";
-import M3uPlayer from "../../../../../lib/Player.vue"
+import M3uPlayer from "@/lib/Player.vue"
 import { langConverter } from "../../../../../lib/utils";
-const { toast } = useToast();
+
 const drameStore = useDramaStore();
 const episodeStore = useEpisodeStore()
 const previewUrl = ref<string | null>(null);
 const isLoading = ref(false);
+
+// Add interface for subtitle type
+interface Subtitle {
+    language: string;
+    url: string;
+}
+
 const episode = ref({
-    subtitle_en: null as string | null,
-    subtitle_zh: null as string | null,
-    subtitle_vi: null as string | null,
+    subtitle_en: null as string | null | undefined,
+    subtitle_zh: null as string | null | undefined,
+    subtitle_vi: null as string | null | undefined,
 });
 const resetEpisode = () => {
     episode.value = {
-        subtitle_en: null as string | null,
-        subtitle_zh: null as string | null,
-        subtitle_vi: null as string | null,
+        subtitle_en: null as string | null | undefined,
+        subtitle_zh: null as string | null | undefined,
+        subtitle_vi: null as string | null | undefined,
     };
     if (previewUrl.value) {
         URL.revokeObjectURL(previewUrl.value);
@@ -50,16 +57,7 @@ const handleFileChange = (event: Event) => {
         previewUrl.value = URL.createObjectURL(target.files[0]);
     }
 };
-const checkForm = () => {
-    if (!video.value) {
-        toast({
-            description: "Fill in all data.",
-            variant: "destructive",
-        });
-        return false;
-    }
-    return true;
-}
+
 const en = ref<File | null>(null);
 const zh = ref<File | null>(null);
 const vi = ref<File | null>(null);
@@ -92,6 +90,61 @@ const formattedSubtitles = (datas: any) => {
     } else {
         return [];
     }
+}
+
+const handleClick = async () => {
+    isLoading.value = true;
+    let videoURL;
+    if (video.value) {
+        videoURL = await episodeStore.uploadVideo(video.value, drameStore.selectedData.id);
+    } else { 
+        videoURL = null;
+    }
+
+    if (en.value != null) {
+        episode.value.subtitle_en = await episodeStore.uploadSubtitle(en.value);
+    } else {
+        const enSubtitle = (episodeStore.selectedData.subtitles as Subtitle[]).find(item => item.language === 'en');
+        if (enSubtitle && enSubtitle.url.includes('http')) {
+            episode.value.subtitle_en = enSubtitle.url.split('/').pop() || null;
+        }
+    }
+
+    if (zh.value != null) {
+        episode.value.subtitle_zh = await episodeStore.uploadSubtitle(zh.value);
+    } else {
+        const zhSubtitle = (episodeStore.selectedData.subtitles as Subtitle[]).find(item => item.language === 'zh');
+        if (zhSubtitle && zhSubtitle.url.includes('http')) {
+            episode.value.subtitle_zh = zhSubtitle.url.split('/').pop() || null;
+        }
+    }
+
+    if (vi.value != null) {
+        episode.value.subtitle_vi = await episodeStore.uploadSubtitle(vi.value);
+    } else {
+        const viSubtitle = (episodeStore.selectedData.subtitles as Subtitle[]).find(item => item.language === 'vi');
+        if (viSubtitle && viSubtitle.url.includes('http')) {
+            episode.value.subtitle_vi = viSubtitle.url.split('/').pop() || null;
+        }
+    }
+
+    const subtitles = [];
+    if (episode.value.subtitle_en != null) subtitles.push({ language: 'en', url: episode.value.subtitle_en });
+    if (episode.value.subtitle_zh != null) subtitles.push({ language: 'zh', url: episode.value.subtitle_zh });
+    if (episode.value.subtitle_vi != null) subtitles.push({ language: 'vi', url: episode.value.subtitle_vi });
+
+    const data = {
+        id: episodeStore.selectedData.id,
+        drama_id: drameStore.selectedData.id,
+        number: episodeStore.selectedData.number,
+        video: videoURL,
+        subtitles: subtitles,
+    };
+    await episodeStore.updateEpisode(data);
+    await episodeStore.getEpisodeData();
+    isLoading.value = false;
+    episodeStore.updateDialogIsOpen = false;
+    resetEpisode();
 }
 </script>
 <template>
@@ -136,59 +189,7 @@ const formattedSubtitles = (datas: any) => {
                 <Button variant="secondary" @click="episodeStore.updateDialogIsOpen = false">
                     Close
                 </Button>
-                <Button :disabled="isLoading" @click="
-                    async () => {
-
-                        isLoading = true;
-                        let videoURL;
-                        if (video) {
-                            videoURL = await episodeStore.uploadVideo(video, drameStore.selectedData.id);
-                        } else { videoURL = null }
-                        if (en != null) {
-                            episode.subtitle_en = await episodeStore.uploadSubtitle(en);
-                        } else {
-                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'en');
-                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
-                                episode.subtitle_en = enSubtitle.url.split(`/`).pop()
-                            }
-                        }
-
-                        if (zh != null) {
-                            episode.subtitle_zh = await episodeStore.uploadSubtitle(zh);
-                        } else {
-                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'zh');
-                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
-                                episode.subtitle_zh = enSubtitle.url.split(`/`).pop()
-                            }
-                        }
-
-                        if (vi != null) {
-                            episode.subtitle_vi = await episodeStore.uploadSubtitle(vi);
-                        } else {
-                            const enSubtitle = episodeStore.selectedData.subtitles.find(item => item.language === 'vi');
-                            if (enSubtitle && enSubtitle.url.includes(`http`)) {
-                                episode.subtitle_vi = enSubtitle.url.split(`/`).pop()
-                            }
-                        }
-                        const subtitles = [];
-                        if (episode.subtitle_en != null) subtitles.push({ language: 'en', url: episode.subtitle_en });
-                        if (episode.subtitle_zh != null) subtitles.push({ language: 'zh', url: episode.subtitle_zh });
-                        if (episode.subtitle_vi != null) subtitles.push({ language: 'vi', url: episode.subtitle_vi });
-
-                        const data = {
-                            id: episodeStore.selectedData.id,
-                            drama_id: drameStore.selectedData.id,
-                            number: episodeStore.selectedData.number,
-                            video: videoURL,
-                            subtitles: subtitles,
-                        };
-                        await episodeStore.updateEpisode(data);
-                        await episodeStore.getEpisodeData();
-                        isLoading = false;
-                        episodeStore.updateDialogIsOpen = false;
-                        resetEpisode();
-
-                    }">
+                <Button :disabled="isLoading" @click="handleClick">
                     <img v-if="isLoading" :src="loadingImg" size="icon" />Update</Button>
             </DialogFooter>
         </DialogContent>

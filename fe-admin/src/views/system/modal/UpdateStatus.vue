@@ -9,9 +9,13 @@ import {
 import { useUserStore } from "../../../stores/userStore";
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
+import { useToast } from "@/components/ui/toast/use-toast";
+
 const isLoading = ref(false);
 const userStore = useUserStore();
+const { toast } = useToast();
 </script>
+
 <template>
   <Dialog
     :open="userStore.updateStatusDialogIsOpen"
@@ -39,7 +43,10 @@ const userStore = useUserStore();
                 userStore.updateStatusDialogIsOpen = false;
                 userStore.getUserData();
               } catch (error) {
-                userStore.toast.error('Failed to update user status. Please try again.');
+                toast({
+                  description: 'Failed to update user status. Please try again.',
+                  variant: 'destructive'
+                });
                 isLoading = false;
               }
             }

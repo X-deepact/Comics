@@ -67,7 +67,7 @@ export interface RecommendCreateRequest {
 export interface RecommendUpdateRequest {
   id: number;
   title: string;
-  cover: string;
+  cover: string | File;
   position: number;
   active_from: number;  // Unix timestamp in seconds
   active_to: number;    // Unix timestamp in seconds
@@ -226,12 +226,10 @@ export const useRecommendStore = defineStore("recommendStore", () => {
       formData.append('active_from', (data.active_from * 1000).toString());
       formData.append('active_to', (data.active_to * 1000).toString());
 
-      // Only append cover if it's a new file
-      if (data.cover instanceof File) {
+      // Check if cover is a File object using type guard
+      if (typeof data.cover !== 'string' && data.cover instanceof File) {
         formData.append('cover', data.cover);
       }
-      // Don't append anything for cover if using existing image
-
       
       const response = await axios.put<ApiResponse<Recommend>>(
         `${API_URL}/recommend`,

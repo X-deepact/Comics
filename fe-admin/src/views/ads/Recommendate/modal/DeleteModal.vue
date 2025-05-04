@@ -34,6 +34,7 @@ const recommendStore = useRecommendStore();
           :disabled="isLoading"
           @click="
             async () => {
+              if (!recommendStore.selectedData) return;
               isLoading = true;
               await recommendStore.deleteRecommend(recommendStore.selectedData.id);
               isLoading = false;

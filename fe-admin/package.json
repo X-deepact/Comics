@@ -12,6 +12,7 @@
     "@heroicons/vue": "^2.2.0",
     "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
+    "@tanstack/table-core": "^8.21.3",
     "@vueuse/core": "^12.7.0",
     "axios": "^1.7.9",
     "chart.js": "^4.4.8",

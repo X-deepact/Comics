@@ -94,34 +94,34 @@ const checkForm = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="chapterStore.selectedData.active_from" initial-focus />
+            <Calendar :v-model="chapterStore.selectedData.active_from" initial-focus />
           </PopoverContent>
         </Popover>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
-        <Select v-model="chapterStore.selectedData.active">
+        <Select :v-model="chapterStore.selectedData.active">
           <SelectTrigger>
             <SelectValue :value="chapterStore.selectedData.active.toString()" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Cover</Label>
-        <Select v-model="chapterStore.selectedData.cover">
+        <Select :v-model="chapterStore.selectedData.cover">
           <SelectTrigger>
             <SelectValue :value="chapterStore.selectedData.cover.toString()" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

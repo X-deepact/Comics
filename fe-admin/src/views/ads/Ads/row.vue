@@ -30,7 +30,7 @@
       </div>
     </TableCell>
     <TableCell> 
-      <Badge :variant="data.status === 'active' ? 'success' : 'secondary'">
+      <Badge :variant="data.status === 'active' ? 'default' : 'secondary'">
         {{ data.status || 'N/A' }}
       </Badge>
     </TableCell>
@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ad, useAdStore } from "@/stores/adStore";
+import type { Ad } from "@/stores/adStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
@@ -87,13 +87,11 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, Pencil, Copy } from "lucide-vue-next";
 import { toast } from "@/components/ui/toast/use-toast";
 
-const props = defineProps<{
+defineProps<{
   data: Ad;
 }>();
 
 defineEmits(["clickDelete", "clickUpdate"]);
-
-const adStore = useAdStore();
 
 const getImageUrl = (imageUrl: string): string => {
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
@@ -139,18 +137,6 @@ const getTimeAgoSafe = (date: string | null | undefined): string => {
     return getTimeAgo(date);
   } catch {
     return 'N/A';
-  }
-};
-
-const updateStatus = async (id: number, status: 'active' | 'inactive') => {
-  try {
-    await adStore.updateAdStatus(id, status);
-    adStore.getAdData();
-  } catch (error: any) {
-    toast({
-      description: error.response?.data?.message || error.message,
-      variant: "destructive",
-    });
   }
 };
 </script> 

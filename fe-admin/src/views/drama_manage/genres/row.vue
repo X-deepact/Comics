@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { Genre, useDramaGenreStore } from "@/stores/drama_genreStore";
+import type { Genre } from "@/stores/drama_genreStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
@@ -58,7 +58,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Pencil } from "lucide-vue-next";
 
-const props = defineProps<{
+defineProps<{
   data: Genre;
 }>();
 

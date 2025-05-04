@@ -63,9 +63,13 @@ const handleFileUpload = async (event: Event) => {
     try {
       // Upload image and get filename
       const response = await adStore.uploadAdImage(file);
-      // Store just the filename, not the entire response object
-      adStore.selectedData.image = response.data || response;
-      // Set the flag to indicate that the image has been changed
+      // Convert response to unknown first, then check if it's an object with data property
+      const typedResponse = response as unknown;
+      if (typeof typedResponse === 'object' && typedResponse && 'data' in typedResponse) {
+        adStore.selectedData.image = (typedResponse as { data: string }).data;
+      } else {
+        adStore.selectedData.image = response as string;
+      }
       imageChanged.value = true;
     } catch (error) {
       previewImage.value = '';
@@ -109,10 +113,11 @@ const handleSubmit = async () => {
     
     const formattedData = {
       ...adStore.selectedData,
-      comic_id: adStore.selectedData.type === 'internal' ? parseInt(adStore.selectedData.comic_id.toString()) : null,
+      comic_id: adStore.selectedData.type === 'internal' ? 
+        parseInt(adStore.selectedData.comic_id.toString()) : 
+        undefined,
       active_from: new Date(adStore.selectedData.active_from).toISOString(),
       active_to: new Date(adStore.selectedData.active_to).toISOString(),
-      // Only include image in the update if it was changed
       image: imageChanged.value ? adStore.selectedData.image : undefined
     };
     

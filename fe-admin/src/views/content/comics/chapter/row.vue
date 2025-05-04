@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { Chapter } from "@/stores/chapterStore";
+import type { Chapter } from "@/stores/chapterStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";

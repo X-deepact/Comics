@@ -4,6 +4,20 @@ import { ref } from 'vue';
 const pageSize = ref(5);
 const currentPage = ref(1);
 const searchQuery = ref('');
+
+// Define the headers array with proper typing
+interface TableHeader {
+    title: string;
+    sortable?: boolean;
+}
+
+const headers = ref<TableHeader[]>([
+    { title: 'Title', sortable: true },
+    { title: 'Views', sortable: true },
+    { title: 'Clicks', sortable: true },
+    { title: 'CTR', sortable: true },
+    { title: 'Last Updated', sortable: true }
+]);
 </script>
 
 <template>

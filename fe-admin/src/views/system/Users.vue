@@ -48,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useUserStore } from "../../stores/userStore";
 import Component from "@/lib/Component.vue";
 import TableComponent from "@/lib/Table.vue";
@@ -65,7 +64,7 @@ const userStore = useUserStore();
 // Initialize the data
 userStore.getUserData();
 
-const handleSearch = (value) => {
+const handleSearch = (value: string) => {
   userStore.searchKeyword = value;
   userStore.current_page = 1;
   userStore.getUserData();

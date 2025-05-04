@@ -51,7 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { Genre, useDramaGenreStore } from '@/stores/drama_genreStore';
+import type { Genre } from '@/stores/drama_genreStore';
+import { useDramaGenreStore } from '@/stores/drama_genreStore';
 import Component from '@/lib/Component.vue';
 import TableComponent from '@/lib/Table.vue';
 import Pagination from '@/lib/Pagination.vue';

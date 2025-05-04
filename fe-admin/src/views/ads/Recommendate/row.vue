@@ -17,7 +17,7 @@
     <TableCell>{{ formatDateSafe(data.active_from) }}</TableCell>
     <TableCell>{{ formatDateSafe(data.active_to) }}</TableCell>
     <TableCell>
-      <p class="font-medium">{{ data.created_by_name || 'N/A' }}</p>
+      <p class="font-medium">{{ data.created_by || 'N/A' }}</p>
     </TableCell>
     <TableCell>
       <div>
@@ -28,7 +28,7 @@
       </div>
     </TableCell>
     <TableCell>
-      <p class="font-medium">{{ data.updated_by_name || 'N/A' }}</p>
+      <p class="font-medium">{{ data.updated_by || 'N/A' }}</p>
     </TableCell>
     <TableCell>
       <div>
@@ -60,18 +60,17 @@
 </template>
 
 <script setup lang="ts">
-import { Recommend } from "@/stores/recommendStore";
-import { formatDate, getTimeAgo } from "@/lib/utils";
+import type { Recommend } from "@/stores/recommendStore";
+import { getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-vue-next";
-import { ref } from 'vue';
 import { positionLabels } from "@/stores/recommendStore";
 import { useToast } from "@/components/ui/toast/use-toast";
 
 const { toast } = useToast();
-const props = defineProps<{
+defineProps<{
   data: Recommend;
 }>();
 
@@ -163,13 +162,6 @@ const getImageUrl = (url: string): string => {
   // Remove any leading slashes from the URL
   const cleanUrl = url.replace(/^\/+/, '');
   return `${API_URL}/${cleanUrl}`;
-};
-
-// Add this function to handle image loading errors
-const handleImageError = (event: Event) => {
-  const target = event.target as HTMLImageElement;
-  target.src = ''; // You could set a default image here
-  target.alt = 'Image not available';
 };
 
 defineEmits(["clickDelete", "clickUpdate"]);

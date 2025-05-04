@@ -41,7 +41,10 @@ const userStore = useUserStore();
                 userStore.deleteDialogIsOpen = false;
                 userStore.getUserData();
               } catch (error) {
-                toast.error('Failed to delete user. Please try again later.');
+                toast({
+                  variant: 'destructive',
+                  description: 'Failed to delete user. Please try again later.'
+                });
                 isLoading = false;
               }
             }

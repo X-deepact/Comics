@@ -45,11 +45,21 @@ const formatDateForInput = (dateValue: string | number) => {
   }
 };
 
-const formData = ref({
+// Add a type for the form data
+interface FormData {
+  id: number;
+  title: string;
+  cover: string | File;
+  position: RecommendPosition;
+  active_from: string;
+  active_to: string;
+}
+
+const formData = ref<FormData>({
   id: 0,
   title: "",
   cover: "",
-  position: RecommendPosition.COMPLETE_MASTERPIECE,
+  position: RecommendPosition.TOPING,
   active_from: "",
   active_to: "",
 });
@@ -68,8 +78,8 @@ watch(() => recommendStore.selectedData, (newData) => {
     formData.value = {
       id: newData.id,
       title: newData.title || "",
-      cover: "", // Reset cover since we'll use previewImage for the existing image
-      position: newData.position || RecommendPosition.COMPLETE_MASTERPIECE,
+      cover: "",
+      position: newData.position || RecommendPosition.TOPING,
       active_from: activeFrom,
       active_to: activeTo,
     };
@@ -98,11 +108,11 @@ const handleSubmit = async () => {
     activeFromDate.setHours(0, 0, 0, 0);
     activeToDate.setHours(0, 0, 0, 0);
 
+    // Only include cover if it's a File, otherwise keep the existing cover
     const submitData = {
       id: formData.value.id,
       title: formData.value.title,
-      // Only include cover if it's a new file, otherwise don't send it at all
-      ...(formData.value.cover instanceof File ? { cover: formData.value.cover } : {}),
+      cover: formData.value.cover instanceof File ? formData.value.cover : formData.value.cover,
       position: Number(formData.value.position),
       active_from: Math.floor(activeFromDate.getTime() / 1000),
       active_to: Math.floor(activeToDate.getTime() / 1000),
@@ -209,9 +219,9 @@ const validateForm = () => {
                 >
                   Choose Image
                 </Button>
-                <div v-if="previewImage || formData.cover" class="mt-2">
+                <div v-if="previewImage || (typeof formData.cover === 'string' ? formData.cover : '')" class="mt-2">
                   <img
-                    :src="previewImage || formData.cover"
+                    :src="previewImage || (typeof formData.cover === 'string' ? formData.cover : '')"
                     alt="Preview"
                     class="max-w-full max-h-[200px] object-contain rounded-md border"
                   />
@@ -222,24 +232,27 @@ const validateForm = () => {
             <div class="grid grid-cols-4 items-center gap-4">
               <Label class="text-right">Position *</Label>
               <div class="col-span-3">
-              <Select v-model="formData.position" >
+              <Select 
+                :model-value="String(formData.position)"
+                @update:model-value="(val) => formData.position = Number(val)"
+              >
                 <SelectTrigger>
                   <SelectValue :placeholder="positionLabels[formData.position]" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem :value="RecommendPosition.TOPING">
+                  <SelectItem :value="String(RecommendPosition.TOPING)">
                     {{ positionLabels[RecommendPosition.TOPING] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.RECOMMEND_PRODUCTS">
+                  <SelectItem :value="String(RecommendPosition.RECOMMEND_PRODUCTS)">
                     {{ positionLabels[RecommendPosition.RECOMMEND_PRODUCTS] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.RECOMMEND_MASTERPIECES">
+                  <SelectItem :value="String(RecommendPosition.RECOMMEND_MASTERPIECES)">
                     {{ positionLabels[RecommendPosition.RECOMMEND_MASTERPIECES] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.FASTEST_GROWING">
+                  <SelectItem :value="String(RecommendPosition.FASTEST_GROWING)">
                     {{ positionLabels[RecommendPosition.FASTEST_GROWING] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.TESTING_NEW_PRODUCTS">
+                  <SelectItem :value="String(RecommendPosition.TESTING_NEW_PRODUCTS)">
                     {{ positionLabels[RecommendPosition.TESTING_NEW_PRODUCTS] }}
                   </SelectItem>
                 </SelectContent>

@@ -8,10 +8,12 @@ import {
 
 interface Stat {
   name: string;
-  value: number;
-  icon: string;
+  value: number | string;
 }
 
+defineProps<{
+  stat: Stat;
+}>();
 
 const getIcon = (iconName: string) => {
   const icons = {

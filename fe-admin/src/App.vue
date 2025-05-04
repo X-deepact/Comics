@@ -7,12 +7,12 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 onMounted(async () => {
-  // Check if there's a token in localStorage or wherever you store it
-  if (authStore.token) {
+
+  if (authStore.access_token) {
     try {
-      await authStore.fetchProfile();
+    
     } catch (error) {
-      // If token is invalid or expired, clear auth and redirect to login
+
       authStore.logout();
       router.push("/login");
     }

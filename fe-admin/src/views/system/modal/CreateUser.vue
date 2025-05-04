@@ -21,16 +21,17 @@ import {
 } from "@/components/ui/popover";
 import {
   DateFormatter,
-  type DateValue,
   getLocalTimeZone,
+  type DateValue
 } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 import { useToast } from "@/components/ui/toast/use-toast";
+
 const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
-const value = ref<DateValue | null>(null);
+const value = ref<DateValue>();
 
 const userStore = useUserStore();
 userStore.getUserData();
@@ -46,6 +47,7 @@ const user = ref({
   TierId: 0,
   Birthday: "",
 });
+
 const resetUser = () => {
   user.value = {
     username: "",
@@ -66,7 +68,6 @@ const setBirthday = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    value.value = null;
     user.value.Birthday = `${year}-${month}-${day}`;
   }
 };
@@ -105,6 +106,7 @@ const checkForm = () => {
   return true;
 };
 </script>
+
 <template>
   <Dialog :open="userStore.createDialogIsOpen"
     @update:open="(value: boolean) => { userStore.createDialogIsOpen = value; }">
@@ -151,18 +153,24 @@ const checkForm = () => {
             <Button variant="outline" :class="cn(
               'w-[280px] justify-start text-left font-normal',
               !value && 'text-muted-foreground'
-            )
-              ">
+            )">
               <CalendarIcon class="mr-2 h-4 w-4" />
-              {{
-                value
-                  ? df.format(value.toDate(getLocalTimeZone()))
-                  : "Pick a date"
-              }}
+              {{ value ? df.format(value.toDate(getLocalTimeZone())) : "Pick a date" }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="value" initial-focus @change="setBirthday" />
+            <Calendar 
+              v-model="value" 
+              mode="single"
+              :multiple="false"
+              initial-focus 
+              @update:model-value="(date: DateValue | undefined) => { 
+                if (date) {
+                  value = date;
+                  setBirthday();
+                }
+              }" 
+            />
           </PopoverContent>
         </Popover>
       </div>

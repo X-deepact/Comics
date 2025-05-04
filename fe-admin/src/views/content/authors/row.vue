@@ -58,7 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import { Author } from "@/stores/authorStore";
 import { formatDate, getTimeAgo } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
@@ -66,7 +65,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, Pencil } from "lucide-vue-next";
 
 defineProps<{
-  data: Author;
+  data: any;
 }>();
 defineEmits(["clickDelete", "clickUpdate"]);
 const formatDateSafe = (

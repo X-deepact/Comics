@@ -21,6 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
+import type { CalendarDate, DateValue } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 import { useToast } from "@/components/ui/toast/use-toast";
 const { toast } = useToast();
@@ -29,6 +30,7 @@ const df = new DateFormatter("en-US", {
 });
 const isLoading = ref(false);
 const authorStore = useAuthorStore();
+
 const checkForm = () => {
   if (
     authorStore.selectedData.name === "" ||
@@ -42,6 +44,14 @@ const checkForm = () => {
     return false;
   }
   return true;
+};
+
+const getBirthDay = (): DateValue | undefined => {
+  return authorStore.selectedData.birth_day as DateValue || undefined;
+};
+
+const setBirthDay = (date: DateValue | undefined) => {
+  authorStore.selectedData.birth_day = date as CalendarDate;
 };
 </script>
 <template>
@@ -95,7 +105,8 @@ const checkForm = () => {
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
             <Calendar
-              v-model="authorStore.selectedData.birth_day"
+              :model-value="getBirthDay()"
+              @update:model-value="setBirthDay"
               initial-focus
             />
           </PopoverContent>

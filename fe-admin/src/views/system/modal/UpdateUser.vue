@@ -31,7 +31,7 @@ const { toast } = useToast();
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
 });
-const value = ref<DateValue | null>(null);
+const value = ref<DateValue>();
 
 const validateEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -46,10 +46,11 @@ const getBirthday = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    value.value = undefined;
     return `${year}-${month}-${day}`;
   }
+  return undefined;
 };
+
 const checkForm = () => {
   if (!userStore.selectedData.username || 
       !userStore.selectedData.DisplayName ||
@@ -83,6 +84,7 @@ const checkForm = () => {
   return true;
 };
 </script>
+
 <template>
   <Dialog :open="userStore.updateDialogIsOpen" @update:open="
     (value: boolean) => {
@@ -129,18 +131,23 @@ const checkForm = () => {
         <Label for="birth_day" class="text-center w-1/4">Birthday *</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button variant="outline" :class="cn('font-normal w-3/4', !value && 'text-muted-foreground')
-              ">
+            <Button variant="outline" :class="cn('font-normal w-3/4', !value && 'text-muted-foreground')">
               <CalendarIcon class="mr-2 h-4 w-4" />
-              {{
-                value
-                  ? df.format(value.toDate(getLocalTimeZone()))
-                  : "Pick a date"
-              }}
+              {{ value ? df.format(value.toDate(getLocalTimeZone())) : "Pick a date" }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="value" initial-focus />
+            <Calendar 
+              v-model="value" 
+              mode="single"
+              :multiple="false"
+              initial-focus 
+              @update:model-value="(date: DateValue | undefined) => {
+                if (date) {
+                  value = date;
+                }
+              }"
+            />
           </PopoverContent>
         </Popover>
       </div>

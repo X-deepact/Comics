@@ -36,7 +36,7 @@ const episode = ref({
 watch(
     total,
     (newTotal) => {
-        episode.value.number = newTotal + 1 ?? 1;
+        episode.value.number = (newTotal + 1) || 1;
     },
     { immediate: true }
 );
@@ -143,13 +143,22 @@ const handleSubtitleChange = (event: Event) => {
                     async () => {
                         if (checkForm()) {
                             isLoading = true;
-                            episode.video = await episodeStore.uploadVideo(video, drameStore.selectedData.id);
-                            if (en != null)
-                                episode.subtitle_en = await episodeStore.uploadSubtitle(en);
-                            if (zh != null)
-                                episode.subtitle_zh = await episodeStore.uploadSubtitle(zh);
-                            if (vi != null)
-                                episode.subtitle_vi = await episodeStore.uploadSubtitle(vi);
+                            const uploadedVideo = await episodeStore.uploadVideo(video, drameStore.selectedData.id);
+                            episode.video = uploadedVideo || null;
+                            
+                            if (en != null) {
+                                const enSubtitle = await episodeStore.uploadSubtitle(en);
+                                episode.subtitle_en = enSubtitle || null;
+                            }
+                            if (zh != null) {
+                                const zhSubtitle = await episodeStore.uploadSubtitle(zh);
+                                episode.subtitle_zh = zhSubtitle || null;
+                            }
+                            if (vi != null) {
+                                const viSubtitle = await episodeStore.uploadSubtitle(vi);
+                                episode.subtitle_vi = viSubtitle || null;
+                            }
+
                             episode.drama_id = drameStore.selectedData.id;
                             const subtitles = [];
                             if (episode.subtitle_en != null) subtitles.push({ language: 'en', url: episode.subtitle_en });

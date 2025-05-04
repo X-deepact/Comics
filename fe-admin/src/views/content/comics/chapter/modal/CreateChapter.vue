@@ -139,28 +139,28 @@ const checkForm = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
-        <Select v-model="chapter.active">
+        <Select :v-model="chapter.active">
           <SelectTrigger>
             <SelectValue :value="chapter.active.toString()" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Cover</Label>
-        <Select v-model="chapter.cover">
+        <Select :v-model="chapter.cover">
           <SelectTrigger>
             <SelectValue :value="chapter.cover.toString()" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

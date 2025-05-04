@@ -9,6 +9,13 @@ import {
 import loadingImg from "@/assets/loading.svg";
 import { ref } from "vue";
 import { useEpisodeStore } from "../../../../../stores/episodeStore";
+
+// Add interface for subtitle type
+interface Subtitle {
+    language: string;
+    url: string;
+}
+
 const isLoading = ref(false);
 const episodeStore = useEpisodeStore()
 </script>
@@ -32,7 +39,7 @@ const episodeStore = useEpisodeStore()
                             video = parts.slice(-2).join(`/`);
                         }
 
-                        const subtitles = episodeStore.selectedData.subtitles.map(item => {
+                        const subtitles = episodeStore.selectedData.subtitles.map((item: Subtitle) => {
                             if (item.url.includes('http')) {
                                 const url = item.url.split('/').pop();
                                 return { language: item.language, url: url };

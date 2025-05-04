@@ -121,7 +121,7 @@ function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: number | null = null;
 
   return function executedFunction(...args: Parameters<T>) {
     if (timeout) {
@@ -133,6 +133,15 @@ function debounce<T extends (...args: any[]) => any>(
       timeout = null;
     }, wait);
   };
+}
+
+// Add type guard function
+interface ResponseWithData {
+  data: string;
+}
+
+function isResponseWithData(response: unknown): response is ResponseWithData {
+  return typeof response === 'object' && response !== null && 'data' in response;
 }
 
 const handleFileUpload = async (event: Event) => {
@@ -152,8 +161,7 @@ const handleFileUpload = async (event: Event) => {
     try {
       // Upload image and get filename
       const response = await adStore.uploadAdImage(file);
-      // Store just the filename, not the entire response object
-      ad.value.image = response.data || response;
+      ad.value.image = isResponseWithData(response) ? response.data : response as string;
     } catch (error) {
       previewImage.value = '';
       ad.value.image = '';

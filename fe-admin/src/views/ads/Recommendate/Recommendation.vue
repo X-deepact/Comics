@@ -18,7 +18,7 @@
                     <Input
                         type="search"
                         :value="recommendStore.searchKeyword"
-                        @input="(e) => handleSearch((e.target as HTMLInputElement).value)"
+                        @input="(e: Event) => handleSearch((e.target as HTMLInputElement).value)"
                         placeholder="Search by title..."
                         class="h-9 w-[150px] lg:w-[250px]"
                     />
@@ -76,7 +76,7 @@ const recommendStore = useRecommendStore()
 
 // Add debounce utility
 const debounce = (fn: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     return (...args: any[]) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => fn(...args), delay);

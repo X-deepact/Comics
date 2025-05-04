@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRecommendStore, RecommendPosition, positionLabels } from "@/stores/recommendStore";
-import { useComicStore } from "@/stores/comicStore";
 import loadingImg from "@/assets/loading.svg";
 import { useToast } from "@/components/ui/toast/use-toast";
 import {
@@ -25,33 +24,26 @@ import {
 const { toast } = useToast();
 const isLoading = ref(false);
 const recommendStore = useRecommendStore();
-const comicStore = useComicStore();
 const previewImage = ref<string>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedComic = ref<{ id: number, name: string } | null>(null);
 
+// Add Comic interface
+interface Comic {
+  id: number;
+  name: string;
+}
+
 const formData = ref({
   title: "",
-  cover: "",
-  position: RecommendPosition.TOPING,
+  cover: null as File | null,
+  position: String(RecommendPosition.TOPING),
   active_from: "",
   active_to: "",
 });
 
 // Add comic search functionality
 const comicSearchKeyword = ref("");
-const searchResults = ref<any[]>([]);
-
-// Function to search comics
-const searchComics = async () => {
-  if (comicSearchKeyword.value.trim()) {
-    comicStore.searchKeyword = comicSearchKeyword.value;
-    await comicStore.getComicData();
-    searchResults.value = comicStore.comicData;
-  } else {
-    searchResults.value = [];
-  }
-};
 
 // Function to select comic
 const selectComic = (comic: Comic) => {
@@ -78,8 +70,8 @@ const handleFileChange = (event: Event) => {
 const resetForm = () => {
   formData.value = {
     title: "",
-    cover: "",
-    position: RecommendPosition.TOPING,
+    cover: null,
+    position: String(RecommendPosition.TOPING),
     active_from: "",
     active_to: "",
   };
@@ -95,21 +87,30 @@ const handleSubmit = async () => {
   
   isLoading.value = true;
   try {
-    // Convert date strings to Unix timestamps (start of day)
     const activeFromDate = new Date(formData.value.active_from);
     const activeToDate = new Date(formData.value.active_to);
     activeFromDate.setHours(0, 0, 0, 0);
     activeToDate.setHours(0, 0, 0, 0);
 
-    const submitData = {
+    // Ensure cover is not null before submitting
+    if (!formData.value.cover) {
+      throw new Error("Cover image is required");
+    }
+
+    const submitData: {
+      title: string;
+      cover: File;
+      position: number;
+      active_from: number;
+      active_to: number;
+    } = {
       title: formData.value.title,
-      cover: formData.value.cover,
+      cover: formData.value.cover!,
       position: Number(formData.value.position),
       active_from: Math.floor(activeFromDate.getTime() / 1000),
       active_to: Math.floor(activeToDate.getTime() / 1000),
     };
 
-    // Create the recommendation first
     const createdRecommend = await recommendStore.createRecommend(submitData);
     
     // Add the selected comic
@@ -162,19 +163,19 @@ const validateForm = () => {
   return true;
 };
 
-// Remove the import { debounce } line and add this function in the setup script:
+// Update debounce function to use Window.Timeout instead of NodeJS.Timeout
 const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void => {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: number | null = null;
 
   return function executedFunction(...args: Parameters<T>) {
     if (timeout) {
-      clearTimeout(timeout);
+      window.clearTimeout(timeout);
     }
 
-    timeout = setTimeout(() => {
+    timeout = window.setTimeout(() => {
       func(...args);
       timeout = null;
     }, wait);
@@ -244,22 +245,22 @@ const handleComicSearch = debounce((value: string | null | undefined) => {
             <div class="col-span-3">
               <Select v-model="formData.position">
                 <SelectTrigger>
-                  <SelectValue :placeholder="positionLabels[formData.position]" />
+                  <SelectValue :placeholder="positionLabels[Number(formData.position)]" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem :value="RecommendPosition.TOPING">
+                  <SelectItem :value="String(RecommendPosition.TOPING)">
                     {{ positionLabels[RecommendPosition.TOPING] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.RECOMMEND_PRODUCTS">
+                  <SelectItem :value="String(RecommendPosition.RECOMMEND_PRODUCTS)">
                     {{ positionLabels[RecommendPosition.RECOMMEND_PRODUCTS] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.RECOMMEND_MASTERPIECES">
+                  <SelectItem :value="String(RecommendPosition.RECOMMEND_MASTERPIECES)">
                     {{ positionLabels[RecommendPosition.RECOMMEND_MASTERPIECES] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.FASTEST_GROWING">
+                  <SelectItem :value="String(RecommendPosition.FASTEST_GROWING)">
                     {{ positionLabels[RecommendPosition.FASTEST_GROWING] }}
                   </SelectItem>
-                  <SelectItem :value="RecommendPosition.TESTING_NEW_PRODUCTS">
+                  <SelectItem :value="String(RecommendPosition.TESTING_NEW_PRODUCTS)">
                     {{ positionLabels[RecommendPosition.TESTING_NEW_PRODUCTS] }}
                   </SelectItem>
                 </SelectContent>
@@ -293,7 +294,7 @@ const handleComicSearch = debounce((value: string | null | undefined) => {
               <Input
                 v-model="comicSearchKeyword"
                 placeholder="Search comics by name..."
-                @input="(e) => handleComicSearch((e.target as HTMLInputElement).value)"
+                @input="(e: Event) => handleComicSearch((e.target as HTMLInputElement).value)"
                 class="flex-1"
               />
             </div>

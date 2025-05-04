@@ -27,10 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  DateFormatter,
-  getLocalTimeZone,
-} from "@internationalized/date";
+import { DateFormatter, getLocalTimeZone } from "@internationalized/date";
 import { CalendarIcon } from "lucide-vue-next";
 const df = new DateFormatter("en-US", {
   dateStyle: "long",
@@ -72,23 +69,37 @@ const handleFileChange = (event: Event) => {
     previewUrl.value = URL.createObjectURL(target.files[0]);
   }
 };
-
 </script>
 <template>
-  <Dialog :open="chapteritemStore.updateDialogIsOpen" @update:open="
+  <Dialog
+    :open="chapteritemStore.updateDialogIsOpen"
+    @update:open="
     (value: boolean) => {
       chapteritemStore.updateDialogIsOpen = value;
     }
-  ">
+  "
+  >
     <DialogContent>
       <DialogHeader>
         <DialogTitle>Update Chapter Item</DialogTitle>
       </DialogHeader>
-      <img v-if="!previewUrl" :src="chapteritemStore.selectedData.image"
-        class="max-w-[200px] justify-self-center h-auto" />
-      <img v-if="previewUrl" :src="previewUrl" class="max-w-[200px] justify-self-center h-auto" />
-      <Input type="file" placeholder="cover" class="justify-self-center w-[50%]" @change="handleFileChange"
-        accept="image/*" />
+      <img
+        v-if="!previewUrl"
+        :src="chapteritemStore.selectedData.image"
+        class="max-w-[200px] justify-self-center h-auto"
+      />
+      <img
+        v-if="previewUrl"
+        :src="previewUrl"
+        class="max-w-[200px] justify-self-center h-auto"
+      />
+      <Input
+        type="file"
+        placeholder="cover"
+        class="justify-self-center w-[50%]"
+        @change="handleFileChange"
+        accept="image/*"
+      />
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Page</Label>
         <Input v-model="chapteritemStore.selectedData.page" type="number" />
@@ -97,56 +108,77 @@ const handleFileChange = (event: Event) => {
         <Label class="text-center w-1/4">Active From</Label>
         <Popover>
           <PopoverTrigger as-child>
-            <Button variant="outline" :class="cn(
-              'w-[280px] justify-start text-left font-normal',
-              !chapteritemStore.selectedData.active_from && 'text-muted-foreground'
-            )
-              ">
+            <Button
+              variant="outline"
+              :class="
+                cn(
+                  'w-[280px] justify-start text-left font-normal',
+                  !chapteritemStore.selectedData.active_from &&
+                    'text-muted-foreground'
+                )
+              "
+            >
               <CalendarIcon class="mr-2 h-4 w-4" />
               {{
                 chapteritemStore.selectedData.active_from
-                  ? df.format(chapteritemStore.selectedData.active_from.toDate(getLocalTimeZone()))
+                  ? df.format(
+                      chapteritemStore.selectedData.active_from.toDate(
+                        getLocalTimeZone()
+                      )
+                    )
                   : "Pick a date"
               }}
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="chapteritemStore.selectedData.active_from" initial-focus />
+            <Calendar
+              :v-model="chapteritemStore.selectedData.active_from"
+              initial-focus
+            />
           </PopoverContent>
         </Popover>
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
-        <Select v-model="chapteritem.active">
+        <Select :v-model="chapteritem.active">
           <SelectTrigger>
             <SelectValue :value="chapteritem.active" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
       <DialogFooter class="sm:justify-end">
-        <Button variant="secondary" @click="chapteritemStore.updateDialogIsOpen = false">
+        <Button
+          variant="secondary"
+          @click="chapteritemStore.updateDialogIsOpen = false"
+        >
           Close
         </Button>
-        <Button :disabled="isLoading" @click="
-          async () => {
-            isLoading = true;
-            chapteritem.image = await chapteritemStore.uploadImage(image);
-            chapteritem.id = chapteritemStore.selectedData.id;
-            chapteritem.page = chapteritemStore.selectedData.page;
-            chapteritem.active_from = chapteritemStore.selectedData.active_from?.toDate(getLocalTimeZone()).toISOString();
-            await chapteritemStore.updateChapterItem(chapteritem);
-            chapteritemStore.getChapterItemsData();
-            isLoading = false;
-            chapteritemStore.updateDialogIsOpen = false;
-            resetChapterItem();
-          }
-        ">
+        <Button
+          :disabled="isLoading"
+          @click="
+            async () => {
+              isLoading = true;
+              chapteritem.image = await chapteritemStore.uploadImage(image);
+              chapteritem.id = chapteritemStore.selectedData.id;
+              chapteritem.page = chapteritemStore.selectedData.page;
+              const data = chapteritemStore.selectedData.active_from
+                ?.toDate(getLocalTimeZone())
+                .toISOString();
+              chapteritem.active_from = data ? data : null;
+              await chapteritemStore.updateChapterItem(chapteritem);
+              chapteritemStore.getChapterItemsData();
+              isLoading = false;
+              chapteritemStore.updateDialogIsOpen = false;
+              resetChapterItem();
+            }
+          "
+        >
           <img v-if="isLoading" :src="loadingImg" size="icon" />Update
         </Button>
       </DialogFooter>

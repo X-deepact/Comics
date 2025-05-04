@@ -134,14 +134,14 @@ const checkForm = () => {
       </div>
       <div class="flex items-center gap-4">
         <Label class="text-center w-1/4">Active</Label>
-        <Select v-model="chapteritem.active">
+        <Select :v-model="chapteritem.active">
           <SelectTrigger>
             <SelectValue :value="chapteritem.active" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem :value="true">On</SelectItem>
-              <SelectItem :value="false">Off</SelectItem>
+              <SelectItem value="true">On</SelectItem>
+              <SelectItem value="false">Off</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

@@ -90,7 +90,6 @@
 </template>
 
 <script setup lang="ts">
-import { Drama } from "@/stores/dramaStore";
 import { formatDate, getTimeAgo, langConverter } from "@/lib/utils";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
@@ -99,7 +98,7 @@ import { Trash2, Pencil, FilePenLine } from "lucide-vue-next";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 defineProps<{
-  data: Drama;
+  data: any;
 }>();
 defineEmits(["clickDelete", "clickUpdate", "clickAction", "clickActive"]);
 const formatDateSafe = (
